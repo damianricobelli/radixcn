@@ -1,0 +1,56 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/.output",
+      "!apps/web/src/routeTree.gen.ts",
+      "!apps/web/src/lib/theme-generator/custom-palette-generator.ts"
+    ]
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "formatter": {
+    "enabled": false
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "noLabelWithoutControl": "off",
+        "noRedundantRoles": "off",
+        "useAriaPropsForRole": "off",
+        "useFocusableInteractive": "off",
+        "useKeyWithClickEvents": "off",
+        "useSemanticElements": "off"
+      },
+      "correctness": {
+        "useJsxKeyInIterable": "off"
+      },
+      "performance": {
+        "noAccumulatingSpread": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "style": {
+        "useImportType": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noDocumentCookie": "off",
+        "noDoubleEquals": "off"
+      }
+    }
+  }
+}

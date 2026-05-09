@@ -5,15 +5,14 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
+    "lint": "biome lint .",
     "format": "turbo format",
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.17",
-    "typescript": "5.9.3"
+    "@biomejs/biome": "^2.4.14",
+    "turbo": "^2.9.10",
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {

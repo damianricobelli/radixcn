@@ -1,4 +1,5 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import type { ReactNode } from "react"
 
 import appCss from "@workspace/ui/globals.css?url"
 
@@ -32,7 +33,11 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+type RootDocumentProps = {
+  children: ReactNode
+}
+
+function RootDocument({ children }: RootDocumentProps) {
   return (
     <html lang="en">
       <head>
