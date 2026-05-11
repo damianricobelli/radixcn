@@ -60,6 +60,10 @@ export function getRadiusLabel(radius: RadiusScale) {
     return "None";
   }
 
+  if (radius === "extra-large") {
+    return "Extra large";
+  }
+
   return `${radius.slice(0, 1).toUpperCase()}${radius.slice(1)}`;
 }
 

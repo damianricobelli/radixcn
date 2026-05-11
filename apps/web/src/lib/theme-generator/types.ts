@@ -10,7 +10,13 @@ export type AccentStrategy = "base" | "primary";
 
 export type StateName = "success" | "warning" | "info";
 
-export type RadiusScale = "default" | "none" | "small" | "medium" | "large";
+export type RadiusScale =
+  | "default"
+  | "none"
+  | "small"
+  | "medium"
+  | "large"
+  | "extra-large";
 
 export type GrainyBackgroundScope = "app" | "class";
 

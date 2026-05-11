@@ -1318,21 +1318,57 @@ function HexInput(props: FormatInputProps) {
     context,
     withoutAlpha,
     className,
+    onBlur,
+    onFocus,
     ...inputProps
   } = props;
 
   const hexValue = rgbToHex(color);
+  const [draftValue, setDraftValue] = React.useState(hexValue);
+  const [isEditing, setIsEditing] = React.useState(false);
   const alphaValue = Math.round((color?.a ?? 1) * 100);
+
+  React.useEffect(() => {
+    if (!isEditing) {
+      setDraftValue(hexValue);
+    }
+  }, [hexValue, isEditing]);
 
   const onHexChange = React.useCallback(
     (event: React.ChangeEvent<InputElement>) => {
       const value = event.target.value;
+      setDraftValue(value);
+
       const parsedColor = parseColorString(value);
       if (parsedColor) {
         onColorChange({ ...parsedColor, a: color?.a ?? 1 });
       }
     },
     [color, onColorChange],
+  );
+
+  const onHexFocus = React.useCallback(
+    (event: React.FocusEvent<InputElement>) => {
+      setIsEditing(true);
+      onFocus?.(event);
+    },
+    [onFocus],
+  );
+
+  const onHexBlur = React.useCallback(
+    (event: React.FocusEvent<InputElement>) => {
+      setIsEditing(false);
+
+      const parsedColor = parseColorString(event.target.value);
+      setDraftValue(
+        parsedColor
+          ? rgbToHex({ ...parsedColor, a: color?.a ?? 1 })
+          : hexValue,
+      );
+
+      onBlur?.(event);
+    },
+    [color, hexValue, onBlur],
   );
 
   const onAlphaChange = React.useCallback(
@@ -1354,8 +1390,10 @@ function HexInput(props: FormatInputProps) {
           {...inputProps}
           placeholder="#000000"
           className="font-mono"
-          value={hexValue}
+          value={draftValue}
           onChange={onHexChange}
+          onFocus={onHexFocus}
+          onBlur={onHexBlur}
           disabled={context.disabled}
         />
       </InputGroup>
@@ -1370,8 +1408,10 @@ function HexInput(props: FormatInputProps) {
         {...inputProps}
         placeholder="#000000"
         className="flex-1 font-mono"
-        value={hexValue}
+        value={draftValue}
         onChange={onHexChange}
+        onFocus={onHexFocus}
+        onBlur={onHexBlur}
         disabled={context.disabled}
       />
       <InputGroupItem

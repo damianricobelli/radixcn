@@ -35,6 +35,7 @@ export const RADIUS_OPTIONS = [
   "small",
   "medium",
   "large",
+  "extra-large",
 ] as const satisfies Array<RadiusScale>;
 
 const GRAINY_BACKGROUND_IMAGE =
@@ -46,6 +47,7 @@ const RADIUS_VALUES = {
   small: "0.3rem",
   medium: "0.5rem",
   large: "0.75rem",
+  "extra-large": "0.875rem",
 } as const satisfies Record<RadiusScale, string>;
 
 export const DEFAULT_TOKEN_BRIDGE_MAPPINGS = {
@@ -293,8 +295,7 @@ const TOKEN_REASONS: Record<SemanticToken, string> = {
     "Chromatic primary surfaces use step 9; neutral primary surfaces use step 12 so dark mode inverts to a light solid.",
   "primary-foreground":
     "Neutral primary solids use step 1; chromatic solids follow Radix step 9 foreground guidance.",
-  secondary:
-    "Step 3 matches shadcn's neutral secondary background semantics.",
+  secondary: "Step 3 matches shadcn's neutral secondary background semantics.",
   "secondary-foreground": "Secondary surfaces still need high-emphasis text.",
   muted: "Step 3 intentionally matches secondary, with lower-emphasis text.",
   "muted-foreground": "Step 11 is Radix's low-emphasis text color.",
@@ -688,7 +689,9 @@ function isCustomScale(scaleName: ScaleName): scaleName is CustomScaleName {
   return scaleName.startsWith("custom-");
 }
 
-function isLiteralSource(sourceValue: TokenSource): sourceValue is LiteralSource {
+function isLiteralSource(
+  sourceValue: TokenSource,
+): sourceValue is LiteralSource {
   return "value" in sourceValue;
 }
 
@@ -764,10 +767,7 @@ function getChartSources(selection: ThemeSelection): Array<Source> {
   );
 }
 
-function getSemanticSources(
-  selection: ThemeSelection,
-  mode: "light" | "dark",
-) {
+function getSemanticSources(selection: ThemeSelection, mode: "light" | "dark") {
   const accentScale = getAccentScale(selection);
   const chartSources = getChartSources(selection);
   const panelSource =
@@ -1028,10 +1028,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function writeGrainyBackgroundCss(
-  selector: string,
-  opacity: number,
-) {
+export function writeGrainyBackgroundCss(selector: string, opacity: number) {
   return [
     `${selector}::before {`,
     '  content: "";',
@@ -1290,10 +1287,7 @@ function writeCss(
       ? [
           "",
           indentCss(
-            writeGrainyBackgroundCss(
-              "body",
-              selection.grainyBackgroundOpacity,
-            ),
+            writeGrainyBackgroundCss("body", selection.grainyBackgroundOpacity),
             2,
           ),
         ]
