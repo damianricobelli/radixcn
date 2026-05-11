@@ -1,85 +1,170 @@
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
 import { RetroGrid } from "@workspace/ui/components/retro-grid";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@workspace/ui/components/table";
 import { cn } from "@workspace/ui/lib/utils";
-import { ArrowRight, Braces, Layers3, Palette, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Braces,
+  ExternalLink,
+  Layers3,
+  Palette,
+  Sparkles,
+} from "lucide-react";
 import { motion } from "motion/react";
+import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
+import {
+  DEFAULT_THEME_SELECTION,
+  getGeneratedCustomPalettePreview,
+} from "@/lib/theme-generator/generator";
+import { getRadixHexScale } from "@/lib/theme-generator/radix";
+import type { RadixScaleName } from "@/lib/theme-generator/types";
+import { RADIX_STEPS } from "@/lib/theme-generator/types";
 
-const colorDecisionRows = [
-  ["base", "Slate", "canvas, text, borders"],
-  ["brand", "Indigo", "primary, ring, focus"],
-  ["accent", "Jade", "hover, active, subtle UI"],
-  ["status", "Tomato / Amber", "destructive, warning"],
-  ["charts", "Multicolor", "chart-1 through chart-5"],
-];
+const RADIX_COLORS_URL = "https://www.radix-ui.com/colors";
+const RADIX_COLORS_SCALES_URL =
+  "https://www.radix-ui.com/colors/docs/palette-composition/scales";
+const RADIX_COLORS_CUSTOM_PALETTE_URL =
+  "https://www.radix-ui.com/colors/custom";
+const RADIX_COLORS_SCALE_USAGE_URL =
+  "https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale";
+const RADIX_COLORS_ALIASING_URL =
+  "https://www.radix-ui.com/colors/docs/overview/aliasing";
 
-const paletteSwatches = [
+const demoRadixScales = [
   {
-    name: "Slate",
-    colors: ["#f8fafc", "#e2e8f0", "#94a3b8", "#475569", "#0f172a"],
+    name: "slate",
+    label: "Slate",
   },
   {
-    name: "Indigo",
-    colors: ["#eef2ff", "#c7d2fe", "#818cf8", "#4f46e5", "#312e81"],
+    name: "indigo",
+    label: "Indigo",
   },
   {
-    name: "Jade",
-    colors: ["#ecfdf5", "#a7f3d0", "#34d399", "#059669", "#064e3b"],
+    name: "jade",
+    label: "Jade",
   },
-];
+  {
+    name: "tomato",
+    label: "Tomato",
+  },
+] satisfies Array<{ name: RadixScaleName; label: string }>;
 
-const bridgeRows = [
-  ["--background", "var(--surface-canvas)", "surface"],
-  ["--foreground", "var(--content-default)", "content"],
-  ["--primary", "var(--interactive-primary-default)", "interactive"],
-  ["--primary-foreground", "var(--interactive-primary-foreground)", "content"],
-  ["--ring", "var(--border-focus)", "focus"],
-  ["--font-sans", "var(--typography-font-body)", "typography"],
-];
+type PaletteDemoMode = "radix" | "custom";
+
+const bridgeDemoTokens = [
+  {
+    shadcn: "--primary",
+    product: "--interactive-primary-default",
+    value: "oklch(0.56 0.19 263)",
+    group: "interactive",
+    role: "Main action",
+    example: "Button background",
+    description:
+      "Primary CTAs keep their shadcn name and inherit your brand action token.",
+  },
+  {
+    shadcn: "--background",
+    product: "--surface-canvas",
+    value: "oklch(0.99 0.01 260)",
+    group: "surface",
+    role: "App canvas",
+    example: "Page background",
+    description:
+      "Page surfaces can move with your product system without renaming components.",
+  },
+  {
+    shadcn: "--ring",
+    product: "--border-focus",
+    value: "oklch(0.67 0.16 263)",
+    group: "focus",
+    role: "Keyboard focus",
+    example: "Focus outline",
+    description:
+      "Focus states stay accessible while resolving to the same focus token everywhere.",
+  },
+  {
+    shadcn: "--font-sans",
+    product: "--typography-font-body",
+    value: "Inter, sans-serif",
+    group: "type",
+    role: "Body font",
+    example: "Component text",
+    description:
+      "Typography tokens can travel through the same bridge as color variables.",
+  },
+] as const;
+
+type BridgeDemoToken = (typeof bridgeDemoTokens)[number]["shadcn"];
 
 const mappingRows = [
-  ["background", "App canvas", "base · step 1"],
-  ["foreground", "Primary text", "base · step 12"],
-  ["card / popover", "Raised surfaces", "base · step 2"],
-  ["muted", "Quiet surface", "base · step 2"],
-  ["muted-foreground", "Supporting text", "base · step 11"],
-  ["primary", "Main action", "brand · step 9"],
-  ["primary-foreground", "Text on action", "solid foreground rule"],
-  ["border", "Default divider", "base · step 6"],
-  ["input", "Editable field edge", "base · step 7"],
-  ["ring", "Visible focus", "brand · step 8"],
-  ["sidebar", "Navigation surface", "base · step 2"],
-  ["sidebar-foreground", "Sidebar text", "base · step 12"],
-  ["sidebar-primary", "Sidebar main action", "brand · step 9"],
-  [
-    "sidebar-primary-foreground",
-    "Text on sidebar action",
-    "solid foreground rule",
-  ],
-  ["sidebar-accent", "Sidebar hover / active", "accent · step 3"],
-  ["sidebar-accent-foreground", "Text on sidebar accent", "accent · step 12"],
-  ["sidebar-border", "Sidebar dividers", "base · step 6"],
-  ["sidebar-ring", "Sidebar focus ring", "brand · step 8"],
-];
+  ["background", "base · step 1", "App canvas"],
+  ["foreground", "base · step 12", "Primary text"],
+  ["card / popover", "base · step 2", "Raised surfaces"],
+  ["muted", "base · step 2", "Quiet surfaces"],
+  ["muted-foreground", "base · step 11", "Supporting text"],
+  ["primary", "brand · step 9", "Main action"],
+  ["primary-foreground", "solid foreground", "Text on action"],
+  ["border", "base · step 6", "Default divider"],
+  ["input", "base · step 7", "Editable field edge"],
+  ["ring", "brand · step 8", "Visible focus"],
+  ["sidebar", "base · step 2", "Navigation surface"],
+  ["sidebar-foreground", "base · step 12", "Sidebar text"],
+  ["sidebar-primary", "brand · step 9", "Sidebar action"],
+  ["sidebar-primary-foreground", "solid foreground", "Text on action"],
+  ["sidebar-accent", "accent · step 3", "Hover / active"],
+  ["sidebar-accent-foreground", "accent · step 12", "Text on accent"],
+  ["sidebar-border", "base · step 6", "Sidebar dividers"],
+  ["sidebar-ring", "brand · step 8", "Sidebar focus"],
+] as const;
 
 const fadeIn = {
   hidden: { opacity: 0, y: 18 },
   visible: { opacity: 1, y: 0 },
 };
 
+const featureReveal = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0 },
+};
+
+function isFullHexColor(value: string) {
+  return /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
 export function LandingPage() {
+  const [paletteDemoMode, setPaletteDemoMode] =
+    useState<PaletteDemoMode>("radix");
+  const [selectedScale, setSelectedScale] = useState<RadixScaleName>("indigo");
+  const [customColor, setCustomColor] = useState("#2563eb");
+  const [selectedBridgeToken, setSelectedBridgeToken] =
+    useState<BridgeDemoToken>("--primary");
+  const paletteDemo = useMemo(() => {
+    if (paletteDemoMode === "custom") {
+      return getGeneratedCustomPalettePreview({
+        selection: DEFAULT_THEME_SELECTION,
+        color: customColor,
+        role: "accent",
+      });
+    }
+
+    return getRadixHexScale(selectedScale);
+  }, [customColor, paletteDemoMode, selectedScale]);
+  const previewColor = paletteDemo?.light[9] ?? customColor;
+  const previewSurface = paletteDemo?.light[2] ?? "var(--muted)";
+  const previewBorder = paletteDemo?.light[6] ?? "var(--border)";
+  const previewText = paletteDemo?.light[12] ?? "var(--foreground)";
+  const previewMutedText = paletteDemo?.light[11] ?? "var(--muted-foreground)";
+  const colorInputValue = isFullHexColor(customColor) ? customColor : "#2563eb";
+  const activeBridgeToken =
+    bridgeDemoTokens.find((token) => token.shadcn === selectedBridgeToken) ??
+    bridgeDemoTokens[0];
+
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <section className="relative isolate overflow-hidden border-b">
+      <section className="relative isolate overflow-hidden">
         <RetroGrid
           aria-hidden="true"
           angle={12}
@@ -104,14 +189,36 @@ export function LandingPage() {
               className="text-5xl font-semibold tracking-normal text-balance sm:text-6xl lg:text-7xl"
               variants={fadeIn}
             >
-              Build Shadcn themes from a real color scale.
+              Build Shadcn themes from a{" "}
+              <a
+                className="relative inline-block text-foreground transition-colors hover:text-foreground"
+                href={RADIX_COLORS_SCALES_URL}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="relative z-10">real color scale</span>
+                <motion.span
+                  aria-hidden="true"
+                  className="-bottom-1.5 absolute right-0 left-0 h-1 origin-left -rotate-1 rounded-full bg-orange-500"
+                  transition={{ delay: 0.45, duration: 0.45, ease: "easeOut" }}
+                  variants={{
+                    hidden: { scaleX: 0 },
+                    visible: { scaleX: 1 },
+                  }}
+                />
+              </a>
+              .
             </motion.h1>
             <motion.p
               className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl"
               variants={fadeIn}
             >
-              Choose the Radix Color palette, keep the Shadcn API. Same
-              components, better color decisions behind them.
+              Choose the{" "}
+              <ExternalTextLink href={RADIX_COLORS_URL}>
+                Radix Color palette
+              </ExternalTextLink>
+              , keep the Shadcn API. Same components, better color decisions
+              behind them.
             </motion.p>
             <motion.div
               className="mt-8 flex flex-col gap-3 sm:flex-row"
@@ -129,17 +236,27 @@ export function LandingPage() {
                   buttonVariants({ variant: "outline", size: "lg" }),
                   "w-fit bg-background/80 backdrop-blur",
                 )}
-                href="#why"
+                href="https://github.com/damianricobelli/radixcn"
+                rel="noreferrer"
+                target="_blank"
               >
-                Why it exists
+                GitHub
+                <ExternalLink aria-hidden="true" />
               </a>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      <section className="border-y bg-muted/20" id="why">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <motion.section
+        id="why"
+        initial="hidden"
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        variants={featureReveal}
+        viewport={{ once: true, amount: 0.35 }}
+        whileInView="visible"
+      >
+        <div className="mx-auto grid max-w-7xl gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-28">
           <div className="self-center">
             <Badge variant="outline">Radix Color scales</Badge>
             <h2 className="mt-4 text-3xl font-semibold tracking-normal text-balance sm:text-4xl">
@@ -147,14 +264,21 @@ export function LandingPage() {
             </h2>
             <div className="mt-5 space-y-4 text-base leading-7 text-muted-foreground">
               <p>
-                Pick Radix families for neutral surfaces, brand actions,
-                accents, states, and charts. RadixCN translates those 1-12 steps
-                into the shadcn token contract.
+                Pick{" "}
+                <ExternalTextLink href={RADIX_COLORS_SCALES_URL}>
+                  Radix families
+                </ExternalTextLink>{" "}
+                for neutral surfaces, brand actions, accents, states, and
+                charts. RadixCN translates those 1-12 steps into the shadcn
+                token contract.
               </p>
               <p>
-                Custom palettes are powered by the Radix Colors algorithm: one
-                color becomes a full scale, then each semantic token gets a
-                deliberate step.
+                Custom palettes are inspired by{" "}
+                <ExternalTextLink href={RADIX_COLORS_CUSTOM_PALETTE_URL}>
+                  Radix Colors custom palette
+                </ExternalTextLink>
+                : one color becomes a full scale, then each semantic token gets
+                a deliberate step.
               </p>
             </div>
           </div>
@@ -166,48 +290,124 @@ export function LandingPage() {
                   aria-hidden="true"
                   className="size-4 text-muted-foreground"
                 />
-                <span className="text-sm font-medium">Color decisions</span>
+                <span className="text-sm font-medium">Palette demo</span>
               </div>
               <span className="rounded-sm border bg-background px-2 py-1 font-mono text-[0.7rem] text-muted-foreground">
-                example
+                12 steps
               </span>
             </div>
-            <div className="divide-y">
-              {colorDecisionRows.map(([role, scale, usage]) => (
-                <div
-                  className="grid gap-2 px-4 py-3 text-sm sm:grid-cols-[0.45fr_0.45fr_1fr]"
-                  key={role}
-                >
-                  <span className="font-mono text-foreground">{role}</span>
-                  <span className="font-medium text-foreground">{scale}</span>
-                  <span className="text-muted-foreground">{usage}</span>
+            <div className="space-y-5 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="inline-flex h-8 w-fit rounded-md bg-muted p-0.75">
+                  {(["radix", "custom"] as const).map((mode) => (
+                    <button
+                      aria-pressed={paletteDemoMode === mode}
+                      className={cn(
+                        "rounded-sm px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        paletteDemoMode === mode &&
+                          "bg-background text-foreground shadow-sm",
+                      )}
+                      key={mode}
+                      onClick={() => setPaletteDemoMode(mode)}
+                      type="button"
+                    >
+                      {mode === "radix" ? "Radix" : "Custom"}
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="grid gap-4 border-t bg-muted/20 p-4 sm:grid-cols-3">
-              {paletteSwatches.map(({ name, colors }) => (
-                <div className="min-w-0" key={name}>
-                  <div className="mb-2 text-xs font-medium text-muted-foreground">
-                    {name}
+
+                {paletteDemoMode === "custom" ? (
+                  <div className="flex w-full items-center gap-2 sm:w-44">
+                    <input
+                      aria-label="Custom palette color"
+                      className="size-8 shrink-0 cursor-pointer rounded-md border bg-background p-1"
+                      onChange={(event) => setCustomColor(event.target.value)}
+                      type="color"
+                      value={colorInputValue}
+                    />
+                    <Input
+                      aria-label="Custom hex color"
+                      className="h-8 font-mono text-xs"
+                      onChange={(event) => setCustomColor(event.target.value)}
+                      value={customColor}
+                    />
                   </div>
-                  <div className="grid grid-cols-5 overflow-hidden rounded-sm border">
-                    {colors.map((color) => (
-                      <span
-                        aria-hidden="true"
-                        className="h-8"
-                        key={color}
-                        style={{ backgroundColor: color }}
-                      />
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {demoRadixScales.map((scale) => (
+                      <button
+                        aria-pressed={selectedScale === scale.name}
+                        className={cn(
+                          "rounded-sm border px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          selectedScale === scale.name &&
+                            "border-foreground/20 bg-muted text-foreground",
+                        )}
+                        key={scale.name}
+                        onClick={() => setSelectedScale(scale.name)}
+                        type="button"
+                      >
+                        {scale.label}
+                      </button>
                     ))}
                   </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <PaletteScaleRow
+                  colors={paletteDemo?.light}
+                  label="Light"
+                  selectedStep={9}
+                />
+                <PaletteScaleRow
+                  colors={paletteDemo?.dark}
+                  label="Dark"
+                  selectedStep={9}
+                />
+              </div>
+
+              <div
+                className="grid gap-3 rounded-md border p-3 sm:grid-cols-[1fr_auto]"
+                style={{
+                  backgroundColor: previewSurface,
+                  borderColor: previewBorder,
+                  color: previewText,
+                }}
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold">Primary action</div>
+                  <div
+                    className="mt-1 text-xs"
+                    style={{ color: previewMutedText }}
+                  >
+                    <ExternalTextLink href={RADIX_COLORS_SCALE_USAGE_URL}>
+                      Step 9
+                    </ExternalTextLink>{" "}
+                    powers the solid color while the scale keeps hover, borders,
+                    and quiet surfaces related.
+                  </div>
                 </div>
-              ))}
+                <button
+                  className="h-8 rounded-md px-3 text-sm font-medium text-white shadow-sm transition-transform active:translate-y-px"
+                  style={{ backgroundColor: previewColor }}
+                  type="button"
+                >
+                  Preview
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <motion.section
+        className="mx-auto grid max-w-7xl gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-28"
+        initial="hidden"
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        variants={featureReveal}
+        viewport={{ once: true, amount: 0.35 }}
+        whileInView="visible"
+      >
         <div className="self-center">
           <Badge variant="outline">Token Bridge</Badge>
           <h2 className="mt-4 text-3xl font-semibold tracking-normal text-balance sm:text-4xl">
@@ -221,18 +421,16 @@ export function LandingPage() {
               <span className="font-mono text-foreground"> --background</span>,
               <span className="font-mono text-foreground"> --ring</span>, and
               <span className="font-mono text-foreground"> --font-sans</span>,
-              while those variables resolve to your product tokens.
-            </p>
-            <p>
-              It keeps RadixCN as the palette studio without forcing your app to
-              mix naming systems. Map shadcn tokens to surface, content,
-              interactive, structure, status, and typography tokens you already
-              use.
+              while those variables resolve to{" "}
+              <ExternalTextLink href={RADIX_COLORS_ALIASING_URL}>
+                semantic aliases
+              </ExternalTextLink>{" "}
+              in your product tokens.
             </p>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-md border bg-background shadow-sm">
+        <div className="h-fit overflow-hidden rounded-md border bg-background shadow-sm lg:self-center">
           <div className="flex items-center justify-between border-b bg-muted/35 px-4 py-3">
             <div className="flex items-center gap-2">
               <Braces
@@ -245,63 +443,147 @@ export function LandingPage() {
               :root
             </span>
           </div>
-          <div className="divide-y">
-            {bridgeRows.map(([token, value, group]) => (
+          <div className="space-y-5 p-4">
+            <div className="flex flex-wrap gap-1.5">
+              {bridgeDemoTokens.map((token) => (
+                <button
+                  aria-pressed={selectedBridgeToken === token.shadcn}
+                  className={cn(
+                    "rounded-sm border px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    selectedBridgeToken === token.shadcn &&
+                      "border-foreground/20 bg-muted text-foreground",
+                  )}
+                  key={token.shadcn}
+                  onClick={() => setSelectedBridgeToken(token.shadcn)}
+                  type="button"
+                >
+                  {token.shadcn}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid gap-3 rounded-md border bg-muted/20 p-3">
+              <div className="grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+                <BridgeTokenStep
+                  label="shadcn token"
+                  value={activeBridgeToken.shadcn}
+                />
+                <div className="hidden justify-center text-muted-foreground sm:flex">
+                  <ArrowRight aria-hidden="true" className="size-4" />
+                </div>
+                <BridgeTokenStep
+                  label="your token"
+                  value={activeBridgeToken.product}
+                />
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {activeBridgeToken.example} resolves through{" "}
+                <span className="font-mono text-foreground">
+                  {activeBridgeToken.group}
+                </span>
+                .
+              </div>
+            </div>
+
+            <div className="grid gap-3 rounded-md border bg-background p-3 sm:grid-cols-[1fr_auto]">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold">
+                  {activeBridgeToken.role}
+                </div>
+                <div className="mt-1 font-mono text-xs text-muted-foreground">
+                  {activeBridgeToken.shadcn}: var({activeBridgeToken.product})
+                </div>
+              </div>
+              <button
+                className={cn(
+                  "h-8 rounded-md px-3 text-sm font-medium transition-all active:translate-y-px",
+                  selectedBridgeToken === "--ring"
+                    ? "border bg-background text-foreground ring-3 ring-ring/50"
+                    : "bg-primary text-primary-foreground",
+                  selectedBridgeToken === "--background" &&
+                    "border bg-muted text-foreground",
+                )}
+                style={
+                  selectedBridgeToken === "--font-sans"
+                    ? { fontFamily: "var(--font-sans)" }
+                    : undefined
+                }
+                type="button"
+              >
+                Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      <motion.section
+        className="mx-auto grid max-w-7xl gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-28"
+        initial="hidden"
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        variants={featureReveal}
+        viewport={{ once: true, amount: 0.35 }}
+        whileInView="visible"
+      >
+        <div className="self-center">
+          <Badge variant="outline">Token map</Badge>
+          <h2 className="mt-4 text-3xl font-semibold tracking-normal text-balance sm:text-4xl">
+            Every shadcn token gets a deliberate{" "}
+            <ExternalTextLink href={RADIX_COLORS_SCALE_USAGE_URL}>
+              Radix step
+            </ExternalTextLink>
+            .
+          </h2>
+          <div className="mt-5 space-y-4 text-base leading-7 text-muted-foreground">
+            <p>
+              RadixCN preserves the API your components already use, then maps
+              each token to the scale step that fits its role.
+            </p>
+            <p>
+              The result is predictable CSS: surfaces stay quiet, text stays
+              readable, actions stay prominent, and focus states stay visible.
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-md border bg-background shadow-sm">
+          <div className="flex items-center justify-between border-b bg-muted/35 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Layers3
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
+              <span className="text-sm font-medium">Mapping preview</span>
+            </div>
+            <span className="rounded-sm border bg-background px-2 py-1 font-mono text-[0.7rem] text-muted-foreground">
+              {mappingRows.length} tokens
+            </span>
+          </div>
+          <div className="max-h-[22rem] divide-y overflow-y-auto">
+            {mappingRows.map(([token, source, role]) => (
               <div
-                className="grid gap-2 px-4 py-3 text-sm sm:grid-cols-[0.75fr_1.25fr_0.5fr]"
+                className="grid gap-2 px-4 py-3 text-sm sm:grid-cols-[0.75fr_0.75fr_1fr] sm:items-center"
                 key={token}
               >
                 <span className="font-mono text-foreground">{token}</span>
-                <span className="font-mono text-muted-foreground">{value}</span>
-                <span className="text-muted-foreground">{group}</span>
+                <span className="w-fit rounded-sm border bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
+                  {source}
+                </span>
+                <span className="text-muted-foreground">{role}</span>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-          <div>
-            <Badge variant="outline">Mapping table</Badge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-normal text-balance">
-              How shadcn tokens map to Radix steps
-            </h2>
-          </div>
-          <p className="max-w-xl text-base leading-7 text-muted-foreground lg:justify-self-end">
-            RadixCN keeps the full shadcn token contract you already know. Then
-            it decides which Radix step should power each token across
-            backgrounds, text, borders, accents, rings, sidebars, and charts.
-          </p>
-        </div>
-        <div className="mt-5 overflow-hidden rounded-md border bg-background shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>shadcn token</TableHead>
-                <TableHead>UI role</TableHead>
-                <TableHead>Radix source</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mappingRows.map(([token, role, source]) => (
-                <TableRow key={token}>
-                  <TableCell className="font-mono text-xs">{token}</TableCell>
-                  <TableCell>{role}</TableCell>
-                  <TableCell>
-                    <span className="border bg-muted px-2 py-1 font-mono text-xs">
-                      {source}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-
-      <section className="border-t">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+      <motion.section
+        initial="hidden"
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        variants={featureReveal}
+        viewport={{ once: true, amount: 0.45 }}
+        whileInView="visible"
+      >
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-24 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div>
             <div className="mb-4 flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Layers3 aria-hidden="true" className="size-4" />
@@ -311,8 +593,12 @@ export function LandingPage() {
               Ready to generate a theme?
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Pick a Radix color family or generate a custom 1-12 palette, then
-              copy fixed shadcn CSS or bridge it to your system.
+              Pick a{" "}
+              <ExternalTextLink href={RADIX_COLORS_SCALES_URL}>
+                Radix color family
+              </ExternalTextLink>{" "}
+              or generate a custom 1-12 palette, then copy fixed shadcn CSS or
+              bridge it to your system.
             </p>
           </div>
           <Link className={buttonVariants()} to="/create">
@@ -320,7 +606,74 @@ export function LandingPage() {
             <Sparkles aria-hidden="true" />
           </Link>
         </div>
-      </section>
+      </motion.section>
     </main>
   );
 }
+
+function PaletteScaleRow({
+  colors,
+  label,
+  selectedStep,
+}: PaletteScaleRowProps) {
+  return (
+    <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-2">
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="grid min-w-0 grid-cols-12 overflow-hidden rounded-sm border">
+        {RADIX_STEPS.map((step) => (
+          <span
+            aria-label={`${label} step ${step}`}
+            className={cn(
+              "h-8 min-w-0 border-border border-r last:border-r-0",
+              step === selectedStep && "ring-2 ring-foreground/50 ring-inset",
+            )}
+            key={step}
+            role="img"
+            style={{ backgroundColor: colors?.[step] ?? "var(--muted)" }}
+            title={`${label} ${step}: ${colors?.[step] ?? "Unavailable"}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type PaletteScaleRowProps = {
+  colors?: Record<(typeof RADIX_STEPS)[number], string>;
+  label: string;
+  selectedStep: (typeof RADIX_STEPS)[number];
+};
+
+function BridgeTokenStep({ label, value }: BridgeTokenStepProps) {
+  return (
+    <div className="min-w-0 rounded-sm border bg-background p-3">
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-1 break-all font-mono text-sm text-foreground">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+type BridgeTokenStepProps = {
+  label: string;
+  value: string;
+};
+
+function ExternalTextLink({ children, href }: ExternalTextLinkProps) {
+  return (
+    <a
+      className="font-medium text-foreground underline decoration-border decoration-1 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
+      href={href}
+      rel="noreferrer"
+      target="_blank"
+    >
+      {children}
+    </a>
+  );
+}
+
+type ExternalTextLinkProps = {
+  children: ReactNode;
+  href: string;
+};
