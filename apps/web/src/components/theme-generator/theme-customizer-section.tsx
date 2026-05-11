@@ -105,7 +105,7 @@ export function CustomPaletteHoverCard() {
           <div className="text-sm font-medium">Custom palettes</div>
           <p className="text-xs leading-5 text-muted-foreground">
             Choose a single accent color and use it as the solid step in the
-            scale. radixcn then derives the full light and dark palettes with
+            scale. Radixcn then derives the full light and dark palettes with
             Radix Colors semantics, keeping the generated steps suitable for
             backgrounds, borders, interactive states, solid fills, and readable
             foregrounds.

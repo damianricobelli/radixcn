@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LandingPage } from "@/components/landing/landing-page";
 
-const HOME_TITLE = "Shadcn Themes from Radix Colors - radixcn";
+const HOME_TITLE = "Shadcn Themes from Radix Colors - Radixcn";
 const HOME_DESCRIPTION =
   "Choose a Radix Color palette, keep the shadcn API, and generate better theme tokens for your components.";
 

@@ -22,7 +22,7 @@ export function ShowcaseTabHeader({ statesEnabled }: ShowcaseTabHeaderProps) {
             </span>
           </div>
           <h2 className="mt-2 max-w-2xl text-balance text-lg font-semibold tracking-tight md:text-xl">
-            A sharper preview for the radixcn component system.
+            A sharper preview for the Radixcn component system.
           </h2>
         </div>
 

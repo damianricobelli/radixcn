@@ -47,7 +47,7 @@ export function TokenBridgeSettings({
           Bridge aliases the shadcn token contract to your design system tokens.
           Components keep using shadcn variables, while color and typography
           values resolve to your existing CSS variables. Empty mappings keep
-          using generated radixcn values.
+          using generated Radixcn values.
         </div>
       </PanelSection>
 

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useRadixCnTheme } from "@/components/theme-generator/radixcn-theme-context";
 import {
-  getGeneratedCustomPalettePreview,
   type CustomPalettePreviewRole,
+  getGeneratedCustomPalettePreview,
 } from "@/lib/theme-generator/generator";
 import { RADIX_STEPS } from "@/lib/theme-generator/types";
 
