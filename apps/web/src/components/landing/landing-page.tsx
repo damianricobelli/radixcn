@@ -269,7 +269,7 @@ export function LandingPage() {
                   Radix families
                 </ExternalTextLink>{" "}
                 for neutral surfaces, brand actions, accents, states, and
-                charts. RadixCN translates those 1-12 steps into the shadcn
+                charts. radixcn translates those 1-12 steps into the shadcn
                 token contract.
               </p>
               <p>
@@ -536,7 +536,7 @@ export function LandingPage() {
           </h2>
           <div className="mt-5 space-y-4 text-base leading-7 text-muted-foreground">
             <p>
-              RadixCN preserves the API your components already use, then maps
+              radixcn preserves the API your components already use, then maps
               each token to the scale step that fits its role.
             </p>
             <p>

@@ -13,7 +13,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "RadixCN Theme Generator",
+        title: "radixcn Theme Generator",
       },
     ],
     links: [

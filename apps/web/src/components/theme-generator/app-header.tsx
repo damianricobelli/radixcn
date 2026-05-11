@@ -34,7 +34,7 @@ export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
         <div className="min-w-0 space-y-0.5">
           <div className="flex min-w-0 items-center gap-2">
             <h1 className="truncate text-sm font-semibold tracking-tight md:text-base">
-              RadixCN
+              radixcn
             </h1>
             <span className="hidden items-center gap-1 rounded-md border border-border bg-secondary px-1.5 py-0.5 text-[0.7rem] font-medium text-secondary-foreground sm:inline-flex">
               <Sparkles className="size-3" />

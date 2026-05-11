@@ -7,7 +7,6 @@ export interface ThemeTemplate {
   description: string;
   category: string;
   selection: ThemeSelection;
-  swatches: [string, string, string, string, string];
 }
 
 export type ThemeTemplateGroup = {
@@ -296,7 +295,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "shadcn-default",
         name: "Default",
         description: "Black and white baseline matching shadcn/ui defaults.",
-        swatches: ["#ffffff", "#18181b", "#f8fafc", "#0f172a", "#e2e8f0"],
         category: "Defaults",
         selection: {
           ...DEFAULT_THEME_SELECTION,
@@ -312,7 +310,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "twitter",
         name: "Twitter",
         description: "Clear blue primary with energetic social charts.",
-        swatches: ["#1d9bf0", "#00ba7c", "#ffd400", "#f91880", "#7856ff"],
         category: "Social Media",
         selection: template({
           name: "Twitter",
@@ -325,7 +322,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "facebook",
         name: "Facebook",
         description: "Classic blue with trustworthy product accents.",
-        swatches: ["#1877f2", "#42b72a", "#f7b928", "#f02849", "#8a3ffc"],
         category: "Social Media",
         selection: template({
           name: "Facebook",
@@ -338,7 +334,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "instagram",
         name: "Instagram",
         description: "Warm magenta core with gradient-inspired accents.",
-        swatches: ["#e4405f", "#f77737", "#ffdc80", "#833ab4", "#405de6"],
         category: "Social Media",
         selection: template({
           name: "Instagram",
@@ -352,7 +347,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "linkedin",
         name: "LinkedIn",
         description: "Professional blue with calm business accents.",
-        swatches: ["#0a66c2", "#057642", "#915907", "#c37d16", "#5e5ce6"],
         category: "Social Media",
         selection: template({
           name: "LinkedIn",
@@ -365,7 +359,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "discord",
         name: "Discord",
         description: "Vivid blurple with expressive community colors.",
-        swatches: ["#5865f2", "#57f287", "#fee75c", "#eb459e", "#ed4245"],
         category: "Social Media",
         selection: template({
           name: "Discord",
@@ -378,7 +371,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "whatsapp",
         name: "WhatsApp",
         description: "Fresh messaging green balanced with utility colors.",
-        swatches: ["#25d366", "#128c7e", "#34b7f1", "#f7c948", "#ea4335"],
         category: "Social Media",
         selection: template({
           name: "WhatsApp",
@@ -397,7 +389,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "tesla",
         name: "Tesla",
         description: "Sharp red primary on a graphite product surface.",
-        swatches: ["#e82127", "#171a20", "#5c5e62", "#3e6ae1", "#f2c94c"],
         category: "Companies",
         selection: template({
           name: "Tesla",
@@ -411,11 +402,11 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "spotify",
         name: "Spotify",
         description: "Music green with strong dark-mode contrast.",
-        swatches: ["#1db954", "#191414", "#1ed760", "#ffffff", "#b3b3b3"],
         category: "Companies",
         selection: template({
           name: "Spotify",
           swatches: ["#1db954", "#191414", "#1ed760", "#ffffff", "#b3b3b3"],
+          chartColors: ["#1db954", "#1ed760", "#10b981", "#0ea5e9", "#a3a3a3"],
           baseScale: "sage",
           primaryScale: "green",
           customPrimaryColor: "#1db954",
@@ -425,11 +416,11 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "netflix",
         name: "Netflix",
         description: "Cinematic red with restrained slate neutrals.",
-        swatches: ["#e50914", "#221f1f", "#b81d24", "#f5f5f1", "#564d4d"],
         category: "Companies",
         selection: template({
           name: "Netflix",
           swatches: ["#e50914", "#221f1f", "#b81d24", "#f5f5f1", "#564d4d"],
+          chartColors: ["#e50914", "#b81d24", "#831010", "#f59e0b", "#564d4d"],
           baseScale: "mauve",
           primaryScale: "red",
           customPrimaryColor: "#e50914",
@@ -439,7 +430,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "airbnb",
         name: "Airbnb",
         description: "Coral hospitality palette with soft contrast.",
-        swatches: ["#ff385c", "#00a699", "#fc642d", "#ffb400", "#767676"],
         category: "Companies",
         selection: template({
           name: "Airbnb",
@@ -454,7 +444,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         name: "Vercel",
         description:
           "Minimal black-and-white product system with vivid deploy accents.",
-        swatches: ["#000000", "#ffffff", "#0070f3", "#7928ca", "#ff0080"],
         category: "Companies",
         selection: template({
           name: "Vercel",
@@ -470,7 +459,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "github",
         name: "GitHub",
         description: "Developer neutral base with blue and green accents.",
-        swatches: ["#24292f", "#0969da", "#1a7f37", "#bf8700", "#cf222e"],
         category: "Companies",
         selection: template({
           name: "GitHub",
@@ -484,7 +472,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "slack",
         name: "Slack",
         description: "Workplace purple supported by Slack-like accents.",
-        swatches: ["#611f69", "#36c5f0", "#2eb67d", "#ecb22e", "#e01e5a"],
         category: "Companies",
         selection: template({
           name: "Slack",
@@ -503,7 +490,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "model-lab",
         name: "Model Lab",
         description: "Clean research UI with signal blue and compute green.",
-        swatches: ["#0f172a", "#2563eb", "#10b981", "#f59e0b", "#e11d48"],
         category: "AI & Data",
         selection: template({
           name: "Model Lab",
@@ -517,7 +503,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "vector-search",
         name: "Vector Search",
         description: "Technical teal palette with crisp query highlights.",
-        swatches: ["#0f766e", "#155e75", "#7c3aed", "#ca8a04", "#334155"],
         category: "AI & Data",
         selection: template({
           name: "Vector Search",
@@ -531,7 +516,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "analytics-studio",
         name: "Analytics Studio",
         description: "Executive analytics colors for dense dashboards.",
-        swatches: ["#1d4ed8", "#059669", "#d97706", "#7c3aed", "#dc2626"],
         category: "AI & Data",
         selection: template({
           name: "Analytics Studio",
@@ -545,7 +529,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "observability",
         name: "Observability",
         description: "Incident-ready contrast with latency and health cues.",
-        swatches: ["#111827", "#0ea5e9", "#22c55e", "#f59e0b", "#ef4444"],
         category: "AI & Data",
         selection: template({
           name: "Observability",
@@ -564,7 +547,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "calendar",
         name: "Calendar",
         description: "Schedule-first blue with warm event categories.",
-        swatches: ["#2563eb", "#14b8a6", "#f97316", "#a855f7", "#ef4444"],
         category: "Productivity",
         selection: template({
           name: "Calendar",
@@ -578,7 +560,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "task-board",
         name: "Task Board",
         description: "Practical work palette for planning and delivery.",
-        swatches: ["#4f46e5", "#0891b2", "#16a34a", "#f59e0b", "#be123c"],
         category: "Productivity",
         selection: template({
           name: "Task Board",
@@ -592,7 +573,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "docs-suite",
         name: "Docs Suite",
         description: "Readable document neutrals with collaborative accents.",
-        swatches: ["#334155", "#2563eb", "#16a34a", "#d97706", "#7c3aed"],
         category: "Productivity",
         selection: template({
           name: "Docs Suite",
@@ -606,7 +586,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "workflow-ops",
         name: "Workflow Ops",
         description: "Operational palette for queues, approvals, and states.",
-        swatches: ["#0f766e", "#475569", "#65a30d", "#ca8a04", "#dc2626"],
         category: "Productivity",
         selection: template({
           name: "Workflow Ops",
@@ -625,7 +604,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "investment",
         name: "Investment",
         description: "Trustworthy navy with gain, risk, and signal colors.",
-        swatches: ["#1e3a8a", "#047857", "#b45309", "#7c3aed", "#b91c1c"],
         category: "Finance",
         selection: template({
           name: "Investment",
@@ -639,7 +617,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "banking",
         name: "Banking",
         description: "Formal blue-green palette for account surfaces.",
-        swatches: ["#075985", "#0f766e", "#64748b", "#ca8a04", "#dc2626"],
         category: "Finance",
         selection: template({
           name: "Banking",
@@ -653,7 +630,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "crypto",
         name: "Crypto",
         description: "High-contrast market UI with electric asset accents.",
-        swatches: ["#18181b", "#f59e0b", "#22c55e", "#06b6d4", "#8b5cf6"],
         category: "Finance",
         selection: template({
           name: "Crypto",
@@ -667,7 +643,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "insurance",
         name: "Insurance",
         description: "Stable service colors with calm policy indicators.",
-        swatches: ["#1d4ed8", "#0891b2", "#16a34a", "#9333ea", "#dc2626"],
         category: "Finance",
         selection: template({
           name: "Insurance",
@@ -686,7 +661,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "marketplace",
         name: "Marketplace",
         description: "Retail palette for listings, deals, and trust signals.",
-        swatches: ["#ea580c", "#0d9488", "#2563eb", "#eab308", "#db2777"],
         category: "Commerce",
         selection: template({
           name: "Marketplace",
@@ -700,7 +674,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "luxury-retail",
         name: "Luxury Retail",
         description: "Deep ink, gold, and berry tones for premium catalogs.",
-        swatches: ["#111827", "#b45309", "#7c2d12", "#be123c", "#57534e"],
         category: "Commerce",
         selection: template({
           name: "Luxury Retail",
@@ -715,7 +688,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "grocery",
         name: "Grocery",
         description: "Fresh category colors for everyday shopping flows.",
-        swatches: ["#16a34a", "#65a30d", "#f97316", "#0ea5e9", "#dc2626"],
         category: "Commerce",
         selection: template({
           name: "Grocery",
@@ -729,7 +701,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "payments",
         name: "Payments",
         description: "Fast checkout palette with secure blue emphasis.",
-        swatches: ["#2563eb", "#0f766e", "#16a34a", "#ca8a04", "#dc2626"],
         category: "Commerce",
         selection: template({
           name: "Payments",
@@ -748,7 +719,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "classroom",
         name: "Classroom",
         description: "Friendly learning colors with clear progress states.",
-        swatches: ["#2563eb", "#16a34a", "#f59e0b", "#db2777", "#7c3aed"],
         category: "Education",
         selection: template({
           name: "Classroom",
@@ -762,7 +732,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "university",
         name: "University",
         description: "Academic navy with institutional secondary colors.",
-        swatches: ["#1e3a8a", "#7f1d1d", "#b45309", "#334155", "#047857"],
         category: "Education",
         selection: template({
           name: "University",
@@ -776,7 +745,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "language-app",
         name: "Language App",
         description: "Bright lesson palette for streaks and practice modes.",
-        swatches: ["#22c55e", "#3b82f6", "#f97316", "#ec4899", "#8b5cf6"],
         category: "Education",
         selection: template({
           name: "Language App",
@@ -790,7 +758,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "library",
         name: "Library",
         description: "Quiet reading palette with catalog-friendly contrast.",
-        swatches: ["#365314", "#854d0e", "#334155", "#0f766e", "#be123c"],
         category: "Education",
         selection: template({
           name: "Library",
@@ -809,7 +776,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "restaurant",
         name: "Restaurant",
         description: "Appetizing tomato and herb palette for menus.",
-        swatches: ["#dc2626", "#16a34a", "#f97316", "#ca8a04", "#7c2d12"],
         category: "Food & Hospitality",
         selection: template({
           name: "Restaurant",
@@ -823,7 +789,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "coffee",
         name: "Coffee",
         description: "Roasted neutrals with warm service accents.",
-        swatches: ["#7c2d12", "#a16207", "#57534e", "#15803d", "#be123c"],
         category: "Food & Hospitality",
         selection: template({
           name: "Coffee",
@@ -837,7 +802,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "hotel",
         name: "Hotel",
         description: "Polished concierge colors for booking and service.",
-        swatches: ["#0f172a", "#b45309", "#0891b2", "#4f46e5", "#be123c"],
         category: "Food & Hospitality",
         selection: template({
           name: "Hotel",
@@ -851,7 +815,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "bakery",
         name: "Bakery",
         description: "Warm pastry tones with fruit and mint accents.",
-        swatches: ["#d97706", "#db2777", "#65a30d", "#0d9488", "#92400e"],
         category: "Food & Hospitality",
         selection: template({
           name: "Bakery",
@@ -870,7 +833,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "airline",
         name: "Airline",
         description: "Aviation blue with clear status and loyalty colors.",
-        swatches: ["#0369a1", "#0284c7", "#0f766e", "#f59e0b", "#dc2626"],
         category: "Travel & Places",
         selection: template({
           name: "Airline",
@@ -884,7 +846,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "city-guide",
         name: "City Guide",
         description: "Urban wayfinding palette for maps and venues.",
-        swatches: ["#334155", "#2563eb", "#ea580c", "#16a34a", "#db2777"],
         category: "Travel & Places",
         selection: template({
           name: "City Guide",
@@ -898,7 +859,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "resort",
         name: "Resort",
         description: "Coastal booking colors with sunlit service accents.",
-        swatches: ["#0e7490", "#14b8a6", "#f59e0b", "#84cc16", "#f43f5e"],
         category: "Travel & Places",
         selection: template({
           name: "Resort",
@@ -912,7 +872,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "transit",
         name: "Transit",
         description: "System colors for routes, alerts, and schedules.",
-        swatches: ["#1d4ed8", "#16a34a", "#f97316", "#9333ea", "#dc2626"],
         category: "Travel & Places",
         selection: template({
           name: "Transit",
@@ -931,7 +890,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "streaming",
         name: "Streaming",
         description: "Cinematic dark palette with vivid content rails.",
-        swatches: ["#18181b", "#e11d48", "#7c3aed", "#2563eb", "#f59e0b"],
         category: "Media & Entertainment",
         selection: template({
           name: "Streaming",
@@ -945,7 +903,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "music",
         name: "Music",
         description: "Stage-ready accents for playlists and discovery.",
-        swatches: ["#7c3aed", "#db2777", "#06b6d4", "#22c55e", "#f97316"],
         category: "Media & Entertainment",
         selection: template({
           name: "Music",
@@ -959,7 +916,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "podcast",
         name: "Podcast",
         description: "Voice-first purple with editorial support colors.",
-        swatches: ["#6d28d9", "#0891b2", "#f59e0b", "#16a34a", "#dc2626"],
         category: "Media & Entertainment",
         selection: template({
           name: "Podcast",
@@ -973,7 +929,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "newsroom",
         name: "Newsroom",
         description: "Editorial red, ink, and section colors for publishing.",
-        swatches: ["#b91c1c", "#111827", "#2563eb", "#ca8a04", "#0f766e"],
         category: "Media & Entertainment",
         selection: template({
           name: "Newsroom",
@@ -992,7 +947,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "arcade",
         name: "Arcade",
         description: "Bright action colors for playful interactive screens.",
-        swatches: ["#db2777", "#7c3aed", "#06b6d4", "#f59e0b", "#22c55e"],
         category: "Gaming",
         selection: template({
           name: "Arcade",
@@ -1006,7 +960,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "esports",
         name: "Esports",
         description: "Competitive slate with team and status colors.",
-        swatches: ["#111827", "#dc2626", "#2563eb", "#f59e0b", "#16a34a"],
         category: "Gaming",
         selection: template({
           name: "Esports",
@@ -1020,7 +973,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "fantasy",
         name: "Fantasy",
         description: "Story-rich jewel tones for inventory and quests.",
-        swatches: ["#4c1d95", "#047857", "#b45309", "#be123c", "#1d4ed8"],
         category: "Gaming",
         selection: template({
           name: "Fantasy",
@@ -1034,7 +986,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "sci-fi",
         name: "Sci-Fi",
         description: "Cool interface colors for systems and missions.",
-        swatches: ["#0f172a", "#06b6d4", "#22d3ee", "#a3e635", "#8b5cf6"],
         category: "Gaming",
         selection: template({
           name: "Sci-Fi",
@@ -1053,7 +1004,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "civic",
         name: "Civic",
         description: "Accessible government colors for services and forms.",
-        swatches: ["#1d4ed8", "#334155", "#047857", "#ca8a04", "#b91c1c"],
         category: "Public Sector",
         selection: template({
           name: "Civic",
@@ -1067,7 +1017,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "nonprofit",
         name: "Nonprofit",
         description: "Human-centered green and blue for mission dashboards.",
-        swatches: ["#15803d", "#2563eb", "#f59e0b", "#db2777", "#64748b"],
         category: "Public Sector",
         selection: template({
           name: "Nonprofit",
@@ -1081,7 +1030,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "emergency",
         name: "Emergency",
         description: "High-clarity palette for alerts and response states.",
-        swatches: ["#dc2626", "#f97316", "#2563eb", "#16a34a", "#111827"],
         category: "Public Sector",
         selection: template({
           name: "Emergency",
@@ -1095,7 +1043,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "museum",
         name: "Museum",
         description: "Curatorial palette with archival neutrals and accents.",
-        swatches: ["#44403c", "#b45309", "#2563eb", "#be123c", "#047857"],
         category: "Public Sector",
         selection: template({
           name: "Museum",
@@ -1114,7 +1061,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "logistics",
         name: "Logistics",
         description: "Route and warehouse colors for operational scanning.",
-        swatches: ["#334155", "#2563eb", "#f97316", "#16a34a", "#dc2626"],
         category: "Industrial",
         selection: template({
           name: "Logistics",
@@ -1128,7 +1074,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "manufacturing",
         name: "Manufacturing",
         description: "Shop-floor palette for machines, lots, and warnings.",
-        swatches: ["#475569", "#0f766e", "#ca8a04", "#ea580c", "#b91c1c"],
         category: "Industrial",
         selection: template({
           name: "Manufacturing",
@@ -1142,7 +1087,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "energy",
         name: "Energy",
         description: "Grid monitoring colors for load and reliability.",
-        swatches: ["#065f46", "#0284c7", "#eab308", "#f97316", "#dc2626"],
         category: "Industrial",
         selection: template({
           name: "Energy",
@@ -1156,7 +1100,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "construction",
         name: "Construction",
         description: "Field-ready colors for plans, crews, and risk.",
-        swatches: ["#ca8a04", "#334155", "#ea580c", "#2563eb", "#b91c1c"],
         category: "Industrial",
         selection: template({
           name: "Construction",
@@ -1175,7 +1118,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "forest",
         name: "Forest",
         description: "Deep green surfaces with moss and amber chart tones.",
-        swatches: ["#2f6f4e", "#7a9f35", "#b7a14a", "#8f5f3c", "#497d74"],
         category: "Nature",
         selection: template({
           name: "Forest",
@@ -1189,7 +1131,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "ocean",
         name: "Ocean",
         description: "Blue-green system for calm data-heavy layouts.",
-        swatches: ["#0077b6", "#00b4d8", "#48cae4", "#90be6d", "#f9c74f"],
         category: "Nature",
         selection: template({
           name: "Ocean",
@@ -1203,7 +1144,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "sunset",
         name: "Sunset",
         description: "Warm orange primary with dusk chart colors.",
-        swatches: ["#f97316", "#ef4444", "#eab308", "#8b5cf6", "#0ea5e9"],
         category: "Nature",
         selection: template({
           name: "Sunset",
@@ -1217,7 +1157,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "northern-lights",
         name: "Northern Lights",
         description: "Cool aurora palette with teal, violet, and lime.",
-        swatches: ["#14b8a6", "#22c55e", "#84cc16", "#8b5cf6", "#06b6d4"],
         category: "Nature",
         selection: template({
           name: "Northern Lights",
@@ -1236,7 +1175,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "editorial",
         name: "Editorial",
         description: "Ink-first neutral theme with measured accent color.",
-        swatches: ["#111827", "#4b5563", "#9ca3af", "#b45309", "#be123c"],
         category: "Styles",
         selection: template({
           name: "Editorial",
@@ -1251,7 +1189,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "fintech",
         name: "Fintech",
         description: "Confident blue-green palette for dashboards.",
-        swatches: ["#2563eb", "#10b981", "#f59e0b", "#ef4444", "#6366f1"],
         category: "Styles",
         selection: template({
           name: "Fintech",
@@ -1265,7 +1202,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "healthcare",
         name: "Healthcare",
         description: "Clean clinical palette with green trust cues.",
-        swatches: ["#0891b2", "#16a34a", "#7c3aed", "#f59e0b", "#dc2626"],
         category: "Styles",
         selection: template({
           name: "Healthcare",
@@ -1279,7 +1215,6 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
         id: "minimal",
         name: "Minimal",
         description: "Quiet monochrome UI with subtle data colors.",
-        swatches: ["#3f3f46", "#71717a", "#a1a1aa", "#0ea5e9", "#e11d48"],
         category: "Styles",
         selection: template({
           name: "Minimal",

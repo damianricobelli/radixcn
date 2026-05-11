@@ -5,7 +5,6 @@ import {
 } from "@workspace/ui/components/hover-card";
 import { TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { Component, LayoutDashboard, Sparkles, Waypoints } from "lucide-react";
-import { COMPONENT_COUNT } from "@/components/showcase/showcase-sections";
 
 type ShowcaseTabHeaderProps = {
   statesEnabled: boolean;
@@ -21,10 +20,9 @@ export function ShowcaseTabHeader({ statesEnabled }: ShowcaseTabHeaderProps) {
               <Sparkles className="size-3.5" />
               Component lab
             </span>
-            <span>{COMPONENT_COUNT} production-ready examples</span>
           </div>
           <h2 className="mt-2 max-w-2xl text-balance text-lg font-semibold tracking-tight md:text-xl">
-            A sharper preview for the RadixCN component system.
+            A sharper preview for the radixcn component system.
           </h2>
         </div>
 
