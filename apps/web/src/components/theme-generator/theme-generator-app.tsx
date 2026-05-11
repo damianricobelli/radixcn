@@ -106,6 +106,7 @@ function ThemeGeneratorShell() {
 
   return (
     <main
+      data-theme-preview
       style={previewStyle}
       className={[
         mode === "dark" ? "dark" : "",

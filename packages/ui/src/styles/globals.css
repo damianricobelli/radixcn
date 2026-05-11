@@ -31,6 +31,21 @@
   --destructive-muted: oklch(95.55% 0.0207 13.86);
   --destructive-muted-foreground: oklch(55.7% 0.1974 25.17);
   --destructive-border: oklch(85.69% 0.0741 17.68);
+  --success: oklch(64.06% 0.1329 157.7);
+  --success-foreground: oklch(100% 0 none);
+  --success-muted: oklch(95.82% 0.0223 155.9);
+  --success-muted-foreground: oklch(54.35% 0.1116 159.5);
+  --success-border: oklch(85.58% 0.0641 158.2);
+  --warning: oklch(85.37% 0.1572 84.13);
+  --warning-foreground: oklch(17.76% 0 none);
+  --warning-muted: oklch(96.95% 0.0684 100.4);
+  --warning-muted-foreground: oklch(57.06% 0.1291 63.94);
+  --warning-border: oklch(88.04% 0.1233 93.39);
+  --info: oklch(64.93% 0.193 251.8);
+  --info-foreground: oklch(100% 0 none);
+  --info-muted: oklch(95.97% 0.0201 238.7);
+  --info-muted-foreground: oklch(55.58% 0.1622 252.2);
+  --info-border: oklch(86.33% 0.0682 243.3);
   --border: oklch(88.73% 0.0095 286.2);
   --input: oklch(85.3% 0.0111 280.4);
   --ring: oklch(78% 0.0088 285.9);
@@ -96,6 +111,21 @@
   --destructive-muted: oklch(25.1% 0.0649 12.69);
   --destructive-muted-foreground: oklch(78.04% 0.1281 22.14);
   --destructive-border: oklch(38.14% 0.1108 16.8);
+  --success: oklch(64.06% 0.1329 157.7);
+  --success-foreground: oklch(100% 0 none);
+  --success-muted: oklch(27.21% 0.0396 162.2);
+  --success-muted-foreground: oklch(77.94% 0.1655 157.3);
+  --success-border: oklch(41.24% 0.0721 160.9);
+  --warning: oklch(85.37% 0.1572 84.13);
+  --warning-foreground: oklch(17.76% 0 none);
+  --warning-muted: oklch(25.78% 0.0442 74.48);
+  --warning-muted-foreground: oklch(86.17% 0.173 89.02);
+  --warning-border: oklch(38.63% 0.0784 75.25);
+  --info: oklch(64.93% 0.193 251.8);
+  --info-foreground: oklch(100% 0 none);
+  --info-muted: oklch(27.45% 0.0663 253.9);
+  --info-muted-foreground: oklch(76.42% 0.1257 249.5);
+  --info-border: oklch(41.6% 0.1133 252);
   --border: oklch(34.66% 0.0103 254);
   --input: oklch(39.93% 0.0121 252.9);
   --ring: oklch(49% 0.0088 285.9);
@@ -164,6 +194,21 @@
   --color-destructive-muted: var(--destructive-muted);
   --color-destructive-muted-foreground: var(--destructive-muted-foreground);
   --color-destructive-border: var(--destructive-border);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-success-muted-foreground: var(--success-muted-foreground);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-muted-foreground: var(--warning-muted-foreground);
+  --color-warning-border: var(--warning-border);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-muted: var(--info-muted);
+  --color-info-muted-foreground: var(--info-muted-foreground);
+  --color-info-border: var(--info-border);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -207,5 +252,6 @@
 
   body {
     @apply bg-background text-foreground [scrollbar-gutter:stable];
+    letter-spacing: var(--tracking-normal);
   }
 }

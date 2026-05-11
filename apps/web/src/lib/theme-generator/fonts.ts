@@ -1,6 +1,17 @@
+import { createServerFn } from "@tanstack/react-start";
 import type { FontCategory, FontSourceFont, FontSourceFontName } from "./types";
 
 const FONTSOURCE_API_URL = "https://api.fontsource.org/v1/fonts";
+const FONT_CATALOG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const FONT_CATALOG_ERROR_CACHE_TTL_MS = 5 * 60 * 1000;
+
+let fontCatalogCache:
+  | {
+      expiresAt: number;
+      fonts: Array<FontSourceFont>;
+    }
+  | undefined;
+let fontCatalogRequest: Promise<Array<FontSourceFont>> | undefined;
 
 export const FONT_CATEGORY_ORDER: Array<FontCategory> = [
   "sans-serif",
@@ -188,19 +199,55 @@ function normalizeFontCatalog(value: unknown): Array<FontSourceFont> {
   return fonts.length > 0 ? fonts : [...FALLBACK_FONT_OPTIONS];
 }
 
-export async function fetchFontCatalog() {
+async function fetchFontCatalogFromFontsource() {
   try {
-    const response = await fetch(FONTSOURCE_API_URL);
+    const response = await fetch(FONTSOURCE_API_URL, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
-      return [...FALLBACK_FONT_OPTIONS];
+      return cacheFontCatalog([...FALLBACK_FONT_OPTIONS], {
+        ttl: FONT_CATALOG_ERROR_CACHE_TTL_MS,
+      });
     }
 
-    return normalizeFontCatalog(await response.json());
+    return cacheFontCatalog(normalizeFontCatalog(await response.json()), {
+      ttl: FONT_CATALOG_CACHE_TTL_MS,
+    });
   } catch {
-    return [...FALLBACK_FONT_OPTIONS];
+    return cacheFontCatalog([...FALLBACK_FONT_OPTIONS], {
+      ttl: FONT_CATALOG_ERROR_CACHE_TTL_MS,
+    });
   }
 }
+
+function cacheFontCatalog(
+  fonts: Array<FontSourceFont>,
+  { ttl }: { ttl: number },
+) {
+  fontCatalogCache = {
+    expiresAt: Date.now() + ttl,
+    fonts,
+  };
+
+  return [...fonts];
+}
+
+export const fetchFontCatalog = createServerFn({ method: "GET" }).handler(
+  async () => {
+    if (fontCatalogCache && fontCatalogCache.expiresAt > Date.now()) {
+      return [...fontCatalogCache.fonts];
+    }
+
+    fontCatalogRequest ??= fetchFontCatalogFromFontsource().finally(() => {
+      fontCatalogRequest = undefined;
+    });
+
+    return fontCatalogRequest;
+  },
+);
 
 function getFontDefinition(
   fontName: FontSourceFontName,

@@ -1031,6 +1031,16 @@ function writeThemeInline(
     : BASE_THEME_INLINE_TOKENS;
   const fontTokens = [
     [
+      "--default-font-family",
+      getTokenBridgeFontValue(selection, "font-sans") ??
+        getFontCssValue(selection.sansFont, fonts),
+    ],
+    [
+      "--default-mono-font-family",
+      getTokenBridgeFontValue(selection, "font-mono") ??
+        getFontCssValue(selection.monoFont, fonts),
+    ],
+    [
       "--font-sans",
       getTokenBridgeFontValue(selection, "font-sans") ??
         getFontCssValue(selection.sansFont, fonts),
@@ -1221,6 +1231,7 @@ function writeCss(
     "",
     "  body {",
     "    @apply bg-background text-foreground;",
+    "    font-family: var(--font-sans);",
     "    letter-spacing: var(--tracking-normal);",
     "  }",
     "}",

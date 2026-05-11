@@ -559,7 +559,7 @@ export function LandingPage() {
               {mappingRows.length} tokens
             </span>
           </div>
-          <div className="max-h-[22rem] divide-y overflow-y-auto">
+          <div className="max-h-88 divide-y overflow-y-auto">
             {mappingRows.map(([token, source, role]) => (
               <div
                 className="grid gap-2 px-4 py-3 text-sm sm:grid-cols-[0.75fr_0.75fr_1fr] sm:items-center"

@@ -26,16 +26,22 @@ export function createPreviewStyle(
   selection: ThemeSelection,
   fonts?: ReadonlyArray<FontSourceFont>,
 ) {
+  const headingFont = getFontCssValue(selection.headingFont, fonts);
+  const sansFont = getFontCssValue(selection.sansFont, fonts);
+  const monoFont = getFontCssValue(selection.monoFont, fonts);
   const style = {
-    "--font-heading": getFontCssValue(selection.headingFont, fonts),
-    "--font-heading-family": getFontCssValue(selection.headingFont, fonts),
-    "--font-sans": getFontCssValue(selection.sansFont, fonts),
-    "--font-sans-family": getFontCssValue(selection.sansFont, fonts),
-    "--font-mono": getFontCssValue(selection.monoFont, fonts),
-    "--font-mono-family": getFontCssValue(selection.monoFont, fonts),
+    "--default-font-family": sansFont,
+    "--default-mono-font-family": monoFont,
+    "--font-heading": headingFont,
+    "--font-heading-family": headingFont,
+    "--font-sans": sansFont,
+    "--font-sans-family": sansFont,
+    "--font-mono": monoFont,
+    "--font-mono-family": monoFont,
     "--radius": getRadiusValue(selection.radiusScale),
     "--tracking-normal": formatEm(selection.trackingNormal),
     "--spacing": formatRem(selection.spacing),
+    fontFamily: sansFont,
     letterSpacing: formatEm(selection.trackingNormal),
     ...getShadowTokens(selection),
   } as CSSProperties & Record<string, string>;
@@ -53,11 +59,32 @@ export function createPreviewCss(
   fonts?: ReadonlyArray<FontSourceFont>,
 ) {
   const style = createPreviewStyle(tokens, selection, fonts);
-  const lines = Object.entries(style).map(
-    ([token, value]) => `  ${token}: ${value};`,
-  );
+  const lines = Object.entries(style)
+    .filter(([token]) => token.startsWith("--"))
+    .map(([token, value]) => `  ${token}: ${value};`);
 
-  return [":root {", ...lines, "}"].join("\n");
+  const fontUtilityOverrides = [
+    "[data-theme-preview] .font-sans {",
+    "  font-family: var(--font-sans-family);",
+    "}",
+    "",
+    "[data-theme-preview] .font-mono {",
+    "  font-family: var(--font-mono-family);",
+    "}",
+    "",
+    "[data-theme-preview] .font-heading,",
+    "[data-theme-preview] :where(h1, h2, h3, h4, h5, h6) {",
+    "  font-family: var(--font-heading-family);",
+    "}",
+  ];
+
+  return [
+    "[data-theme-preview] {",
+    ...lines,
+    "}",
+    "",
+    ...fontUtilityOverrides,
+  ].join("\n");
 }
 
 export function pick<T>(items: ReadonlyArray<T>) {
