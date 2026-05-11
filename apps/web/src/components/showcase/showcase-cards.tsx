@@ -3,19 +3,19 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@workspace/ui/components/accordion"
+} from "@workspace/ui/components/accordion";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@workspace/ui/components/alert"
+} from "@workspace/ui/components/alert";
 import {
   Avatar,
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
-} from "@workspace/ui/components/avatar"
-import { Badge } from "@workspace/ui/components/badge"
+} from "@workspace/ui/components/avatar";
+import { Badge } from "@workspace/ui/components/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,22 +23,22 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@workspace/ui/components/breadcrumb"
-import { Button } from "@workspace/ui/components/button"
-import { Calendar } from "@workspace/ui/components/calendar"
+} from "@workspace/ui/components/breadcrumb";
+import { Button } from "@workspace/ui/components/button";
+import { Calendar } from "@workspace/ui/components/calendar";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@workspace/ui/components/card"
+} from "@workspace/ui/components/card";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@workspace/ui/components/chart"
-import { Checkbox } from "@workspace/ui/components/checkbox"
+} from "@workspace/ui/components/chart";
+import { Checkbox } from "@workspace/ui/components/checkbox";
 import {
   Command,
   CommandGroup,
@@ -47,7 +47,7 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@workspace/ui/components/command"
+} from "@workspace/ui/components/command";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +55,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@workspace/ui/components/dialog"
+} from "@workspace/ui/components/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,7 +63,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
+} from "@workspace/ui/components/dropdown-menu";
 import {
   Empty,
   EmptyContent,
@@ -71,25 +71,25 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@workspace/ui/components/empty"
+} from "@workspace/ui/components/empty";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@workspace/ui/components/field"
+} from "@workspace/ui/components/field";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@workspace/ui/components/hover-card"
-import { Input } from "@workspace/ui/components/input"
+} from "@workspace/ui/components/hover-card";
+import { Input } from "@workspace/ui/components/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@workspace/ui/components/input-group"
+} from "@workspace/ui/components/input-group";
 import {
   Pagination,
   PaginationContent,
@@ -97,14 +97,14 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@workspace/ui/components/pagination"
-import { Progress } from "@workspace/ui/components/progress"
+} from "@workspace/ui/components/pagination";
+import { Progress } from "@workspace/ui/components/progress";
 import {
   RadioGroup,
   RadioGroupItem,
-} from "@workspace/ui/components/radio-group"
-import { Slider } from "@workspace/ui/components/slider"
-import { Switch } from "@workspace/ui/components/switch"
+} from "@workspace/ui/components/radio-group";
+import { Slider } from "@workspace/ui/components/slider";
+import { Switch } from "@workspace/ui/components/switch";
 import {
   Table,
   TableBody,
@@ -112,42 +112,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@workspace/ui/components/table"
-import { Textarea } from "@workspace/ui/components/textarea"
+} from "@workspace/ui/components/table";
+import { Textarea } from "@workspace/ui/components/textarea";
 import {
   Check,
   CalendarDays,
   ChevronDown,
   CircleAlert,
-  Clock3,
   Code2,
-  Copy,
   FileText,
   GitBranch,
   Inbox,
-  KeyRound,
-  LayoutDashboard,
   Lock,
   MessageSquare,
   MoreHorizontal,
-  Palette,
-  Plus,
   RefreshCw,
   Receipt,
-  Search,
-  Server,
-  Settings,
   ShieldCheck,
-  SlidersHorizontal,
   Star,
   Sparkles,
   Terminal,
-  Trash,
-  Upload,
-  Users,
-  Wand2,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
+} from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -159,232 +144,29 @@ import {
   PieChart,
   XAxis,
   YAxis,
-} from "recharts"
+} from "recharts";
 import {
   browserData,
   chartConfig,
   reliabilityData,
   trafficData,
-} from "@/components/showcase/showcase-data"
-
-type ThemeTokenPreview = {
-  token: string
-  className: string
-}
-
-type StatePreview = {
-  label: string
-  detail: string
-  colorClassName: string
-}
-
-type NavigationPreview = {
-  label: string
-  icon: LucideIcon
-  active: boolean
-}
-
-type IconAction = {
-  label: string
-  icon: LucideIcon
-}
-
-type CheckedOption = {
-  id: string
-  label: string
-  checked: boolean
-}
-
-type SettingsOption = {
-  title: string
-  detail: string
-  enabled: boolean
-}
-
-type EnvironmentVariable = {
-  key: string
-  value: string
-  icon: LucideIcon
-}
-
-type ProgressStep = {
-  label: string
-  detail: string
-  value: number
-}
-
-type TokenMappingRow = {
-  token: string
-  source: string
-  status: string
-}
-
-type ProjectRow = {
-  project: string
-  branch: string
-  status: string
-  uptime: string
-  updated: string
-}
-
-type ActivityEvent = {
-  icon: LucideIcon
-  title: string
-  detail: string
-}
-
-const THEME_TOKENS: Array<ThemeTokenPreview> = [
-  { token: "--background", className: "bg-background" },
-  { token: "--foreground", className: "bg-foreground" },
-  { token: "--primary", className: "bg-primary" },
-  { token: "--secondary", className: "bg-secondary" },
-  { token: "--muted", className: "bg-muted" },
-  { token: "--accent", className: "bg-accent" },
-  { token: "--border", className: "bg-border" },
-  { token: "--chart-1", className: "bg-chart-1" },
-  { token: "--chart-2", className: "bg-chart-2" },
-  { token: "--chart-3", className: "bg-chart-3" },
-  { token: "--chart-4", className: "bg-chart-4" },
-  { token: "--chart-5", className: "bg-chart-5" },
-]
-
-const STATE_PREVIEWS: Array<StatePreview> = [
-  { label: "Queued", detail: "Waiting for runner", colorClassName: "bg-muted" },
-  {
-    label: "Building",
-    detail: "2m 18s elapsed",
-    colorClassName: "bg-chart-2",
-  },
-  {
-    label: "Healthy",
-    detail: "All checks passing",
-    colorClassName: "bg-chart-1",
-  },
-]
-
-const NAVIGATION_PREVIEWS: Array<NavigationPreview> = [
-  { icon: LayoutDashboard, label: "Preview", active: true },
-  { icon: Palette, label: "Tokens", active: false },
-  { icon: SlidersHorizontal, label: "Tuning", active: false },
-]
-
-const ICON_ACTIONS: Array<IconAction> = [
-  { label: "Copy", icon: Copy },
-  { label: "Alert", icon: CircleAlert },
-  { label: "Delete", icon: Trash },
-  { label: "Upload", icon: Upload },
-  { label: "Inbox", icon: Inbox },
-  { label: "More", icon: MoreHorizontal },
-  { label: "Refresh", icon: RefreshCw },
-  { label: "Add", icon: Plus },
-  { label: "Generate", icon: Wand2 },
-  { label: "Confirm", icon: Check },
-  { label: "Expand", icon: ChevronDown },
-  { label: "Search", icon: Search },
-  { label: "Settings", icon: Settings },
-  { label: "Terminal", icon: Terminal },
-]
-
-const DELIVERY_OPTIONS: Array<CheckedOption> = [
-  { id: "sync", label: "Sync chart colors", checked: true },
-  { id: "contrast", label: "Enforce AA contrast", checked: true },
-  { id: "motion", label: "Reduce motion", checked: false },
-]
-
-const SETTINGS_OPTIONS: Array<SettingsOption> = [
-  {
-    title: "Automatic deploys",
-    detail: "Ship every green main build.",
-    enabled: true,
-  },
-  {
-    title: "Preview URLs",
-    detail: "Create per-branch review links.",
-    enabled: true,
-  },
-  {
-    title: "Usage alerts",
-    detail: "Notify admins at 80% quota.",
-    enabled: false,
-  },
-]
-
-const ENVIRONMENT_VARIABLES: Array<EnvironmentVariable> = [
-  { key: "DATABASE_URL", value: "Encrypted", icon: KeyRound },
-  { key: "NEXT_PUBLIC_API", value: "api.acme.com", icon: Server },
-  { key: "STRIPE_SECRET", value: "Encrypted", icon: KeyRound },
-]
-
-const DEPLOYMENT_STEPS: Array<ProgressStep> = [
-  { label: "Queued", detail: "main · 1b9f2c", value: 100 },
-  { label: "Build", detail: "pnpm build", value: 100 },
-  { label: "Checks", detail: "12 passed", value: 82 },
-  { label: "Promote", detail: "iad1 + gru1", value: 34 },
-]
-
-const PLAN_FEATURES = [
-  "Unlimited theme exports",
-  "Shared team presets",
-  "Priority contrast checks",
-]
-
-const TOKEN_MAPPING_ROWS: Array<TokenMappingRow> = [
-  { token: "primary", source: "primary-9", status: "AA" },
-  { token: "ring", source: "primary-8", status: "Focus" },
-  { token: "muted", source: "base-2", status: "UI" },
-]
-
-const PROJECT_ROWS: Array<ProjectRow> = [
-  {
-    project: "radixcn-web",
-    branch: "main",
-    status: "Ready",
-    uptime: "99.97%",
-    updated: "2m ago",
-  },
-  {
-    project: "docs",
-    branch: "release",
-    status: "Building",
-    uptime: "99.91%",
-    updated: "8m ago",
-  },
-  {
-    project: "api-edge",
-    branch: "hotfix",
-    status: "Review",
-    uptime: "99.88%",
-    updated: "19m ago",
-  },
-  {
-    project: "billing",
-    branch: "main",
-    status: "Ready",
-    uptime: "99.99%",
-    updated: "41m ago",
-  },
-]
-
-const ACTIVITY_EVENTS: Array<ActivityEvent> = [
-  {
-    icon: Check,
-    title: "Deployment promoted",
-    detail: "gru1 received build 1b9f2c",
-  },
-  {
-    icon: Clock3,
-    title: "Cron delayed",
-    detail: "Billing sync retried after 41s",
-  },
-  {
-    icon: Users,
-    title: "Member invited",
-    detail: "Lucia joined Design Systems",
-  },
-]
-
-const RELEASE_DATE = new Date(2026, 4, 8)
-const FEEDBACK_STARS = Array.from({ length: 5 }, (_, index) => index + 1)
+} from "@/components/showcase/showcase-data";
+import {
+  ACTIVITY_EVENTS,
+  DELIVERY_OPTIONS,
+  DEPLOYMENT_STEPS,
+  ENVIRONMENT_VARIABLES,
+  FEEDBACK_STARS,
+  ICON_ACTIONS,
+  NAVIGATION_PREVIEWS,
+  PLAN_FEATURES,
+  PROJECT_ROWS,
+  RELEASE_DATE,
+  SETTINGS_OPTIONS,
+  STATE_PREVIEWS,
+  THEME_TOKENS,
+  TOKEN_MAPPING_ROWS,
+} from "@/components/showcase/showcase-card-data";
 
 export function ThemeCard() {
   return (
@@ -411,7 +193,7 @@ export function ThemeCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function TypographyCard() {
@@ -441,7 +223,7 @@ export function TypographyCard() {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 export function StatesCard() {
@@ -471,7 +253,7 @@ export function StatesCard() {
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function NavigationCard() {
@@ -528,7 +310,7 @@ export function NavigationCard() {
         </Accordion>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function ActionGridCard() {
@@ -539,7 +321,7 @@ export function ActionGridCard() {
       </CardHeader>
       <CardContent className="grid grid-cols-7 gap-3">
         {ICON_ACTIONS.map((action) => {
-          const Icon = action.icon
+          const Icon = action.icon;
 
           return (
             <Button
@@ -550,11 +332,11 @@ export function ActionGridCard() {
             >
               <Icon />
             </Button>
-          )
+          );
         })}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function ControlsCard() {
@@ -594,7 +376,7 @@ export function ControlsCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function FormCard() {
@@ -649,7 +431,7 @@ export function FormCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function CommandCard() {
@@ -693,7 +475,7 @@ export function CommandCard() {
         </Command>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function AuthCard() {
@@ -721,7 +503,7 @@ export function AuthCard() {
         <Button className="w-full">Continue</Button>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function SettingsCard() {
@@ -757,7 +539,7 @@ export function SettingsCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function EnvironmentCard() {
@@ -791,7 +573,7 @@ export function EnvironmentCard() {
         <Button>Deploy</Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 export function DeploymentCard() {
@@ -808,14 +590,16 @@ export function DeploymentCard() {
           <div key={step.label} className="space-y-1.5">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">{step.label}</span>
-              <span className="text-xs text-muted-foreground">{step.detail}</span>
+              <span className="text-xs text-muted-foreground">
+                {step.detail}
+              </span>
             </div>
             <Progress value={step.value} />
           </div>
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function TrafficCard() {
@@ -849,7 +633,7 @@ export function TrafficCard() {
         <Button className="w-full">View report</Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 export function ReliabilityCard() {
@@ -899,7 +683,7 @@ export function ReliabilityCard() {
         </ChartContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function BrowserShareCard() {
@@ -935,7 +719,7 @@ export function BrowserShareCard() {
         <Progress value={72} />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function TeamCard() {
@@ -967,7 +751,7 @@ export function TeamCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function AlertCard() {
@@ -994,7 +778,7 @@ export function AlertCard() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 export function CalendarCard() {
@@ -1031,7 +815,7 @@ export function CalendarCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function PlanCard() {
@@ -1068,7 +852,7 @@ export function PlanCard() {
         <Button>Upgrade</Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 export function FeedbackCard() {
@@ -1115,7 +899,7 @@ export function FeedbackCard() {
         </Alert>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function TableCard() {
@@ -1147,7 +931,7 @@ export function TableCard() {
         </Table>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function ProjectsTableCard() {
@@ -1185,21 +969,25 @@ export function ProjectsTableCard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {PROJECT_ROWS.map(({ project, branch, status, uptime, updated }) => (
-              <TableRow key={project}>
-                <TableCell className="font-medium">{project}</TableCell>
-                <TableCell>{branch}</TableCell>
-                <TableCell>
-                  <Badge variant={status === "Ready" ? "secondary" : "outline"}>
-                    {status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{uptime}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {updated}
-                </TableCell>
-              </TableRow>
-            ))}
+            {PROJECT_ROWS.map(
+              ({ project, branch, status, uptime, updated }) => (
+                <TableRow key={project}>
+                  <TableCell className="font-medium">{project}</TableCell>
+                  <TableCell>{branch}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={status === "Ready" ? "secondary" : "outline"}
+                    >
+                      {status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{uptime}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {updated}
+                  </TableCell>
+                </TableRow>
+              ),
+            )}
           </TableBody>
         </Table>
       </CardContent>
@@ -1224,7 +1012,7 @@ export function ProjectsTableCard() {
         </Pagination>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 export function EmptyCard() {
@@ -1258,7 +1046,7 @@ export function EmptyCard() {
         </Empty>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function ActivityFeedCard() {
@@ -1283,13 +1071,13 @@ export function ActivityFeedCard() {
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 type MetricProps = {
-  label: string
-  value: string
-}
+  label: string;
+  value: string;
+};
 
 function Metric({ label, value }: MetricProps) {
   return (
@@ -1297,5 +1085,5 @@ function Metric({ label, value }: MetricProps) {
       <div className="text-xs text-muted-foreground uppercase">{label}</div>
       <div className="font-medium tabular-nums">{value}</div>
     </div>
-  )
+  );
 }

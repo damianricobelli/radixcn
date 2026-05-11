@@ -86,37 +86,6 @@ type SectionCustomSwitchProps = {
   onCheckedChange: (checked: boolean) => void;
 };
 
-export function TriggerGroup({
-  title,
-  description,
-  info,
-  children,
-}: TriggerGroupProps) {
-  return (
-    <div className="space-y-2 p-2">
-      <div className="space-y-0.5 px-0.5">
-        <div className="flex items-center gap-1.5 text-xs font-medium text-sidebar-foreground">
-          <span>{title}</span>
-          {info}
-        </div>
-        {description ? (
-          <div className="text-xs leading-4 text-sidebar-foreground/55">
-            {description}
-          </div>
-        ) : null}
-      </div>
-      <div className="space-y-1">{children}</div>
-    </div>
-  );
-}
-
-type TriggerGroupProps = {
-  title: string;
-  description?: string;
-  info?: ReactNode;
-  children: ReactNode;
-};
-
 export function CustomPaletteHoverCard() {
   return (
     <HoverCard>
@@ -301,7 +270,7 @@ type SidebarDropdownProps = MenuRowProps & {
   children: ReactNode;
 };
 
-export function SidebarDropdownTrigger({
+function SidebarDropdownTrigger({
   ariaLabel,
   label,
   value,

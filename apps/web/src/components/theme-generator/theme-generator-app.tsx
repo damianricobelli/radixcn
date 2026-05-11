@@ -82,9 +82,9 @@ function ThemeGeneratorShell() {
   const sidebarStyle = useMemo(
     () =>
       ({
-        "--sidebar-width": getScaledSidebarWidth(22, previewSelection.spacing),
+        "--sidebar-width": getScaledSidebarWidth(24, previewSelection.spacing),
         "--sidebar-width-mobile": `min(${getScaledSidebarWidth(
-          20,
+          22,
           previewSelection.spacing,
         )}, calc(100vw - 2rem))`,
       }) as CSSProperties,

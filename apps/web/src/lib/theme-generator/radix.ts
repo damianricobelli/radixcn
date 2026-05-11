@@ -1,8 +1,8 @@
-import * as radixColors from "@radix-ui/colors"
+import * as radixColors from "@radix-ui/colors";
 
-import { hexToOklch } from "./color"
-import { RADIX_STEPS } from "./types"
-import type { RadixScale, RadixScaleName, RadixStep } from "./types"
+import { hexToOklch } from "./color";
+import { RADIX_STEPS } from "./types";
+import type { RadixScale, RadixScaleName, RadixStep } from "./types";
 
 export const BASE_SCALES = [
   "slate",
@@ -11,7 +11,7 @@ export const BASE_SCALES = [
   "sage",
   "olive",
   "sand",
-] satisfies Array<RadixScaleName>
+] satisfies Array<RadixScaleName>;
 
 export const PRIMARY_SCALES = [
   "indigo",
@@ -26,20 +26,20 @@ export const PRIMARY_SCALES = [
   "purple",
   "ruby",
   "sky",
-] satisfies Array<RadixScaleName>
+] satisfies Array<RadixScaleName>;
 
 export const DESTRUCTIVE_SCALES = [
   "red",
   "tomato",
   "ruby",
   "crimson",
-] satisfies Array<RadixScaleName>
+] satisfies Array<RadixScaleName>;
 
 export const STATE_SCALE_RECOMMENDATIONS = {
-  success: ["green", "jade", "grass", "teal"],
-  warning: ["amber", "yellow", "orange", "gold"],
-  info: ["blue", "cyan", "sky", "indigo"],
-} satisfies Record<string, Array<RadixScaleName>>
+  success: ["green", "teal", "jade", "grass", "mint"],
+  warning: ["yellow", "amber", "orange"],
+  info: ["blue", "indigo", "sky", "cyan"],
+} satisfies Record<string, Array<RadixScaleName>>;
 
 export const CHART_SCALES = [
   "indigo",
@@ -52,20 +52,20 @@ export const CHART_SCALES = [
   "orange",
   "crimson",
   "cyan",
-] satisfies Array<RadixScaleName>
+] satisfies Array<RadixScaleName>;
 
-export const DARK_TEXT_SOLID_SCALES = [
+const DARK_TEXT_SOLID_SCALES = [
   "amber",
   "yellow",
   "lime",
   "mint",
   "sky",
-] as const satisfies Array<RadixScaleName>
+] as const satisfies Array<RadixScaleName>;
 
 export function usesDarkTextOnSolid(scaleName: RadixScaleName) {
   return (DARK_TEXT_SOLID_SCALES as ReadonlyArray<RadixScaleName>).includes(
-    scaleName
-  )
+    scaleName,
+  );
 }
 
 export const ALL_RADIX_SCALES = [
@@ -100,82 +100,82 @@ export const ALL_RADIX_SCALES = [
   "lime",
   "mint",
   "sky",
-] satisfies Array<RadixScaleName>
+] satisfies Array<RadixScaleName>;
 
-type RadixExports = Record<string, Record<string, string> | undefined>
+type RadixExports = Record<string, Record<string, string> | undefined>;
 
-const radix = radixColors as RadixExports
-const hexScaleCache = new Map<RadixScaleName, RadixScale>()
-const oklchScaleCache = new Map<RadixScaleName, RadixScale>()
+const radix = radixColors as RadixExports;
+const hexScaleCache = new Map<RadixScaleName, RadixScale>();
+const oklchScaleCache = new Map<RadixScaleName, RadixScale>();
 
 function getScaleObject(name: RadixScaleName, mode: "light" | "dark") {
-  const exportName = mode === "light" ? name : `${name}Dark`
-  const scale = radix[exportName]
+  const exportName = mode === "light" ? name : `${name}Dark`;
+  const scale = radix[exportName];
 
   if (!scale) {
-    throw new Error(`Radix scale "${exportName}" is not available`)
+    throw new Error(`Radix scale "${exportName}" is not available`);
   }
 
-  return scale
+  return scale;
 }
 
 function getHexScale(name: RadixScaleName, mode: "light" | "dark") {
-  const scale = getScaleObject(name, mode)
+  const scale = getScaleObject(name, mode);
 
   return RADIX_STEPS.reduce(
     (nextScale, step) => {
-      const key = `${name}${step}`
-      const value = scale[key]
+      const key = `${name}${step}`;
+      const value = scale[key];
 
       if (!value) {
-        throw new Error(`Radix color "${key}" is not available`)
+        throw new Error(`Radix color "${key}" is not available`);
       }
 
-      nextScale[step] = value
-      return nextScale
+      nextScale[step] = value;
+      return nextScale;
     },
-    {} as Record<RadixStep, string>
-  )
+    {} as Record<RadixStep, string>,
+  );
 }
 
 export function getRadixHexScale(name: RadixScaleName): RadixScale {
-  const cached = hexScaleCache.get(name)
-  if (cached) return cached
+  const cached = hexScaleCache.get(name);
+  if (cached) return cached;
 
   const scale = {
     name,
     light: getHexScale(name, "light"),
     dark: getHexScale(name, "dark"),
-  }
+  };
 
-  hexScaleCache.set(name, scale)
+  hexScaleCache.set(name, scale);
 
-  return scale
+  return scale;
 }
 
 export function getRadixOklchScale(name: RadixScaleName): RadixScale {
-  const cached = oklchScaleCache.get(name)
-  if (cached) return cached
+  const cached = oklchScaleCache.get(name);
+  if (cached) return cached;
 
-  const hexScale = getRadixHexScale(name)
+  const hexScale = getRadixHexScale(name);
 
   const scale = {
     name,
     light: mapScaleToOklch(hexScale.light),
     dark: mapScaleToOklch(hexScale.dark),
-  }
+  };
 
-  oklchScaleCache.set(name, scale)
+  oklchScaleCache.set(name, scale);
 
-  return scale
+  return scale;
 }
 
 function mapScaleToOklch(scale: Record<RadixStep, string>) {
   return RADIX_STEPS.reduce(
     (nextScale, step) => {
-      nextScale[step] = hexToOklch(scale[step])
-      return nextScale
+      nextScale[step] = hexToOklch(scale[step]);
+      return nextScale;
     },
-    {} as Record<RadixStep, string>
-  )
+    {} as Record<RadixStep, string>,
+  );
 }

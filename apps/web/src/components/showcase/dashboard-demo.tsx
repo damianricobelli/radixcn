@@ -1,17 +1,17 @@
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@workspace/ui/components/card"
+} from "@workspace/ui/components/card";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@workspace/ui/components/input-group"
-import { Progress } from "@workspace/ui/components/progress"
+} from "@workspace/ui/components/input-group";
+import { Progress } from "@workspace/ui/components/progress";
 import {
   Sidebar,
   SidebarContent,
@@ -29,7 +29,7 @@ import {
   SidebarProvider,
   SidebarSeparator,
   SidebarTrigger,
-} from "@workspace/ui/components/sidebar"
+} from "@workspace/ui/components/sidebar";
 import {
   Activity,
   Bell,
@@ -45,8 +45,8 @@ import {
   ShieldCheck,
   Upload,
   Users,
-} from "lucide-react"
-import type { ReactNode } from "react"
+} from "lucide-react";
+import type { ReactNode } from "react";
 import {
   ActivityFeedCard,
   BrowserShareCard,
@@ -55,13 +55,13 @@ import {
   ProjectsTableCard,
   ReliabilityCard,
   TeamCard,
-} from "@/components/showcase/showcase-cards"
+} from "@/components/showcase/showcase-cards";
 
 type DashboardMenuItem = {
-  icon: typeof Home
-  label: string
-  badge?: string
-}
+  icon: typeof Home;
+  label: string;
+  badge?: string;
+};
 
 const DASHBOARD_MENU_ITEMS: Array<DashboardMenuItem> = [
   { icon: Home, label: "Overview", badge: "12" },
@@ -70,7 +70,7 @@ const DASHBOARD_MENU_ITEMS: Array<DashboardMenuItem> = [
   { icon: Activity, label: "Observability", badge: "3" },
   { icon: CreditCard, label: "Billing" },
   { icon: Settings, label: "Settings" },
-]
+];
 
 export function DashboardDemo() {
   return (
@@ -93,17 +93,19 @@ export function DashboardDemo() {
             <SidebarGroupLabel>Workspace</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {DASHBOARD_MENU_ITEMS.map(({ icon: Icon, label, badge }, index) => (
-                  <SidebarMenuItem key={label}>
-                    <SidebarMenuButton isActive={index === 0}>
-                      <Icon />
-                      <span>{label}</span>
-                    </SidebarMenuButton>
-                    {badge ? (
-                      <SidebarMenuBadge>{badge}</SidebarMenuBadge>
-                    ) : null}
-                  </SidebarMenuItem>
-                ))}
+                {DASHBOARD_MENU_ITEMS.map(
+                  ({ icon: Icon, label, badge }, index) => (
+                    <SidebarMenuItem key={label}>
+                      <SidebarMenuButton isActive={index === 0}>
+                        <Icon />
+                        <span>{label}</span>
+                      </SidebarMenuButton>
+                      {badge ? (
+                        <SidebarMenuBadge>{badge}</SidebarMenuBadge>
+                      ) : null}
+                    </SidebarMenuItem>
+                  ),
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -189,7 +191,7 @@ export function DashboardDemo() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
 
 function DashboardHero() {
@@ -261,16 +263,10 @@ function DashboardHero() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-function MetricCard({
-  icon,
-  label,
-  value,
-  delta,
-  detail,
-}: MetricCardProps) {
+function MetricCard({ icon, label, value, delta, detail }: MetricCardProps) {
   return (
     <Card>
       <CardHeader className="flex-row items-start justify-between">
@@ -287,13 +283,13 @@ function MetricCard({
         <span className="text-xs text-muted-foreground">{detail}</span>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 type MetricCardProps = {
-  icon: ReactNode
-  label: string
-  value: string
-  delta: string
-  detail: string
-}
+  icon: ReactNode;
+  label: string;
+  value: string;
+  delta: string;
+  detail: string;
+};

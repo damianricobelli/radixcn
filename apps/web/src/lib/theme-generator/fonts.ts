@@ -1,15 +1,6 @@
 import type { FontCategory, FontSourceFont, FontSourceFontName } from "./types";
 
-export const FONTSOURCE_API_URL = "https://api.fontsource.org/v1/fonts";
-
-const FONT_CATEGORY_LABELS = {
-  "sans-serif": "Sans",
-  serif: "Serif",
-  monospace: "Mono",
-  display: "Display",
-  handwriting: "Handwriting",
-  other: "Other",
-} as const satisfies Record<FontCategory, string>;
+const FONTSOURCE_API_URL = "https://api.fontsource.org/v1/fonts";
 
 export const FONT_CATEGORY_ORDER: Array<FontCategory> = [
   "sans-serif",
@@ -153,11 +144,7 @@ export const FALLBACK_FONT_OPTIONS = [
   },
 ] as const satisfies Array<FontSourceFont>;
 
-export function getFontCategoryLabel(category: FontCategory) {
-  return FONT_CATEGORY_LABELS[category];
-}
-
-export function normalizeFontCatalog(value: unknown): Array<FontSourceFont> {
+function normalizeFontCatalog(value: unknown): Array<FontSourceFont> {
   if (!Array.isArray(value)) {
     return [...FALLBACK_FONT_OPTIONS];
   }
@@ -215,14 +202,7 @@ export async function fetchFontCatalog() {
   }
 }
 
-export function getFontOptionsByCategory(
-  fonts: ReadonlyArray<FontSourceFont>,
-  category: FontCategory,
-) {
-  return fonts.filter((font) => font.category === category);
-}
-
-export function getFontDefinition(
+function getFontDefinition(
   fontName: FontSourceFontName,
   fonts: ReadonlyArray<FontSourceFont> = FALLBACK_FONT_OPTIONS,
 ) {
@@ -249,11 +229,11 @@ export function getFontLabel(
   return getFontDefinition(fontName, fonts).family;
 }
 
-export function getFontFamily(font: FontSourceFont) {
+function getFontFamily(font: FontSourceFont) {
   return font.variable ? `${font.family} Variable` : font.family;
 }
 
-export function getFontFallback(font: FontSourceFont) {
+function getFontFallback(font: FontSourceFont) {
   if (font.category === "monospace") {
     return "monospace";
   }

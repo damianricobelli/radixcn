@@ -1,13 +1,5 @@
 import { Button } from "@workspace/ui/components/button";
-import { Checkbox } from "@workspace/ui/components/checkbox";
 import { FieldGroup } from "@workspace/ui/components/field";
-import {
-  NumberField,
-  NumberFieldGroup,
-  NumberFieldInput,
-  NumberFieldScrubArea,
-  NumberFieldScrubAreaCursor,
-} from "@workspace/ui/components/number-field";
 import {
   Sidebar,
   SidebarContent,
@@ -15,17 +7,27 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@workspace/ui/components/sidebar";
-import { Slider } from "@workspace/ui/components/slider";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
-import { Check, Clipboard, Moon, RotateCcw, Shuffle, Sun } from "lucide-react";
+import { Check, Clipboard, RotateCcw, Shuffle } from "lucide-react";
 import { ChartDropdown } from "@/components/theme-generator/chart-color-dropdown";
 import { FontDropdown } from "@/components/theme-generator/font-dropdown";
-import { ACCENT_STRATEGIES } from "@/components/theme-generator/theme-customizer-constants";
+import { TokenBridgeSettings } from "@/components/theme-generator/token-bridge-settings";
+import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field";
+import {
+  AdditionalStatesCheckbox,
+  getRadiusLabel,
+  ShadowNumberControl,
+  ThemeModeSwitch,
+} from "@/components/theme-generator/theme-customizer-sidebar-controls";
+import {
+  ACCENT_STRATEGIES,
+  ACCENT_STRATEGY_META,
+} from "@/components/theme-generator/theme-customizer-constants";
 import {
   CustomPaletteHoverCard,
   OptionDropdown,
@@ -49,7 +51,6 @@ import {
 import type {
   ColorMode,
   FontSourceFont,
-  RadiusScale,
   RadixScaleName,
   ThemeModeTokens,
   ThemeSelection,
@@ -82,45 +83,32 @@ export function ThemeCustomizerSidebar({
 
   return (
     <Sidebar variant="inset" collapsible="offcanvas">
-      <SidebarHeader className="gap-3 px-3 pt-3 pb-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="text-sm font-semibold">Customize</div>
-            <div className="truncate text-xs text-sidebar-foreground/65">
-              Theme configuration
+      <Tabs defaultValue="colors" className="min-h-0 flex-1 gap-0">
+        <SidebarHeader className="gap-3 px-3 pt-3 pb-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-semibold">Customize</div>
+              <div className="truncate text-xs text-sidebar-foreground/65">
+                Theme configuration
+              </div>
             </div>
+            <ThemeModeSwitch mode={mode} onModeChange={onModeChange} />
           </div>
-          <ThemeModeSwitch mode={mode} onModeChange={onModeChange} />
-        </div>
-        <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/25 p-1">
-          <ThemeTemplateDropdown />
-        </div>
-      </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup className="px-3 pt-1 pb-2">
-          <Tabs defaultValue="colors" className="gap-3">
-            <TabsList className="grid h-9 w-full grid-cols-3 rounded-lg border border-sidebar-border bg-sidebar-accent/35 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)]">
-              <TabsTrigger
-                className="rounded-md text-xs data-active:bg-sidebar data-active:shadow-sm"
-                value="colors"
-              >
-                Colors
-              </TabsTrigger>
-              <TabsTrigger
-                className="rounded-md text-xs data-active:bg-sidebar data-active:shadow-sm"
-                value="typography"
-              >
-                Typography
-              </TabsTrigger>
-              <TabsTrigger
-                className="rounded-md text-xs data-active:bg-sidebar data-active:shadow-sm"
-                value="other"
-              >
-                Other
-              </TabsTrigger>
-            </TabsList>
+          <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/25 p-1">
+            <ThemeTemplateDropdown />
+          </div>
 
+          <TabsList className="w-full border">
+            <TabsTrigger value="colors">Colors</TabsTrigger>
+            <TabsTrigger value="typography">Typography</TabsTrigger>
+            <TabsTrigger value="other">Other</TabsTrigger>
+            <TabsTrigger value="bridge">Bridge</TabsTrigger>
+          </TabsList>
+        </SidebarHeader>
+
+        <SidebarContent>
+          <SidebarGroup className="px-3 pt-1 pb-2">
             <TabsContent value="colors">
               <FieldGroup className="gap-5">
                 <PanelSection
@@ -144,13 +132,16 @@ export function ThemeCustomizerSidebar({
                     value={selection.baseScale}
                     recommended={BASE_SCALES}
                     customEnabled={selection.customBaseEnabled}
+                    customPickerEnabled={colorsCustomEnabled}
                     customValue={selection.customBaseColor}
                     fallback={getScaleHex(selection.baseScale)}
-                    globalCustomEnabled={colorsCustomEnabled}
                     palettePreviewRole="gray"
                     onChange={(value) => onUpdate({ baseScale: value })}
                     onCustomChange={(value) =>
-                      onUpdate({ customBaseColor: value })
+                      onUpdate({
+                        customBaseEnabled: true,
+                        customBaseColor: value,
+                      })
                     }
                   />
 
@@ -159,13 +150,16 @@ export function ThemeCustomizerSidebar({
                     value={selection.primaryScale}
                     recommended={PRIMARY_SCALES}
                     customEnabled={selection.customPrimaryEnabled}
+                    customPickerEnabled={colorsCustomEnabled}
                     customValue={selection.customPrimaryColor}
                     fallback={getScaleHex(selection.primaryScale)}
-                    globalCustomEnabled={colorsCustomEnabled}
                     palettePreviewRole="accent"
                     onChange={(value) => onUpdate({ primaryScale: value })}
                     onCustomChange={(value) =>
-                      onUpdate({ customPrimaryColor: value })
+                      onUpdate({
+                        customPrimaryEnabled: true,
+                        customPrimaryColor: value,
+                      })
                     }
                   />
 
@@ -174,23 +168,59 @@ export function ThemeCustomizerSidebar({
                     value={selection.destructiveScale}
                     recommended={DESTRUCTIVE_SCALES}
                     customEnabled={selection.customDestructiveEnabled}
+                    customPickerEnabled={colorsCustomEnabled}
                     customValue={selection.customDestructiveColor}
                     fallback={getScaleHex(selection.destructiveScale)}
-                    globalCustomEnabled={colorsCustomEnabled}
                     palettePreviewRole="accent"
+                    recommendedOnly
                     onChange={(value) => onUpdate({ destructiveScale: value })}
                     onCustomChange={(value) =>
-                      onUpdate({ customDestructiveColor: value })
+                      onUpdate({
+                        customDestructiveEnabled: true,
+                        customDestructiveColor: value,
+                      })
                     }
                   />
+                </PanelSection>
 
-                  <OptionDropdown
-                    label="Accent"
-                    value={selection.accentStrategy}
-                    options={ACCENT_STRATEGIES}
-                    onChange={(value) => onUpdate({ accentStrategy: value })}
-                  />
-
+                <PanelSection
+                  title="Accent"
+                  action={
+                    <SectionCustomSwitch
+                      checked={selection.customAccentEnabled}
+                      onCheckedChange={(enabled) =>
+                        onUpdate({ customAccentEnabled: enabled })
+                      }
+                    />
+                  }
+                >
+                  {selection.customAccentEnabled ? (
+                    <CustomColorPickerTriggerRow
+                      label="Accent"
+                      value={selection.customAccentColor}
+                      fallback={
+                        selection.customPrimaryColor ||
+                        getScaleHex(selection.primaryScale)
+                      }
+                      displayValue="Pick color"
+                      swatch={
+                        selection.customPrimaryColor ||
+                        getScaleHex(selection.primaryScale)
+                      }
+                      palettePreviewRole="accent"
+                      onChange={(value) =>
+                        onUpdate({ customAccentColor: value })
+                      }
+                    />
+                  ) : (
+                    <OptionDropdown
+                      label="Source"
+                      value={selection.accentStrategy}
+                      options={ACCENT_STRATEGIES}
+                      getLabel={(value) => ACCENT_STRATEGY_META[value].label}
+                      onChange={(value) => onUpdate({ accentStrategy: value })}
+                    />
+                  )}
                 </PanelSection>
 
                 <PanelSection
@@ -223,13 +253,17 @@ export function ThemeCustomizerSidebar({
                         value={selection.successScale}
                         recommended={STATE_SCALE_RECOMMENDATIONS.success}
                         customEnabled={selection.customSuccessEnabled}
+                        customPickerEnabled={statesCustomEnabled}
                         customValue={selection.customSuccessColor}
                         fallback={getScaleHex(selection.successScale)}
-                        globalCustomEnabled={statesCustomEnabled}
                         palettePreviewRole="accent"
+                        recommendedOnly
                         onChange={(value) => onUpdate({ successScale: value })}
                         onCustomChange={(value) =>
-                          onUpdate({ customSuccessColor: value })
+                          onUpdate({
+                            customSuccessEnabled: true,
+                            customSuccessColor: value,
+                          })
                         }
                       />
 
@@ -238,13 +272,17 @@ export function ThemeCustomizerSidebar({
                         value={selection.warningScale}
                         recommended={STATE_SCALE_RECOMMENDATIONS.warning}
                         customEnabled={selection.customWarningEnabled}
+                        customPickerEnabled={statesCustomEnabled}
                         customValue={selection.customWarningColor}
                         fallback={getScaleHex(selection.warningScale)}
-                        globalCustomEnabled={statesCustomEnabled}
                         palettePreviewRole="accent"
+                        recommendedOnly
                         onChange={(value) => onUpdate({ warningScale: value })}
                         onCustomChange={(value) =>
-                          onUpdate({ customWarningColor: value })
+                          onUpdate({
+                            customWarningEnabled: true,
+                            customWarningColor: value,
+                          })
                         }
                       />
 
@@ -253,13 +291,17 @@ export function ThemeCustomizerSidebar({
                         value={selection.infoScale}
                         recommended={STATE_SCALE_RECOMMENDATIONS.info}
                         customEnabled={selection.customInfoEnabled}
+                        customPickerEnabled={statesCustomEnabled}
                         customValue={selection.customInfoColor}
                         fallback={getScaleHex(selection.infoScale)}
-                        globalCustomEnabled={statesCustomEnabled}
                         palettePreviewRole="accent"
+                        recommendedOnly
                         onChange={(value) => onUpdate({ infoScale: value })}
                         onCustomChange={(value) =>
-                          onUpdate({ customInfoColor: value })
+                          onUpdate({
+                            customInfoEnabled: true,
+                            customInfoColor: value,
+                          })
                         }
                       />
                     </>
@@ -289,7 +331,7 @@ export function ThemeCustomizerSidebar({
                     }
                     onChartScaleChange={onUpdateChartScale}
                     onCustomChartColorChange={onUpdateCustomChartColor}
-                    customEnabled={chartsCustomEnabled}
+                    customPickerEnabled={chartsCustomEnabled}
                   />
                 </PanelSection>
               </FieldGroup>
@@ -369,7 +411,6 @@ export function ThemeCustomizerSidebar({
                       customEnabled={selection.customShadowEnabled}
                       customValue={selection.customShadowColor}
                       fallback={getScaleHex(selection.shadowScale)}
-                      globalCustomEnabled={false}
                       onChange={(value) => onUpdate({ shadowScale: value })}
                       onCustomChange={(value) =>
                         onUpdate({ customShadowColor: value })
@@ -426,9 +467,18 @@ export function ThemeCustomizerSidebar({
                 </PanelSection>
               </FieldGroup>
             </TabsContent>
-          </Tabs>
-        </SidebarGroup>
-      </SidebarContent>
+
+            <TabsContent value="bridge">
+              <FieldGroup className="gap-5">
+                <TokenBridgeSettings
+                  selection={selection}
+                  onUpdate={onUpdate}
+                />
+              </FieldGroup>
+            </TabsContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Tabs>
 
       <SidebarFooter className="gap-2">
         <Button onClick={onCopy}>
@@ -465,162 +515,3 @@ type ThemeCustomizerSidebarProps = {
   onUpdateCustomChartColor: (index: number, color: string) => void;
   onUpdateCustomChartEnabled: (index: number, enabled: boolean) => void;
 };
-
-function ThemeModeSwitch({ mode, onModeChange }: ThemeModeSwitchProps) {
-  const isDark = mode === "dark";
-
-  return (
-    <button
-      aria-checked={isDark}
-      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
-      className="relative inline-flex h-8 w-[58px] shrink-0 items-center rounded-full border border-sidebar-border bg-sidebar-accent p-1 text-sidebar-foreground transition-colors outline-none hover:bg-sidebar-accent/80 focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-      onClick={() => onModeChange(isDark ? "light" : "dark")}
-      role="switch"
-      type="button"
-    >
-      <span className="grid w-full grid-cols-2 place-items-center">
-        <Sun className="size-3.5 text-sidebar-foreground/55" />
-        <Moon className="size-3.5 text-sidebar-foreground/55" />
-      </span>
-      <span
-        className={[
-          "absolute top-1 left-1 grid size-6 place-items-center rounded-full bg-sidebar shadow-sm ring-1 ring-sidebar-border transition-transform",
-          isDark ? "translate-x-6" : "translate-x-0",
-        ].join(" ")}
-      >
-        {isDark ? (
-          <Moon className="size-3.5 text-sidebar-foreground" />
-        ) : (
-          <Sun className="size-3.5 text-sidebar-foreground" />
-        )}
-      </span>
-    </button>
-  );
-}
-
-type ThemeModeSwitchProps = {
-  mode: ColorMode;
-  onModeChange: (mode: ColorMode) => void;
-};
-
-function getRadiusLabel(radius: RadiusScale) {
-  if (radius === "default") {
-    return "Default";
-  }
-
-  if (radius === "none") {
-    return "None";
-  }
-
-  return `${radius.slice(0, 1).toUpperCase()}${radius.slice(1)}`;
-}
-
-function AdditionalStatesCheckbox({
-  checked,
-  onCheckedChange,
-}: AdditionalStatesCheckboxProps) {
-  return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-md px-2.5 py-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent/55">
-      <Checkbox
-        checked={checked}
-        className="mt-0.5"
-        onCheckedChange={(nextChecked) => onCheckedChange(nextChecked === true)}
-      />
-      <span className="min-w-0">
-        <span className="block text-sm font-medium">Add states</span>
-        <span className="block text-xs text-sidebar-foreground/65">
-          Success, warning, and info.
-        </span>
-      </span>
-    </label>
-  );
-}
-
-type AdditionalStatesCheckboxProps = {
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-};
-
-function ShadowNumberControl({
-  label,
-  value,
-  min,
-  max,
-  step,
-  unit,
-  onChange,
-}: ShadowNumberControlProps) {
-  return (
-    <NumberField
-      className="grid grid-cols-[72px_minmax(0,1fr)_80px] items-center gap-2 px-2.5 py-2 text-sidebar-foreground"
-      value={value}
-      min={min}
-      max={max}
-      step={step}
-      format={{
-        maximumFractionDigits: getStepPrecision(step),
-      }}
-      onValueChange={(nextValue) => {
-        if (typeof nextValue === "number") {
-          onChange(clamp(roundByStep(nextValue, step), min, max));
-        }
-      }}
-    >
-      <NumberFieldScrubArea className="min-w-0">
-        <span className="truncate text-sm font-medium">{label}</span>
-        <NumberFieldScrubAreaCursor />
-      </NumberFieldScrubArea>
-      <Slider
-        aria-label={label}
-        value={[value]}
-        min={min}
-        max={max}
-        step={step}
-        onValueChange={(nextValues) => {
-          const nextValue = Array.isArray(nextValues)
-            ? nextValues[0]
-            : nextValues;
-          if (typeof nextValue === "number") {
-            onChange(roundByStep(nextValue, step));
-          }
-        }}
-      />
-      <div className="flex items-center gap-1">
-        <NumberFieldGroup className="h-7 w-14 rounded-md bg-sidebar-accent/25">
-          <NumberFieldInput
-            aria-label={`${label} value`}
-            className="px-1.5 text-right text-xs"
-          />
-        </NumberFieldGroup>
-        {unit ? (
-          <span className="w-4 shrink-0 text-xs text-sidebar-foreground/55">
-            {unit}
-          </span>
-        ) : null}
-      </div>
-    </NumberField>
-  );
-}
-
-type ShadowNumberControlProps = {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  unit?: string;
-  onChange: (value: number) => void;
-};
-
-function getStepPrecision(step: number) {
-  return step < 1 ? Math.ceil(Math.abs(Math.log10(step))) : 0;
-}
-
-function roundByStep(value: number, step: number) {
-  const precision = getStepPrecision(step);
-  return Number(value.toFixed(precision));
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}

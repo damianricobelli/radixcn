@@ -1,4 +1,4 @@
-import type { ChartConfig } from "@workspace/ui/components/chart"
+import type { ChartConfig } from "@workspace/ui/components/chart";
 
 export const trafficData = [
   { month: "Jan", desktop: 84, mobile: 42, api: 120 },
@@ -7,14 +7,14 @@ export const trafficData = [
   { month: "Apr", desktop: 35, mobile: 88, api: 96 },
   { month: "May", desktop: 96, mobile: 70, api: 148 },
   { month: "Jun", desktop: 108, mobile: 74, api: 172 },
-]
+];
 
 export const browserData = [
   { browser: "Chrome", visitors: 430, fill: "var(--chart-1)" },
   { browser: "Edge", visitors: 280, fill: "var(--chart-2)" },
   { browser: "Firefox", visitors: 160, fill: "var(--chart-3)" },
   { browser: "Safari", visitors: 65, fill: "var(--chart-4)" },
-]
+];
 
 export const reliabilityData = [
   { day: "Mon", uptime: 99.93, latency: 142 },
@@ -24,7 +24,7 @@ export const reliabilityData = [
   { day: "Fri", uptime: 99.95, latency: 132 },
   { day: "Sat", uptime: 99.99, latency: 118 },
   { day: "Sun", uptime: 99.97, latency: 124 },
-]
+];
 
 export const chartConfig = {
   desktop: { label: "Desktop", color: "var(--chart-1)" },
@@ -37,4 +37,4 @@ export const chartConfig = {
   Edge: { label: "Edge", color: "var(--chart-2)" },
   Firefox: { label: "Firefox", color: "var(--chart-3)" },
   Safari: { label: "Safari", color: "var(--chart-4)" },
-} satisfies ChartConfig
+} satisfies ChartConfig;

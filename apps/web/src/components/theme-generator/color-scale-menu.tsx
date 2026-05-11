@@ -25,6 +25,7 @@ export function ColorScaleDropdown({
   swatch = getScaleSwatch(value),
   recommended,
   recommendedLabel = "Recommended",
+  recommendedOnly = false,
   onChange,
 }: ColorScaleDropdownProps) {
   return (
@@ -39,6 +40,7 @@ export function ColorScaleDropdown({
         value={value}
         recommended={recommended}
         recommendedLabel={recommendedLabel}
+        recommendedOnly={recommendedOnly}
         onChange={onChange}
       />
     </SidebarDropdown>
@@ -53,6 +55,7 @@ type ColorScaleDropdownProps = {
   swatch?: string;
   recommended: ReadonlyArray<RadixScaleName>;
   recommendedLabel?: string;
+  recommendedOnly?: boolean;
   onChange: (value: RadixScaleName) => void;
 };
 
@@ -60,9 +63,11 @@ function ColorScaleRadioGroup({
   value,
   recommended,
   recommendedLabel,
+  recommendedOnly,
   onChange,
 }: ColorScaleRadioGroupProps) {
   const otherScales = getOtherScales(recommended);
+  const showRecommendedLabel = !recommendedOnly;
 
   return (
     <DropdownMenuRadioGroup
@@ -71,18 +76,24 @@ function ColorScaleRadioGroup({
     >
       <div>
         <DropdownMenuGroup>
-          <DropdownMenuLabel>{recommendedLabel}</DropdownMenuLabel>
+          {showRecommendedLabel ? (
+            <DropdownMenuLabel>{recommendedLabel}</DropdownMenuLabel>
+          ) : null}
           {recommended.map((scale) => (
             <ColorScaleMenuItem key={scale} scale={scale} />
           ))}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>Others</DropdownMenuLabel>
-          {otherScales.map((scale) => (
-            <ColorScaleMenuItem key={scale} scale={scale} />
-          ))}
-        </DropdownMenuGroup>
+        {recommendedOnly ? null : (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Others</DropdownMenuLabel>
+              {otherScales.map((scale) => (
+                <ColorScaleMenuItem key={scale} scale={scale} />
+              ))}
+            </DropdownMenuGroup>
+          </>
+        )}
       </div>
     </DropdownMenuRadioGroup>
   );
@@ -92,6 +103,7 @@ type ColorScaleRadioGroupProps = {
   value: RadixScaleName;
   recommended: ReadonlyArray<RadixScaleName>;
   recommendedLabel: string;
+  recommendedOnly: boolean;
   onChange: (value: RadixScaleName) => void;
 };
 

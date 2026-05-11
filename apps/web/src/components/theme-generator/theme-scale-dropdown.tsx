@@ -1,35 +1,39 @@
-import { ColorScaleDropdown } from "@/components/theme-generator/color-scale-menu"
-import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field"
+import { ColorScaleDropdown } from "@/components/theme-generator/color-scale-menu";
+import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field";
 import {
   getScaleSwatch,
   labelize,
-} from "@/components/theme-generator/theme-customizer-utils"
-import { normalizeHexColor } from "@/lib/theme-generator/color"
-import type { CustomPalettePreviewRole } from "@/lib/theme-generator/generator"
-import type { RadixScaleName } from "@/lib/theme-generator/types"
+} from "@/components/theme-generator/theme-customizer-utils";
+import { normalizeHexColor } from "@/lib/theme-generator/color";
+import type { CustomPalettePreviewRole } from "@/lib/theme-generator/generator";
+import type { RadixScaleName } from "@/lib/theme-generator/types";
 
 export function ScaleDropdown({
   label,
   value,
   recommended,
   customEnabled,
+  customPickerEnabled = customEnabled,
   customValue,
   fallback,
-  globalCustomEnabled,
   palettePreviewRole,
   onChange,
   onCustomChange,
   compact = false,
+  recommendedOnly = false,
 }: ScaleDropdownProps) {
-  const customActive = globalCustomEnabled || customEnabled
-  const customSwatch = normalizeHexColor(customValue)
+  const customActive = customPickerEnabled;
+  const customSwatch = normalizeHexColor(customValue);
+  const fallbackSwatch = normalizeHexColor(fallback);
   const swatch =
-    customActive && customSwatch ? customSwatch : getScaleSwatch(value)
+    customActive && (customSwatch || fallbackSwatch)
+      ? (customSwatch ?? fallbackSwatch ?? getScaleSwatch(value))
+      : getScaleSwatch(value);
   const displayValue = customActive
-    ? (customSwatch ?? "Pick color")
+    ? (customSwatch ?? fallbackSwatch ?? labelize(value))
     : compact
       ? value
-      : labelize(value)
+      : labelize(value);
 
   return (
     <div className="min-w-0">
@@ -53,23 +57,25 @@ export function ScaleDropdown({
           displayValue={displayValue}
           swatch={swatch}
           recommended={recommended}
+          recommendedOnly={recommendedOnly}
           onChange={onChange}
         />
       )}
     </div>
-  )
+  );
 }
 
 type ScaleDropdownProps = {
-  label: string
-  value: RadixScaleName
-  recommended: ReadonlyArray<RadixScaleName>
-  customEnabled: boolean
-  customValue: string
-  fallback: string
-  globalCustomEnabled: boolean
-  palettePreviewRole?: CustomPalettePreviewRole
-  onChange: (value: RadixScaleName) => void
-  onCustomChange: (value: string) => void
-  compact?: boolean
-}
+  label: string;
+  value: RadixScaleName;
+  recommended: ReadonlyArray<RadixScaleName>;
+  customEnabled: boolean;
+  customPickerEnabled?: boolean;
+  customValue: string;
+  fallback: string;
+  palettePreviewRole?: CustomPalettePreviewRole;
+  onChange: (value: RadixScaleName) => void;
+  onCustomChange: (value: string) => void;
+  compact?: boolean;
+  recommendedOnly?: boolean;
+};

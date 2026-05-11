@@ -8,18 +8,13 @@ import {
   normalizeHexColor,
 } from "./color";
 import { generateRadixColors } from "./custom-palette-generator";
+import { getFontCssValue, getFontImportCss } from "./fonts";
 import {
+  BASE_SCALES,
   getRadixHexScale,
   getRadixOklchScale,
   usesDarkTextOnSolid,
 } from "./radix";
-import {
-  FALLBACK_FONT_OPTIONS,
-  getFontCssValue,
-  getFontImportCss,
-  getMonoFontOptions,
-  getSansFontOptions,
-} from "./fonts";
 import type {
   FontSourceFont,
   GeneratedTheme,
@@ -30,6 +25,7 @@ import type {
   StateName,
   ThemeModeTokens,
   ThemeSelection,
+  TokenBridgeFontToken,
   TokenMapping,
 } from "./types";
 
@@ -41,7 +37,7 @@ export const RADIUS_OPTIONS = [
   "large",
 ] as const satisfies Array<RadiusScale>;
 
-export const RADIUS_VALUES = {
+const RADIUS_VALUES = {
   default: "0.625rem",
   none: "0rem",
   small: "0.3rem",
@@ -49,18 +45,65 @@ export const RADIUS_VALUES = {
   large: "0.75rem",
 } as const satisfies Record<RadiusScale, string>;
 
-export const FONT_OPTIONS = FALLBACK_FONT_OPTIONS;
-export const SANS_FONT_OPTIONS = getSansFontOptions(FONT_OPTIONS);
-export const MONO_FONT_OPTIONS = getMonoFontOptions(FONT_OPTIONS);
+export const DEFAULT_TOKEN_BRIDGE_MAPPINGS = {
+  background: "surface.canvas",
+  foreground: "content.default",
+  card: "surface.card",
+  "card-foreground": "content.default",
+  popover: "surface.popover",
+  "popover-foreground": "content.default",
+  primary: "interactive.primary.default",
+  "primary-foreground": "interactive.primary.foreground",
+  secondary: "interactive.secondary.default",
+  "secondary-foreground": "interactive.secondary.foreground",
+  muted: "surface.muted",
+  "muted-foreground": "content.muted",
+  accent: "interactive.accent.default",
+  "accent-foreground": "interactive.accent.foreground",
+  destructive: "status.danger.default",
+  "destructive-foreground": "status.danger.foreground",
+  "destructive-muted": "status.danger.muted",
+  "destructive-muted-foreground": "status.danger.muted.foreground",
+  "destructive-border": "status.danger.border",
+  border: "border.default",
+  input: "border.input",
+  ring: "border.focus",
+  "chart-1": "data.visual.1",
+  "chart-2": "data.visual.2",
+  "chart-3": "data.visual.3",
+  "chart-4": "data.visual.4",
+  "chart-5": "data.visual.5",
+  success: "status.success.default",
+  "success-foreground": "status.success.foreground",
+  "success-muted": "status.success.muted",
+  "success-muted-foreground": "status.success.muted.foreground",
+  "success-border": "status.success.border",
+  warning: "status.warning.default",
+  "warning-foreground": "status.warning.foreground",
+  "warning-muted": "status.warning.muted",
+  "warning-muted-foreground": "status.warning.muted.foreground",
+  "warning-border": "status.warning.border",
+  info: "status.info.default",
+  "info-foreground": "status.info.foreground",
+  "info-muted": "status.info.muted",
+  "info-muted-foreground": "status.info.muted.foreground",
+  "info-border": "status.info.border",
+} as const satisfies Partial<Record<SemanticToken, string>>;
+
+export const DEFAULT_TOKEN_BRIDGE_FONT_MAPPINGS = {
+  "font-sans": "typography.font.body",
+  "font-mono": "typography.font.code",
+  "font-heading": "typography.font.heading",
+} as const satisfies Partial<Record<TokenBridgeFontToken, string>>;
 
 export const DEFAULT_THEME_SELECTION: ThemeSelection = {
-  name: "Radix Indigo",
+  name: "Default",
   baseScale: "slate",
   customBaseEnabled: false,
   customBaseColor: "",
-  primaryScale: "indigo",
-  customPrimaryEnabled: false,
-  customPrimaryColor: "",
+  primaryScale: "slate",
+  customPrimaryEnabled: true,
+  customPrimaryColor: "#18181b",
   destructiveScale: "red",
   customDestructiveEnabled: false,
   customDestructiveColor: "",
@@ -76,7 +119,7 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   customInfoColor: "",
   radiusScale: "default",
   shadowScale: "slate",
-  customShadowEnabled: true,
+  customShadowEnabled: false,
   customShadowColor: "#000000",
   shadowOpacity: 0.1,
   shadowBlur: 3,
@@ -88,11 +131,16 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   headingFont: "inter",
   sansFont: "inter",
   monoFont: "jetbrains-mono",
-  accentStrategy: "primary",
-  chartStrategy: "monochrome",
-  chartScales: ["indigo", "teal", "amber", "purple", "red"],
+  accentStrategy: "base",
+  customAccentEnabled: false,
+  customAccentColor: "",
+  chartStrategy: "neutral",
+  chartScales: ["slate", "slate", "slate", "slate", "slate"],
   customChartColorEnabled: [false, false, false, false, false],
   customChartColors: ["", "", "", "", ""],
+  tokenBridgeEnabled: false,
+  tokenBridgeMappings: {},
+  tokenBridgeFontMappings: {},
 };
 
 const BASE_SEMANTIC_TOKENS: Array<SemanticToken> = [
@@ -112,6 +160,9 @@ const BASE_SEMANTIC_TOKENS: Array<SemanticToken> = [
   "accent-foreground",
   "destructive",
   "destructive-foreground",
+  "destructive-muted",
+  "destructive-muted-foreground",
+  "destructive-border",
   "border",
   "input",
   "ring",
@@ -133,10 +184,19 @@ const BASE_SEMANTIC_TOKENS: Array<SemanticToken> = [
 const STATE_TOKENS: Array<SemanticToken> = [
   "success",
   "success-foreground",
+  "success-muted",
+  "success-muted-foreground",
+  "success-border",
   "warning",
   "warning-foreground",
+  "warning-muted",
+  "warning-muted-foreground",
+  "warning-border",
   "info",
   "info-foreground",
+  "info-muted",
+  "info-muted-foreground",
+  "info-border",
 ];
 
 const BASE_THEME_INLINE_TOKENS = [
@@ -156,6 +216,12 @@ const BASE_THEME_INLINE_TOKENS = [
   ["--color-accent-foreground", "var(--accent-foreground)"],
   ["--color-destructive", "var(--destructive)"],
   ["--color-destructive-foreground", "var(--destructive-foreground)"],
+  ["--color-destructive-muted", "var(--destructive-muted)"],
+  [
+    "--color-destructive-muted-foreground",
+    "var(--destructive-muted-foreground)",
+  ],
+  ["--color-destructive-border", "var(--destructive-border)"],
   ["--color-border", "var(--border)"],
   ["--color-input", "var(--input)"],
   ["--color-ring", "var(--ring)"],
@@ -195,10 +261,19 @@ const BASE_THEME_INLINE_TOKENS = [
 const STATE_THEME_INLINE_TOKENS = [
   ["--color-success", "var(--success)"],
   ["--color-success-foreground", "var(--success-foreground)"],
+  ["--color-success-muted", "var(--success-muted)"],
+  ["--color-success-muted-foreground", "var(--success-muted-foreground)"],
+  ["--color-success-border", "var(--success-border)"],
   ["--color-warning", "var(--warning)"],
   ["--color-warning-foreground", "var(--warning-foreground)"],
+  ["--color-warning-muted", "var(--warning-muted)"],
+  ["--color-warning-muted-foreground", "var(--warning-muted-foreground)"],
+  ["--color-warning-border", "var(--warning-border)"],
   ["--color-info", "var(--info)"],
   ["--color-info-foreground", "var(--info-foreground)"],
+  ["--color-info-muted", "var(--info-muted)"],
+  ["--color-info-muted-foreground", "var(--info-muted-foreground)"],
+  ["--color-info-border", "var(--info-border)"],
 ] as const;
 
 const TOKEN_REASONS: Record<SemanticToken, string> = {
@@ -208,26 +283,43 @@ const TOKEN_REASONS: Record<SemanticToken, string> = {
   "card-foreground": "Cards carry high-emphasis readable content.",
   popover: "Floating surfaces are slightly separated from the app canvas.",
   "popover-foreground": "Popover text keeps maximum clarity.",
-  primary: "Step 9 is Radix's solid color for main action surfaces.",
+  primary:
+    "Chromatic primary surfaces use step 9; neutral primary surfaces use step 12 so dark mode inverts to a light solid.",
   "primary-foreground":
-    "Solid surfaces follow Radix step 9 foreground guidance.",
-  secondary: "Step 3 gives low-emphasis filled UI without becoming a border.",
+    "Neutral primary solids use step 1; chromatic solids follow Radix step 9 foreground guidance.",
+  secondary:
+    "Step 3 matches shadcn's neutral secondary background semantics.",
   "secondary-foreground": "Secondary surfaces still need high-emphasis text.",
-  muted: "Step 2 is the most subtle component background.",
+  muted: "Step 3 intentionally matches secondary, with lower-emphasis text.",
   "muted-foreground": "Step 11 is Radix's low-emphasis text color.",
-  accent: "Accent follows the selected base or brand subtle interaction color.",
+  accent: "Step 3 follows the selected base or brand interaction scale.",
   "accent-foreground": "Accent foreground follows the matching text scale.",
   destructive: "Destructive surfaces use the selected danger scale at step 9.",
   "destructive-foreground":
     "Danger solids follow Radix step 9 foreground guidance.",
+  "destructive-muted": "Destructive component backgrounds use Radix step 3.",
+  "destructive-muted-foreground":
+    "Destructive text on subtle surfaces uses Radix step 11.",
+  "destructive-border": "Destructive borders use Radix step 6.",
   success: "Success surfaces use the selected positive state scale at step 9.",
   "success-foreground":
     "Success solids follow Radix step 9 foreground guidance.",
+  "success-muted": "Success component backgrounds use Radix step 3.",
+  "success-muted-foreground":
+    "Success text on subtle surfaces uses Radix step 11.",
+  "success-border": "Success borders use Radix step 6.",
   warning: "Warning surfaces use the selected caution state scale at step 9.",
   "warning-foreground":
     "Warning solids follow Radix step 9 foreground guidance.",
+  "warning-muted": "Warning component backgrounds use Radix step 3.",
+  "warning-muted-foreground":
+    "Warning text on subtle surfaces uses Radix step 11.",
+  "warning-border": "Warning borders use Radix step 6.",
   info: "Info surfaces use the selected informational state scale at step 9.",
   "info-foreground": "Info solids follow Radix step 9 foreground guidance.",
+  "info-muted": "Info component backgrounds use Radix step 3.",
+  "info-muted-foreground": "Info text on subtle surfaces uses Radix step 11.",
+  "info-border": "Info borders use Radix step 6.",
   border: "Step 6 is Radix's default subtle border.",
   input: "Step 7 gives input controls a more legible boundary.",
   ring: "Step 8 is the strong border/focus step.",
@@ -240,7 +332,7 @@ const TOKEN_REASONS: Record<SemanticToken, string> = {
   "sidebar-foreground": "Sidebar text uses high-emphasis text.",
   "sidebar-primary": "Sidebar primary mirrors the main brand action.",
   "sidebar-primary-foreground":
-    "Sidebar brand solids follow Radix step 9 foreground guidance.",
+    "Sidebar brand solids use the same foreground rule as primary.",
   "sidebar-accent": "Sidebar hover/active surfaces mirror the accent strategy.",
   "sidebar-accent-foreground":
     "Sidebar accent text follows the matching scale.",
@@ -251,6 +343,7 @@ const TOKEN_REASONS: Record<SemanticToken, string> = {
 type CustomScaleName =
   | "custom-base"
   | "custom-primary"
+  | "custom-accent"
   | "custom-destructive"
   | "custom-success"
   | "custom-warning"
@@ -276,8 +369,19 @@ interface Source {
   step: RadixStep;
 }
 
+interface LiteralSource {
+  value: string;
+  description: string;
+}
+
+type TokenSource = Source | LiteralSource;
+
 function source(scale: ScaleName, step: RadixStep): Source {
   return { scale, step };
+}
+
+function literal(value: string, description: string): LiteralSource {
+  return { value, description };
 }
 
 function hasCustomColor(value: string) {
@@ -370,10 +474,14 @@ function isCustomChartEnabled(selection: ThemeSelection, index: number) {
 
 function readSourceValue(
   selection: ThemeSelection,
-  sourceValue: Source,
+  sourceValue: TokenSource,
   mode: "light" | "dark",
   customScaleCache?: CustomScaleRequestCache,
 ) {
+  if (isLiteralSource(sourceValue)) {
+    return colorToOklch(sourceValue.value);
+  }
+
   if (isCustomScale(sourceValue.scale)) {
     const scale = getCustomScale(
       selection,
@@ -478,7 +586,12 @@ export function getGeneratedCustomPalettePreview({
     return null;
   }
 
-  const light = generateCustomPaletteScale(selection, customColor, role, "light");
+  const light = generateCustomPaletteScale(
+    selection,
+    customColor,
+    role,
+    "light",
+  );
   const dark = generateCustomPaletteScale(selection, customColor, role, "dark");
 
   return { light, dark };
@@ -511,7 +624,10 @@ function generateCustomPaletteScale(
 }
 
 function getBaseBackground(selection: ThemeSelection, mode: "light" | "dark") {
-  if (hasCustomColor(selection.customBaseColor)) {
+  if (
+    isCustomBaseEnabled(selection) &&
+    hasCustomColor(selection.customBaseColor)
+  ) {
     return mode === "light" ? "#ffffff" : "#111111";
   }
 
@@ -519,7 +635,9 @@ function getBaseBackground(selection: ThemeSelection, mode: "light" | "dark") {
 }
 
 function getBaseReference(selection: ThemeSelection, mode: "light" | "dark") {
-  const customBaseColor = normalizeHexColor(selection.customBaseColor);
+  const customBaseColor = isCustomBaseEnabled(selection)
+    ? normalizeHexColor(selection.customBaseColor)
+    : null;
 
   return customBaseColor ?? getRadixHexScale(selection.baseScale)[mode][9];
 }
@@ -531,6 +649,10 @@ function getCustomColor(selection: ThemeSelection, scaleName: CustomScaleName) {
 
   if (scaleName === "custom-primary") {
     return selection.customPrimaryColor;
+  }
+
+  if (scaleName === "custom-accent") {
+    return selection.customAccentColor;
   }
 
   if (scaleName === "custom-destructive") {
@@ -560,14 +682,62 @@ function isCustomScale(scaleName: ScaleName): scaleName is CustomScaleName {
   return scaleName.startsWith("custom-");
 }
 
-function describeSource(sourceValue: Source) {
+function isLiteralSource(sourceValue: TokenSource): sourceValue is LiteralSource {
+  return "value" in sourceValue;
+}
+
+function describeSource(sourceValue: TokenSource) {
+  if (isLiteralSource(sourceValue)) {
+    return sourceValue.description;
+  }
+
   return `${sourceValue.scale}-${sourceValue.step}`;
 }
 
 function getAccentScale(selection: ThemeSelection) {
-  return selection.accentStrategy === "primary"
-    ? getPrimaryScale(selection)
-    : getBaseScale(selection);
+  if (
+    selection.customAccentEnabled &&
+    hasCustomColor(selection.customAccentColor)
+  ) {
+    return "custom-accent";
+  }
+
+  return selection.accentStrategy === "base"
+    ? getBaseScale(selection)
+    : getPrimaryScale(selection);
+}
+
+function usesNeutralPrimarySolid(selection: ThemeSelection) {
+  const primaryScale = getPrimaryScale(selection);
+
+  if (isCustomScale(primaryScale)) {
+    const primaryColor = normalizeHexColor(
+      getCustomColor(selection, primaryScale),
+    );
+
+    return primaryColor ? isNeutralColor(primaryColor) : false;
+  }
+
+  return (BASE_SCALES as ReadonlyArray<RadixScaleName>).includes(primaryScale);
+}
+
+function isNeutralColor(color: string) {
+  const oklch = colorToOklch(color);
+  const match = oklch.match(/oklch\(\s*[\d.]+%?\s+([\d.]+)/);
+  const chroma = match?.[1] ? Number(match[1]) : Number.NaN;
+
+  return Number.isFinite(chroma) && chroma < 0.035;
+}
+
+function getPrimarySolidSource(selection: ThemeSelection) {
+  return source(
+    getPrimaryScale(selection),
+    usesNeutralPrimarySolid(selection) ? 12 : 9,
+  );
+}
+
+function getPrimarySolidForegroundSource(selection: ThemeSelection) {
+  return source(getPrimaryScale(selection), 1);
 }
 
 function getChartSources(selection: ThemeSelection): Array<Source> {
@@ -588,28 +758,48 @@ function getChartSources(selection: ThemeSelection): Array<Source> {
   );
 }
 
-function getSemanticSources(selection: ThemeSelection) {
+function getSemanticSources(
+  selection: ThemeSelection,
+  mode: "light" | "dark",
+) {
   const accentScale = getAccentScale(selection);
   const chartSources = getChartSources(selection);
+  const panelSource =
+    mode === "light"
+      ? literal("#ffffff", "white panel")
+      : source(getBaseScale(selection), 2);
 
   return {
     background: source(getBaseScale(selection), 1),
     foreground: source(getBaseScale(selection), 12),
-    card: source(getBaseScale(selection), 2),
+    card: panelSource,
     "card-foreground": source(getBaseScale(selection), 12),
-    popover: source(getBaseScale(selection), 2),
+    popover: panelSource,
     "popover-foreground": source(getBaseScale(selection), 12),
-    primary: source(getPrimaryScale(selection), 9),
+    primary: getPrimarySolidSource(selection),
+    "primary-foreground": getPrimarySolidForegroundSource(selection),
     secondary: source(getBaseScale(selection), 3),
     "secondary-foreground": source(getBaseScale(selection), 12),
-    muted: source(getBaseScale(selection), 2),
+    muted: source(getBaseScale(selection), 3),
     "muted-foreground": source(getBaseScale(selection), 11),
     accent: source(accentScale, 3),
     "accent-foreground": source(accentScale, 12),
     destructive: source(getDestructiveScale(selection), 9),
+    "destructive-muted": source(getDestructiveScale(selection), 3),
+    "destructive-muted-foreground": source(getDestructiveScale(selection), 11),
+    "destructive-border": source(getDestructiveScale(selection), 6),
     success: source(getStateScale(selection, "success"), 9),
+    "success-muted": source(getStateScale(selection, "success"), 3),
+    "success-muted-foreground": source(getStateScale(selection, "success"), 11),
+    "success-border": source(getStateScale(selection, "success"), 6),
     warning: source(getStateScale(selection, "warning"), 9),
+    "warning-muted": source(getStateScale(selection, "warning"), 3),
+    "warning-muted-foreground": source(getStateScale(selection, "warning"), 11),
+    "warning-border": source(getStateScale(selection, "warning"), 6),
     info: source(getStateScale(selection, "info"), 9),
+    "info-muted": source(getStateScale(selection, "info"), 3),
+    "info-muted-foreground": source(getStateScale(selection, "info"), 11),
+    "info-border": source(getStateScale(selection, "info"), 6),
     border: source(getBaseScale(selection), 6),
     input: source(getBaseScale(selection), 7),
     ring: source(getPrimaryScale(selection), 8),
@@ -620,12 +810,13 @@ function getSemanticSources(selection: ThemeSelection) {
     "chart-5": chartSources[4],
     sidebar: source(getBaseScale(selection), 2),
     "sidebar-foreground": source(getBaseScale(selection), 12),
-    "sidebar-primary": source(getPrimaryScale(selection), 9),
+    "sidebar-primary": getPrimarySolidSource(selection),
+    "sidebar-primary-foreground": getPrimarySolidForegroundSource(selection),
     "sidebar-accent": source(accentScale, 3),
     "sidebar-accent-foreground": source(accentScale, 12),
     "sidebar-border": source(getBaseScale(selection), 6),
     "sidebar-ring": source(getPrimaryScale(selection), 8),
-  } satisfies Partial<Record<SemanticToken, Source>>;
+  } satisfies Partial<Record<SemanticToken, TokenSource>>;
 }
 
 function getSemanticTokens(selection: ThemeSelection): Array<SemanticToken> {
@@ -655,12 +846,12 @@ function buildModeTokens(
   selection: ThemeSelection,
   mode: "light" | "dark",
 ): ThemeModeTokens {
-  const sources = getSemanticSources(selection);
+  const sources = getSemanticSources(selection, mode);
   const customScaleCache: CustomScaleRequestCache = new Map();
   const tokens = {} as ThemeModeTokens;
 
   for (const token of getSemanticTokens(selection)) {
-    if (token === "primary-foreground") {
+    if (token === "primary-foreground" && !usesNeutralPrimarySolid(selection)) {
       tokens[token] = getSolidForegroundToken(
         selection,
         getPrimaryScale(selection),
@@ -700,7 +891,10 @@ function buildModeTokens(
       continue;
     }
 
-    if (token === "sidebar-primary-foreground") {
+    if (
+      token === "sidebar-primary-foreground" &&
+      !usesNeutralPrimarySolid(selection)
+    ) {
       tokens[token] = getSolidForegroundToken(
         selection,
         getPrimaryScale(selection),
@@ -721,16 +915,18 @@ function buildModeTokens(
 }
 
 function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
-  const sources = getSemanticSources(selection);
+  const lightSources = getSemanticSources(selection, "light");
+  const darkSources = getSemanticSources(selection, "dark");
 
   return getSemanticTokens(selection).map((token) => {
     if (
-      token === "primary-foreground" ||
       token === "destructive-foreground" ||
       token === "success-foreground" ||
       token === "warning-foreground" ||
       token === "info-foreground" ||
-      token === "sidebar-primary-foreground"
+      ((token === "primary-foreground" ||
+        token === "sidebar-primary-foreground") &&
+        !usesNeutralPrimarySolid(selection))
     ) {
       return {
         token,
@@ -740,11 +936,12 @@ function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
       };
     }
 
-    const tokenSource = sources[token];
+    const lightSource = lightSources[token];
+    const darkSource = darkSources[token];
     return {
       token,
-      lightSource: describeSource(tokenSource),
-      darkSource: `${describeSource(tokenSource)} dark`,
+      lightSource: describeSource(lightSource),
+      darkSource: describeSource(darkSource),
       reason: TOKEN_REASONS[token],
     };
   });
@@ -833,15 +1030,40 @@ function writeThemeInline(
     ? [...STATE_THEME_INLINE_TOKENS, ...BASE_THEME_INLINE_TOKENS]
     : BASE_THEME_INLINE_TOKENS;
   const fontTokens = [
-    ["--font-sans", getFontCssValue(selection.sansFont, fonts)],
-    ["--font-mono", getFontCssValue(selection.monoFont, fonts)],
-    ["--font-heading", getFontCssValue(selection.headingFont, fonts)],
+    [
+      "--font-sans",
+      getTokenBridgeFontValue(selection, "font-sans") ??
+        getFontCssValue(selection.sansFont, fonts),
+    ],
+    [
+      "--font-mono",
+      getTokenBridgeFontValue(selection, "font-mono") ??
+        getFontCssValue(selection.monoFont, fonts),
+    ],
+    [
+      "--font-heading",
+      getTokenBridgeFontValue(selection, "font-heading") ??
+        getFontCssValue(selection.headingFont, fonts),
+    ],
   ] as const;
   const lines = [...fontTokens, ...themeTokens].map(
     ([token, value]) => `  ${token}: ${value};`,
   );
 
   return ["@theme inline {", ...lines, "}"].join("\n");
+}
+
+function getTokenBridgeFontValue(
+  selection: ThemeSelection,
+  token: TokenBridgeFontToken,
+) {
+  if (!selection.tokenBridgeEnabled) {
+    return null;
+  }
+
+  const mappedToken = selection.tokenBridgeFontMappings[token]?.trim();
+
+  return mappedToken ? formatTokenBridgeReference(mappedToken) : null;
 }
 
 function writeTokenBlock(
@@ -853,7 +1075,10 @@ function writeTokenBlock(
     ([token, value]) => `  ${token}: ${value};`,
   );
   const lines = getSemanticTokens(selection).map(
-    (token) => `  --${token}: ${tokens[token]};`,
+    (token) =>
+      `  --${token}: ${
+        getTokenBridgeValue(selection, token) ?? tokens[token]
+      };`,
   );
 
   return [
@@ -865,6 +1090,104 @@ function writeTokenBlock(
     ...shadowTokens,
     "}",
   ].join("\n");
+}
+
+function getTokenBridgeValue(selection: ThemeSelection, token: SemanticToken) {
+  if (!selection.tokenBridgeEnabled) {
+    return null;
+  }
+
+  if (isChartToken(token) && selection.chartStrategy !== "multicolor") {
+    return null;
+  }
+
+  if (
+    isAdditionalStateBridgeToken(token) &&
+    !selection.additionalStatesEnabled
+  ) {
+    return null;
+  }
+
+  const mappedToken = selection.tokenBridgeMappings[token]?.trim();
+
+  if (mappedToken) {
+    return formatTokenBridgeReference(mappedToken);
+  }
+
+  const sidebarAlias = getSidebarTokenBridgeAlias(token);
+  const aliasedToken = sidebarAlias
+    ? selection.tokenBridgeMappings[sidebarAlias]?.trim()
+    : "";
+
+  return aliasedToken ? formatTokenBridgeReference(aliasedToken) : null;
+}
+
+function getSidebarTokenBridgeAlias(
+  token: SemanticToken,
+): SemanticToken | null {
+  if (token === "sidebar") {
+    return "card";
+  }
+
+  if (token === "sidebar-foreground") {
+    return "foreground";
+  }
+
+  if (token === "sidebar-primary") {
+    return "primary";
+  }
+
+  if (token === "sidebar-primary-foreground") {
+    return "primary-foreground";
+  }
+
+  if (token === "sidebar-accent") {
+    return "accent";
+  }
+
+  if (token === "sidebar-accent-foreground") {
+    return "accent-foreground";
+  }
+
+  if (token === "sidebar-border") {
+    return "border";
+  }
+
+  if (token === "sidebar-ring") {
+    return "ring";
+  }
+
+  return null;
+}
+
+function isChartToken(token: SemanticToken) {
+  return (
+    token === "chart-1" ||
+    token === "chart-2" ||
+    token === "chart-3" ||
+    token === "chart-4" ||
+    token === "chart-5"
+  );
+}
+
+function isAdditionalStateBridgeToken(token: SemanticToken) {
+  return (
+    token === "destructive-muted" ||
+    token === "destructive-muted-foreground" ||
+    token === "destructive-border"
+  );
+}
+
+function formatTokenBridgeReference(value: string) {
+  if (value.startsWith("var(")) {
+    return value;
+  }
+
+  if (value.startsWith("--")) {
+    return `var(${value})`;
+  }
+
+  return `var(--${value.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "")})`;
 }
 
 function writeCss(

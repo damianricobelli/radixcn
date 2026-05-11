@@ -14,6 +14,8 @@ export type RadiusScale = "default" | "none" | "small" | "medium" | "large";
 
 export type FontSourceFontName = string;
 
+export type TokenBridgeFontToken = "font-sans" | "font-mono" | "font-heading";
+
 export type FontCategory =
   | "sans-serif"
   | "serif"
@@ -69,7 +71,7 @@ export type RadixScaleName =
   | "violet"
   | "yellow";
 
-export type BaseSemanticToken =
+type BaseSemanticToken =
   | "background"
   | "foreground"
   | "card"
@@ -86,6 +88,9 @@ export type BaseSemanticToken =
   | "accent-foreground"
   | "destructive"
   | "destructive-foreground"
+  | "destructive-muted"
+  | "destructive-muted-foreground"
+  | "destructive-border"
   | "border"
   | "input"
   | "ring"
@@ -103,13 +108,22 @@ export type BaseSemanticToken =
   | "sidebar-border"
   | "sidebar-ring";
 
-export type StateToken =
+type StateToken =
   | "success"
   | "success-foreground"
+  | "success-muted"
+  | "success-muted-foreground"
+  | "success-border"
   | "warning"
   | "warning-foreground"
+  | "warning-muted"
+  | "warning-muted-foreground"
+  | "warning-border"
   | "info"
-  | "info-foreground";
+  | "info-foreground"
+  | "info-muted"
+  | "info-muted-foreground"
+  | "info-border";
 
 export type SemanticToken = BaseSemanticToken | StateToken;
 
@@ -152,6 +166,8 @@ export interface ThemeSelection {
   sansFont: FontSourceFontName;
   monoFont: FontSourceFontName;
   accentStrategy: AccentStrategy;
+  customAccentEnabled: boolean;
+  customAccentColor: string;
   chartStrategy: ChartStrategy;
   chartScales: [
     RadixScaleName,
@@ -162,6 +178,9 @@ export interface ThemeSelection {
   ];
   customChartColorEnabled: [boolean, boolean, boolean, boolean, boolean];
   customChartColors: [string, string, string, string, string];
+  tokenBridgeEnabled: boolean;
+  tokenBridgeMappings: Partial<Record<SemanticToken, string>>;
+  tokenBridgeFontMappings: Partial<Record<TokenBridgeFontToken, string>>;
 }
 
 export interface GeneratedTheme {

@@ -12,7 +12,7 @@ function coordsToNumbers(coords: readonly (number | null)[]): number[] {
 const CHROMA_EPS = 1e-9;
 const arrayOf12 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
-export const grayScaleNames = [
+const grayScaleNames = [
   "gray",
   "mauve",
   "slate",
@@ -21,7 +21,7 @@ export const grayScaleNames = [
   "sand",
 ] as const;
 
-export const scaleNames = [
+const scaleNames = [
   ...grayScaleNames,
   "tomato",
   "red",
@@ -774,7 +774,7 @@ function formatHex(str: string) {
 const darkModeEasing = [1, 0, 1, 0] as [number, number, number, number];
 const lightModeEasing = [0, 2, 0, 2] as [number, number, number, number];
 
-export function transposeProgressionStart(
+function transposeProgressionStart(
   to: number,
   arr: number[],
   curve: [number, number, number, number],
@@ -793,27 +793,6 @@ export function transposeProgressionStart(
     return [first - diff * fn(1)];
   }
   return arr.map((n, i) => n - diff * fn(1 - i / lastIndex));
-}
-
-export function transposeProgressionEnd(
-  to: number,
-  arr: number[],
-  curve: [number, number, number, number],
-) {
-  if (arr.length === 0) {
-    return [];
-  }
-  const fn = BezierEasing(...curve);
-  const lastIndex = arr.length - 1;
-  const last = arr[lastIndex];
-  if (last === undefined) {
-    return [];
-  }
-  const diff = last - to;
-  if (lastIndex === 0) {
-    return [last - diff * fn(1)];
-  }
-  return arr.map((n, i) => n - diff * fn(i / lastIndex));
 }
 
 // Convert to OKLCH string with percentage for the lightness channel

@@ -1,9 +1,11 @@
 import type { CSSProperties } from "react";
+import Color from "colorjs.io";
 import {
   ALL_RADIX_SCALES,
   getRadixHexScale,
   getRadixOklchScale,
 } from "@/lib/theme-generator/radix";
+import { normalizeHexColor } from "@/lib/theme-generator/color";
 import type {
   ChartStrategy,
   FontSourceFont,
@@ -74,6 +76,37 @@ export function getScaleHex(scale: RadixScaleName) {
   return getRadixHexScale(scale).light[9];
 }
 
+export function getClosestRadixScale(
+  color: string,
+  candidates: ReadonlyArray<RadixScaleName> = ALL_RADIX_SCALES,
+  fallback: RadixScaleName = "slate",
+) {
+  const normalizedColor = normalizeHexColor(color);
+
+  if (!normalizedColor) {
+    return fallback;
+  }
+
+  const target = colorToOklabCoords(normalizedColor);
+  let closestScale = fallback;
+  let closestDistance = Number.POSITIVE_INFINITY;
+
+  for (const scale of candidates) {
+    const radixScale = getRadixHexScale(scale).light;
+
+    for (const stepColor of Object.values(radixScale)) {
+      const distance = getOklabDistance(target, colorToOklabCoords(stepColor));
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestScale = scale;
+      }
+    }
+  }
+
+  return closestScale;
+}
+
 export function getChartSwatches(
   strategy: ChartStrategy,
   tokens: ThemeModeTokens,
@@ -96,4 +129,19 @@ export function labelize(value: string) {
     .split("-")
     .map((word) => word.slice(0, 1).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function colorToOklabCoords(color: string): [number, number, number] {
+  return new Color(color).to("oklab").coords as [number, number, number];
+}
+
+function getOklabDistance(
+  [lightnessA, greenRedA, blueYellowA]: [number, number, number],
+  [lightnessB, greenRedB, blueYellowB]: [number, number, number],
+) {
+  return (
+    (lightnessA - lightnessB) ** 2 +
+    (greenRedA - greenRedB) ** 2 +
+    (blueYellowA - blueYellowB) ** 2
+  );
 }

@@ -3,31 +3,31 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from "@workspace/ui/components/dropdown-menu"
-import { ColorScaleDropdown } from "@/components/theme-generator/color-scale-menu"
-import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field"
+} from "@workspace/ui/components/dropdown-menu";
+import { ColorScaleDropdown } from "@/components/theme-generator/color-scale-menu";
+import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field";
 import {
   CHART_STRATEGIES,
   CHART_STRATEGY_META,
-} from "@/components/theme-generator/theme-customizer-constants"
+} from "@/components/theme-generator/theme-customizer-constants";
 import {
   SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
   SIDEBAR_DROPDOWN_SCROLL_CONTENT_CLASSNAME,
   PanelSectionGroup,
   SidebarDropdown,
-} from "@/components/theme-generator/theme-customizer-section"
+} from "@/components/theme-generator/theme-customizer-section";
 import {
   getScaleHex,
   getScaleSwatch,
   labelize,
-} from "@/components/theme-generator/theme-customizer-utils"
-import { normalizeHexColor } from "@/lib/theme-generator/color"
-import { CHART_SCALES } from "@/lib/theme-generator/radix"
+} from "@/components/theme-generator/theme-customizer-utils";
+import { normalizeHexColor } from "@/lib/theme-generator/color";
+import { CHART_SCALES } from "@/lib/theme-generator/radix";
 import type {
   ChartStrategy,
   RadixScaleName,
   ThemeSelection,
-} from "@/lib/theme-generator/types"
+} from "@/lib/theme-generator/types";
 
 export function ChartDropdown({
   selection,
@@ -35,7 +35,7 @@ export function ChartDropdown({
   onStrategyChange,
   onChartScaleChange,
   onCustomChartColorChange,
-  customEnabled = false,
+  customPickerEnabled = false,
 }: ChartDropdownProps) {
   return (
     <>
@@ -82,59 +82,61 @@ export function ChartDropdown({
               index={index}
               value={scale}
               customEnabled={selection.customChartColorEnabled[index] ?? false}
+              customPickerEnabled={customPickerEnabled}
               customValue={selection.customChartColors[index] ?? ""}
-              globalCustomEnabled={customEnabled}
               onChange={(nextScale) => onChartScaleChange(index, nextScale)}
-              onCustomChange={(color) =>
-                onCustomChartColorChange(index, color)
-              }
+              onCustomChange={(color) => onCustomChartColorChange(index, color)}
             />
           ))}
         </PanelSectionGroup>
       ) : null}
     </>
-  )
+  );
 }
 
 type ChartDropdownProps = {
-  selection: ThemeSelection
-  swatches: Array<string>
-  onStrategyChange: (value: ChartStrategy) => void
-  onChartScaleChange: (index: number, scale: RadixScaleName) => void
-  onCustomChartColorChange: (index: number, color: string) => void
-  customEnabled?: boolean
-}
+  selection: ThemeSelection;
+  swatches: Array<string>;
+  onStrategyChange: (value: ChartStrategy) => void;
+  onChartScaleChange: (index: number, scale: RadixScaleName) => void;
+  onCustomChartColorChange: (index: number, color: string) => void;
+  customPickerEnabled?: boolean;
+};
 
 function ChartColorField({
   index,
   value,
   customEnabled,
+  customPickerEnabled,
   customValue,
-  globalCustomEnabled,
   onChange,
   onCustomChange,
 }: ChartColorFieldProps) {
-  const customActive = globalCustomEnabled || customEnabled
-  const customSwatch = normalizeHexColor(customValue)
+  const customActive = customPickerEnabled || customEnabled;
+  const customSwatch = normalizeHexColor(customValue);
+  const fallback = getScaleHex(value);
+  const fallbackSwatch = normalizeHexColor(fallback);
   const swatch =
-    customActive && customSwatch ? customSwatch : getScaleSwatch(value)
-  const label = `Chart ${index + 1}`
+    customActive && (customSwatch || fallbackSwatch)
+      ? (customSwatch ?? fallbackSwatch ?? getScaleSwatch(value))
+      : getScaleSwatch(value);
+  const label = `Chart ${index + 1}`;
   const displayValue = customActive
-    ? (customSwatch ?? "Pick color")
-    : labelize(value)
+    ? (customSwatch ?? fallbackSwatch ?? labelize(value))
+    : labelize(value);
 
   if (customActive) {
     return (
       <CustomColorPickerTriggerRow
         label={label}
         value={customValue}
-        fallback={getScaleHex(value)}
+        fallback={fallback}
         displayValue={displayValue}
         swatch={swatch}
         palettePreviewRole="accent"
         onChange={onCustomChange}
       />
-    )
+    );
   }
 
   return (
@@ -147,15 +149,15 @@ function ChartColorField({
       recommended={CHART_SCALES}
       onChange={onChange}
     />
-  )
+  );
 }
 
 type ChartColorFieldProps = {
-  index: number
-  value: RadixScaleName
-  customEnabled: boolean
-  customValue: string
-  globalCustomEnabled: boolean
-  onChange: (value: RadixScaleName) => void
-  onCustomChange: (value: string) => void
-}
+  index: number;
+  value: RadixScaleName;
+  customEnabled: boolean;
+  customPickerEnabled: boolean;
+  customValue: string;
+  onChange: (value: RadixScaleName) => void;
+  onCustomChange: (value: string) => void;
+};

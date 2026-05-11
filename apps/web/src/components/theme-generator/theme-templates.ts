@@ -1,25 +1,25 @@
-import { DEFAULT_THEME_SELECTION } from "@/lib/theme-generator/generator"
-import type { ThemeSelection } from "@/lib/theme-generator/types"
+import { DEFAULT_THEME_SELECTION } from "@/lib/theme-generator/generator";
+import type { ThemeSelection } from "@/lib/theme-generator/types";
 
 export interface ThemeTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  selection: ThemeSelection
-  swatches: [string, string, string, string, string]
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  selection: ThemeSelection;
+  swatches: [string, string, string, string, string];
 }
 
 export type ThemeTemplateGroup = {
-  name: string
-  templates: Array<ThemeTemplate>
-}
+  name: string;
+  templates: Array<ThemeTemplate>;
+};
 
 type TemplateInput = Partial<ThemeSelection> & {
-  name: string
-  swatches: [string, string, string, string, string]
-  chartColors?: [string, string, string, string, string]
-}
+  name: string;
+  swatches: [string, string, string, string, string];
+  chartColors?: [string, string, string, string, string];
+};
 
 type TemplateFinish = Partial<
   Pick<
@@ -50,7 +50,7 @@ type TemplateFinish = Partial<
     | "monoFont"
     | "chartStrategy"
   >
->
+>;
 
 const SOFT_PRODUCT_FINISH = {
   additionalStatesEnabled: true,
@@ -65,7 +65,7 @@ const SOFT_PRODUCT_FINISH = {
   headingFont: "manrope",
   sansFont: "inter",
   monoFont: "jetbrains-mono",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const SHARP_PRODUCT_FINISH = {
   additionalStatesEnabled: true,
@@ -80,13 +80,13 @@ const SHARP_PRODUCT_FINISH = {
   headingFont: "geist",
   sansFont: "geist",
   monoFont: "jetbrains-mono",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const EDITORIAL_FINISH = {
   additionalStatesEnabled: true,
-  successScale: "olive",
-  warningScale: "gold",
-  infoScale: "slate",
+  successScale: "green",
+  warningScale: "amber",
+  infoScale: "blue",
   radiusScale: "small",
   shadowOpacity: 0.07,
   shadowBlur: 10,
@@ -95,7 +95,7 @@ const EDITORIAL_FINISH = {
   headingFont: "source-serif-4",
   sansFont: "open-sans",
   monoFont: "source-code-pro",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const DATA_DENSE_FINISH = {
   additionalStatesEnabled: true,
@@ -110,13 +110,13 @@ const DATA_DENSE_FINISH = {
   headingFont: "space-grotesk",
   sansFont: "inter",
   monoFont: "jetbrains-mono",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const CONTENT_FINISH = {
   additionalStatesEnabled: true,
   successScale: "green",
   warningScale: "yellow",
-  infoScale: "violet",
+  infoScale: "indigo",
   radiusScale: "medium",
   shadowOpacity: 0.11,
   shadowBlur: 18,
@@ -125,7 +125,7 @@ const CONTENT_FINISH = {
   headingFont: "space-grotesk",
   sansFont: "manrope",
   monoFont: "roboto-mono",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const PLAYFUL_FINISH = {
   additionalStatesEnabled: true,
@@ -140,12 +140,12 @@ const PLAYFUL_FINISH = {
   headingFont: "space-grotesk",
   sansFont: "manrope",
   monoFont: "jetbrains-mono",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const FORMAL_FINISH = {
   additionalStatesEnabled: true,
   successScale: "jade",
-  warningScale: "gold",
+  warningScale: "amber",
   infoScale: "blue",
   radiusScale: "medium",
   shadowOpacity: 0.08,
@@ -155,7 +155,7 @@ const FORMAL_FINISH = {
   headingFont: "source-serif-4",
   sansFont: "inter",
   monoFont: "source-code-pro",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const INDUSTRIAL_FINISH = {
   additionalStatesEnabled: true,
@@ -170,7 +170,7 @@ const INDUSTRIAL_FINISH = {
   headingFont: "roboto",
   sansFont: "roboto",
   monoFont: "roboto-mono",
-} satisfies TemplateFinish
+} satisfies TemplateFinish;
 
 const TEMPLATE_FINISHES: Record<string, TemplateFinish> = {
   Twitter: SOFT_PRODUCT_FINISH,
@@ -183,6 +183,7 @@ const TEMPLATE_FINISHES: Record<string, TemplateFinish> = {
   Spotify: CONTENT_FINISH,
   Netflix: CONTENT_FINISH,
   Airbnb: SOFT_PRODUCT_FINISH,
+  Vercel: SHARP_PRODUCT_FINISH,
   GitHub: SHARP_PRODUCT_FINISH,
   Slack: SOFT_PRODUCT_FINISH,
   "Model Lab": DATA_DENSE_FINISH,
@@ -237,7 +238,7 @@ const TEMPLATE_FINISHES: Record<string, TemplateFinish> = {
   Fintech: DATA_DENSE_FINISH,
   Healthcare: SOFT_PRODUCT_FINISH,
   Minimal: SHARP_PRODUCT_FINISH,
-}
+};
 
 function template({
   name,
@@ -252,6 +253,8 @@ function template({
   customDestructiveEnabled = false,
   customDestructiveColor = "",
   accentStrategy = "primary",
+  customAccentEnabled = false,
+  customAccentColor = "",
   chartStrategy = "multicolor",
   chartScales = DEFAULT_THEME_SELECTION.chartScales,
   customChartColorEnabled = [true, true, true, true, true],
@@ -259,7 +262,7 @@ function template({
   customChartColors = chartColors,
   ...selectionOverrides
 }: TemplateInput): ThemeSelection {
-  const finish = TEMPLATE_FINISHES[name] ?? SOFT_PRODUCT_FINISH
+  const finish = TEMPLATE_FINISHES[name] ?? SOFT_PRODUCT_FINISH;
 
   return {
     ...DEFAULT_THEME_SELECTION,
@@ -276,14 +279,32 @@ function template({
     customDestructiveEnabled,
     customDestructiveColor,
     accentStrategy,
+    customAccentEnabled,
+    customAccentColor,
     chartStrategy,
     chartScales,
     customChartColorEnabled,
     customChartColors,
-  }
+  };
 }
 
 export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
+  {
+    name: "Defaults",
+    templates: [
+      {
+        id: "shadcn-default",
+        name: "Default",
+        description: "Black and white baseline matching shadcn/ui defaults.",
+        swatches: ["#ffffff", "#18181b", "#f8fafc", "#0f172a", "#e2e8f0"],
+        category: "Defaults",
+        selection: {
+          ...DEFAULT_THEME_SELECTION,
+          name: "Default",
+        },
+      },
+    ],
+  },
   {
     name: "Social Media",
     templates: [
@@ -426,6 +447,23 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
           baseScale: "sand",
           primaryScale: "ruby",
           customPrimaryColor: "#ff385c",
+        }),
+      },
+      {
+        id: "vercel",
+        name: "Vercel",
+        description:
+          "Minimal black-and-white product system with vivid deploy accents.",
+        swatches: ["#000000", "#ffffff", "#0070f3", "#7928ca", "#ff0080"],
+        category: "Companies",
+        selection: template({
+          name: "Vercel",
+          swatches: ["#000000", "#ffffff", "#0070f3", "#7928ca", "#ff0080"],
+          chartColors: ["#000000", "#0070f3", "#7928ca", "#ff0080", "#ff4d4f"],
+          baseScale: "gray",
+          primaryScale: "gray",
+          customPrimaryColor: "#000000",
+          chartScales: ["gray", "blue", "purple", "pink", "red"],
         }),
       },
       {
@@ -1254,8 +1292,4 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
       },
     ],
   },
-]
-
-export const THEME_TEMPLATES = THEME_TEMPLATE_GROUPS.flatMap(
-  (group) => group.templates
-)
+];

@@ -1,4 +1,4 @@
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -6,25 +6,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@workspace/ui/components/dialog"
-import { SidebarTrigger } from "@workspace/ui/components/sidebar"
+} from "@workspace/ui/components/dialog";
+import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import {
   Check,
   Clipboard,
   Code2,
-  ExternalLink,
   GitBranch,
   Palette,
   Sparkles,
-} from "lucide-react"
+} from "lucide-react";
+import { CodeBlock } from "@/components/code-block";
 
-export function AppHeader({
-  copied,
-  css,
-  onCopy,
-}: AppHeaderProps) {
+export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
   return (
-    <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background/92 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:px-5 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
+    <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background/92 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-5 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <SidebarTrigger
           aria-label="Toggle theme controls"
@@ -63,37 +59,24 @@ export function AppHeader({
           aria-label="Open GitHub repository"
           variant="outline"
           onClick={() =>
-            window.open("https://github.com/shadcn-ui/ui", "_blank")
+            window.open("https://github.com/damianricobelli/radixcn", "_blank")
           }
         >
           <GitBranch />
           GitHub
         </Button>
-
-        <Button
-          aria-label="Open shadcn documentation"
-          variant="outline"
-          onClick={() => window.open("https://ui.shadcn.com", "_blank")}
-        >
-          <ExternalLink />
-          Docs
-        </Button>
       </div>
     </header>
-  )
+  );
 }
 
 type AppHeaderProps = {
-  copied: boolean
-  css: string
-  onCopy: () => void
-}
+  copied: boolean;
+  css: string;
+  onCopy: () => void;
+};
 
-function CssDialog({
-  copied,
-  css,
-  onCopy,
-}: CssDialogProps) {
+function CssDialog({ copied, css, onCopy }: CssDialogProps) {
   return (
     <Dialog>
       <DialogTrigger render={<Button variant="default" />}>
@@ -116,17 +99,15 @@ function CssDialog({
           </div>
         </DialogHeader>
         <div className="max-h-[calc(100svh-12rem)] overflow-auto bg-muted/40">
-          <pre className="min-w-full p-4 font-mono text-xs leading-5 text-foreground">
-            <code>{css}</code>
-          </pre>
+          <CodeBlock code={css} language="css" className="min-w-full" />
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 type CssDialogProps = {
-  copied: boolean
-  css: string
-  onCopy: () => void
-}
+  copied: boolean;
+  css: string;
+  onCopy: () => void;
+};

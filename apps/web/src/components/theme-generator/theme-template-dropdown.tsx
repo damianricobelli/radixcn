@@ -3,32 +3,30 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@workspace/ui/components/dropdown-menu"
-import { Palette } from "lucide-react"
-import { useState } from "react"
-import { useRadixCnTheme } from "@/components/theme-generator/radixcn-theme-context"
+} from "@workspace/ui/components/dropdown-menu";
+import { Palette } from "lucide-react";
+import { useState } from "react";
+import { useRadixCnTheme } from "@/components/theme-generator/radixcn-theme-context";
 import {
   SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
   SidebarDropdown,
   SidebarDropdownEmpty,
   SidebarDropdownSearch,
-} from "@/components/theme-generator/theme-customizer-section"
-import { getScaleHex } from "@/components/theme-generator/theme-customizer-utils"
+} from "@/components/theme-generator/theme-customizer-section";
+import { getScaleHex } from "@/components/theme-generator/theme-customizer-utils";
 import type {
   ThemeTemplate,
   ThemeTemplateGroup,
-} from "@/components/theme-generator/theme-templates"
-import {
-  THEME_TEMPLATE_GROUPS,
-} from "@/components/theme-generator/theme-templates"
-import type { ThemeSelection } from "@/lib/theme-generator/types"
+} from "@/components/theme-generator/theme-templates";
+import { THEME_TEMPLATE_GROUPS } from "@/components/theme-generator/theme-templates";
+import type { ThemeSelection } from "@/lib/theme-generator/types";
 
 export function ThemeTemplateDropdown() {
-  const [query, setQuery] = useState("")
-  const { applyTemplate, selection } = useRadixCnTheme()
-  const activeName = selection.name
-  const mainSwatches = getMainSwatches(selection)
-  const filteredGroups = filterTemplateGroups(query)
+  const [query, setQuery] = useState("");
+  const { applyTemplate, selection } = useRadixCnTheme();
+  const activeName = selection.name;
+  const mainSwatches = getMainSwatches(selection);
+  const filteredGroups = filterTemplateGroups(query);
 
   return (
     <SidebarDropdown
@@ -66,13 +64,10 @@ export function ThemeTemplateDropdown() {
         )}
       </div>
     </SidebarDropdown>
-  )
+  );
 }
 
-function ThemeTemplateItem({
-  template,
-  onApply,
-}: ThemeTemplateItemProps) {
+function ThemeTemplateItem({ template, onApply }: ThemeTemplateItemProps) {
   return (
     <DropdownMenuItem
       className={`${SIDEBAR_DROPDOWN_ITEM_CLASSNAME} items-start gap-3`}
@@ -99,29 +94,29 @@ function ThemeTemplateItem({
         </div>
       </div>
     </DropdownMenuItem>
-  )
+  );
 }
 
 type ThemeTemplateItemProps = {
-  template: ThemeTemplate
-  onApply: () => void
-}
+  template: ThemeTemplate;
+  onApply: () => void;
+};
 
 function getMainSwatches(selection: ThemeSelection): [string, string] {
   const base =
     selection.customBaseEnabled && selection.customBaseColor
       ? selection.customBaseColor
-      : getScaleHex(selection.baseScale)
+      : getScaleHex(selection.baseScale);
   const primary =
     selection.customPrimaryEnabled && selection.customPrimaryColor
       ? selection.customPrimaryColor
-      : getScaleHex(selection.primaryScale)
+      : getScaleHex(selection.primaryScale);
 
-  return [base, primary]
+  return [base, primary];
 }
 
 function filterTemplateGroups(query: string): Array<ThemeTemplateGroup> {
-  const normalizedQuery = query.trim().toLowerCase()
+  const normalizedQuery = query.trim().toLowerCase();
 
   return THEME_TEMPLATE_GROUPS.map((group) => ({
     ...group,
@@ -132,9 +127,9 @@ function filterTemplateGroups(query: string): Array<ThemeTemplateGroup> {
         template.description,
       ]
         .join(" ")
-        .toLowerCase()
+        .toLowerCase();
 
-      return searchable.includes(normalizedQuery)
+      return searchable.includes(normalizedQuery);
     }),
-  })).filter((group) => group.templates.length > 0)
+  })).filter((group) => group.templates.length > 0);
 }

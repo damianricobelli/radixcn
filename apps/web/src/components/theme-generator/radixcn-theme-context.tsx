@@ -7,7 +7,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { pick } from "@/components/theme-generator/theme-customizer-utils";
+import {
+  getClosestRadixScale,
+  pick,
+} from "@/components/theme-generator/theme-customizer-utils";
 import {
   FALLBACK_FONT_OPTIONS,
   getMonoFontOptions,
@@ -20,6 +23,7 @@ import {
 } from "@/lib/theme-generator/generator";
 import {
   BASE_SCALES,
+  CHART_SCALES,
   DESTRUCTIVE_SCALES,
   PRIMARY_SCALES,
   STATE_SCALE_RECOMMENDATIONS,
@@ -88,13 +92,23 @@ export function RadixCnThemeProvider({
       createRandomSelection(currentSelection, sansFontOptions, monoFontOptions),
     );
   }, [monoFontOptions, sansFontOptions]);
-  const updateSelection = useCallback((nextSelection: Partial<ThemeSelection>) => {
-    setSelection((currentSelection) => ({
-      ...currentSelection,
-      name: nextSelection.name ?? "Custom",
-      ...nextSelection,
-    }));
-  }, []);
+  const updateSelection = useCallback(
+    (nextSelection: Partial<ThemeSelection>) => {
+      setSelection((currentSelection) => {
+        const resolvedSelection = resolveDisabledCustomScales(
+          currentSelection,
+          nextSelection,
+        );
+
+        return {
+          ...currentSelection,
+          name: resolvedSelection.name ?? "Custom",
+          ...resolvedSelection,
+        };
+      });
+    },
+    [],
+  );
   const updateChartScale = useCallback(
     (index: number, scale: RadixScaleName) => {
       setSelection((currentSelection) => ({
@@ -118,6 +132,11 @@ export function RadixCnThemeProvider({
         index,
         color,
       ),
+      customChartColorEnabled: updateIndexedValue(
+        currentSelection.customChartColorEnabled,
+        index,
+        true,
+      ),
     }));
   }, []);
   const updateCustomChartEnabled = useCallback(
@@ -125,6 +144,17 @@ export function RadixCnThemeProvider({
       setSelection((currentSelection) => ({
         ...currentSelection,
         name: "Custom",
+        chartScales: enabled
+          ? currentSelection.chartScales
+          : updateIndexedValue(
+              currentSelection.chartScales,
+              index,
+              getClosestRadixScale(
+                currentSelection.customChartColors[index] ?? "",
+                CHART_SCALES,
+                currentSelection.chartScales[index] ?? "indigo",
+              ),
+            ),
         customChartColorEnabled: updateIndexedValue(
           currentSelection.customChartColorEnabled,
           index,
@@ -176,6 +206,72 @@ export function RadixCnThemeProvider({
   );
 }
 
+function resolveDisabledCustomScales(
+  currentSelection: ThemeSelection,
+  nextSelection: Partial<ThemeSelection>,
+): Partial<ThemeSelection> {
+  const resolvedSelection = { ...nextSelection };
+
+  if (nextSelection.customBaseEnabled === false) {
+    resolvedSelection.baseScale = getClosestRadixScale(
+      nextSelection.customBaseColor ?? currentSelection.customBaseColor,
+      BASE_SCALES,
+      nextSelection.baseScale ?? currentSelection.baseScale,
+    );
+  }
+
+  if (nextSelection.customPrimaryEnabled === false) {
+    resolvedSelection.primaryScale = getClosestRadixScale(
+      nextSelection.customPrimaryColor ?? currentSelection.customPrimaryColor,
+      undefined,
+      nextSelection.primaryScale ?? currentSelection.primaryScale,
+    );
+  }
+
+  if (nextSelection.customDestructiveEnabled === false) {
+    resolvedSelection.destructiveScale = getClosestRadixScale(
+      nextSelection.customDestructiveColor ??
+        currentSelection.customDestructiveColor,
+      DESTRUCTIVE_SCALES,
+      nextSelection.destructiveScale ?? currentSelection.destructiveScale,
+    );
+  }
+
+  if (nextSelection.customSuccessEnabled === false) {
+    resolvedSelection.successScale = getClosestRadixScale(
+      nextSelection.customSuccessColor ?? currentSelection.customSuccessColor,
+      STATE_SCALE_RECOMMENDATIONS.success,
+      nextSelection.successScale ?? currentSelection.successScale,
+    );
+  }
+
+  if (nextSelection.customWarningEnabled === false) {
+    resolvedSelection.warningScale = getClosestRadixScale(
+      nextSelection.customWarningColor ?? currentSelection.customWarningColor,
+      STATE_SCALE_RECOMMENDATIONS.warning,
+      nextSelection.warningScale ?? currentSelection.warningScale,
+    );
+  }
+
+  if (nextSelection.customInfoEnabled === false) {
+    resolvedSelection.infoScale = getClosestRadixScale(
+      nextSelection.customInfoColor ?? currentSelection.customInfoColor,
+      STATE_SCALE_RECOMMENDATIONS.info,
+      nextSelection.infoScale ?? currentSelection.infoScale,
+    );
+  }
+
+  if (nextSelection.customShadowEnabled === false) {
+    resolvedSelection.shadowScale = getClosestRadixScale(
+      nextSelection.customShadowColor ?? currentSelection.customShadowColor,
+      BASE_SCALES,
+      nextSelection.shadowScale ?? currentSelection.shadowScale,
+    );
+  }
+
+  return resolvedSelection;
+}
+
 type RadixCnThemeProviderProps = {
   children: ReactNode;
   fonts?: ReadonlyArray<FontSourceFont>;
@@ -222,6 +318,9 @@ function createRandomSelection(
     headingFont: pick(sansFontOptions).id,
     sansFont: pick(sansFontOptions).id,
     monoFont: pick(monoFontOptions).id,
+    accentStrategy: DEFAULT_THEME_SELECTION.accentStrategy,
+    customAccentEnabled: DEFAULT_THEME_SELECTION.customAccentEnabled,
+    customAccentColor: DEFAULT_THEME_SELECTION.customAccentColor,
     chartScales: BALANCED_CHART_SCALES,
     customChartColorEnabled: [false, false, false, false, false],
     customChartColors: ["", "", "", "", ""],

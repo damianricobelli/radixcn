@@ -1,7 +1,6 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-import type { ReactNode } from "react"
-
-import appCss from "@workspace/ui/globals.css?url"
+import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import appCss from "@workspace/ui/globals.css?url";
+import type { ReactNode } from "react";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -14,7 +13,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "RadixCN Theme Generator",
       },
     ],
     links: [
@@ -31,11 +30,11 @@ export const Route = createRootRoute({
     </main>
   ),
   shellComponent: RootDocument,
-})
+});
 
 type RootDocumentProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 function RootDocument({ children }: RootDocumentProps) {
   return (
@@ -48,5 +47,5 @@ function RootDocument({ children }: RootDocumentProps) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
