@@ -313,6 +313,9 @@ function createRandomSelection(
     shadowSpread: DEFAULT_THEME_SELECTION.shadowSpread,
     shadowOffsetX: DEFAULT_THEME_SELECTION.shadowOffsetX,
     shadowOffsetY: DEFAULT_THEME_SELECTION.shadowOffsetY,
+    grainyBackgroundEnabled: DEFAULT_THEME_SELECTION.grainyBackgroundEnabled,
+    grainyBackgroundScope: DEFAULT_THEME_SELECTION.grainyBackgroundScope,
+    grainyBackgroundOpacity: DEFAULT_THEME_SELECTION.grainyBackgroundOpacity,
     trackingNormal: DEFAULT_THEME_SELECTION.trackingNormal,
     spacing: DEFAULT_THEME_SELECTION.spacing,
     headingFont: pick(sansFontOptions).id,
@@ -324,6 +327,9 @@ function createRandomSelection(
     chartScales: BALANCED_CHART_SCALES,
     customChartColorEnabled: [false, false, false, false, false],
     customChartColors: ["", "", "", "", ""],
+    tokenBridgeEnabled: DEFAULT_THEME_SELECTION.tokenBridgeEnabled,
+    tokenBridgeMappings: DEFAULT_THEME_SELECTION.tokenBridgeMappings,
+    tokenBridgeFontMappings: DEFAULT_THEME_SELECTION.tokenBridgeFontMappings,
   };
 }
 

@@ -59,6 +59,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -951,9 +952,11 @@ export function ProjectsTableCard() {
             <MoreHorizontal />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Table</DropdownMenuLabel>
-            <DropdownMenuItem>Export CSV</DropdownMenuItem>
-            <DropdownMenuItem>Copy link</DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Table</DropdownMenuLabel>
+              <DropdownMenuItem>Export CSV</DropdownMenuItem>
+              <DropdownMenuItem>Copy link</DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -1035,9 +1038,11 @@ export function EmptyCard() {
                 Actions
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                <DropdownMenuItem>Copy CSS</DropdownMenuItem>
-                <DropdownMenuItem>Download preset</DropdownMenuItem>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                  <DropdownMenuItem>Copy CSS</DropdownMenuItem>
+                  <DropdownMenuItem>Download preset</DropdownMenuItem>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive">Reset</DropdownMenuItem>
               </DropdownMenuContent>

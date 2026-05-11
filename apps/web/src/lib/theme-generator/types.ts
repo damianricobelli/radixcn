@@ -12,6 +12,8 @@ export type StateName = "success" | "warning" | "info";
 
 export type RadiusScale = "default" | "none" | "small" | "medium" | "large";
 
+export type GrainyBackgroundScope = "app" | "class";
+
 export type FontSourceFontName = string;
 
 export type TokenBridgeFontToken = "font-sans" | "font-mono" | "font-heading";
@@ -160,6 +162,9 @@ export interface ThemeSelection {
   shadowSpread: number;
   shadowOffsetX: number;
   shadowOffsetY: number;
+  grainyBackgroundEnabled: boolean;
+  grainyBackgroundScope: GrainyBackgroundScope;
+  grainyBackgroundOpacity: number;
   trackingNormal: number;
   spacing: number;
   headingFont: FontSourceFontName;

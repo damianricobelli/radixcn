@@ -2,6 +2,7 @@ import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/naviga
 import { cva } from "class-variance-authority"
 
 import { cn } from "@workspace/ui/lib/utils"
+import { useThemedPortalContainer } from "@workspace/ui/hooks/use-themed-portal-container"
 import { ChevronDownIcon } from "lucide-react"
 
 function NavigationMenu({
@@ -100,8 +101,10 @@ function NavigationMenuPositioner({
   alignOffset = 0,
   ...props
 }: NavigationMenuPrimitive.Positioner.Props) {
+  const portalContainer = useThemedPortalContainer()
+
   return (
-    <NavigationMenuPrimitive.Portal>
+    <NavigationMenuPrimitive.Portal container={portalContainer}>
       <NavigationMenuPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}

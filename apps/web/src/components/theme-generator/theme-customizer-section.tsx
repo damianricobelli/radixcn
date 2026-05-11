@@ -125,6 +125,41 @@ export function CustomPaletteHoverCard() {
   );
 }
 
+export function GrainyBackgroundHoverCard() {
+  return (
+    <HoverCard>
+      <HoverCardTrigger
+        render={
+          <button
+            aria-label="Learn how grainy backgrounds are applied"
+            className="inline-flex rounded-full text-sidebar-foreground/65 transition-colors hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+            type="button"
+          />
+        }
+      >
+        <Info aria-hidden="true" className="size-4" />
+      </HoverCardTrigger>
+      <HoverCardContent side="right" align="start" className="w-80 space-y-3">
+        <div className="space-y-1">
+          <div className="text-sm font-medium">Grainy background</div>
+          <p className="text-xs leading-5 text-muted-foreground">
+            App scope adds a fixed noise layer over the full page. Class scope
+            generates a reusable .grainy-background utility for one container.
+          </p>
+        </div>
+        <div className="space-y-1">
+          <div className="text-xs font-medium text-foreground">Class scope</div>
+          <p className="text-xs leading-5 text-muted-foreground">
+            The utility places the grain behind direct children, so opaque child
+            backgrounds, like cards or panels, cover it. Transparent areas still
+            show the texture from the parent.
+          </p>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
 export function OptionDropdown<TValue extends string>({
   label,
   value,

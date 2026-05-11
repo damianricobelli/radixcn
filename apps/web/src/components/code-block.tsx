@@ -20,9 +20,15 @@ type CodeBlockProps = {
   code: string;
   language: string;
   className?: string;
+  wrapLongLines?: boolean;
 };
 
-export function CodeBlock({ code, language, className }: CodeBlockProps) {
+export function CodeBlock({
+  code,
+  language,
+  className,
+  wrapLongLines = true,
+}: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const copyResetTimerRef = useRef<number | null>(null);
   const lineCount = code.split("\n").length;
@@ -95,11 +101,12 @@ export function CodeBlock({ code, language, className }: CodeBlockProps) {
           customStyle={{
             margin: 0,
             background: "transparent",
+            minWidth: wrapLongLines ? undefined : "max-content",
             padding: "1rem 1.125rem",
           }}
           codeTagProps={{
             className:
-              "font-mono text-[0.78rem] leading-6 [font-variant-ligatures:none]",
+              "font-mono text-[0.78rem] leading-6 whitespace-pre [font-variant-ligatures:none]",
           }}
           lineNumberStyle={{
             minWidth: "2.5rem",
@@ -110,7 +117,7 @@ export function CodeBlock({ code, language, className }: CodeBlockProps) {
           }}
           PreTag="div"
           showLineNumbers
-          wrapLongLines
+          wrapLongLines={wrapLongLines}
         >
           {code}
         </SyntaxHighlighter>

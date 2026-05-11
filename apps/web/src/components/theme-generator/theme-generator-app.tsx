@@ -79,6 +79,11 @@ function ThemeGeneratorShell() {
       previewSelection.sansFont,
     ],
   );
+  const previewGrainyBackgroundClass =
+    previewSelection.grainyBackgroundEnabled &&
+    previewSelection.grainyBackgroundScope === "class"
+      ? "grainy-background"
+      : "";
   const sidebarStyle = useMemo(
     () =>
       ({
@@ -115,7 +120,10 @@ function ThemeGeneratorShell() {
     >
       <style>{`${previewFontFaces}\n${previewCss}`}</style>
       <SidebarProvider
-        className="h-svh min-h-0 overflow-hidden bg-background"
+        className={[
+          "h-svh min-h-0 overflow-hidden bg-background",
+          previewGrainyBackgroundClass,
+        ].join(" ")}
         style={sidebarStyle}
       >
         <ThemeCustomizerSidebar

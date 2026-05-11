@@ -37,6 +37,9 @@ export const RADIUS_OPTIONS = [
   "large",
 ] as const satisfies Array<RadiusScale>;
 
+const GRAINY_BACKGROUND_IMAGE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E\")";
+
 const RADIUS_VALUES = {
   default: "0.625rem",
   none: "0rem",
@@ -126,6 +129,9 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   shadowSpread: 0,
   shadowOffsetX: 0,
   shadowOffsetY: 1,
+  grainyBackgroundEnabled: false,
+  grainyBackgroundScope: "app",
+  grainyBackgroundOpacity: 0.12,
   trackingNormal: 0,
   spacing: 0.25,
   headingFont: "inter",
@@ -1022,6 +1028,51 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+export function writeGrainyBackgroundCss(
+  selector: string,
+  opacity: number,
+) {
+  return [
+    `${selector}::before {`,
+    '  content: "";',
+    "  position: fixed;",
+    "  inset: 0;",
+    "  z-index: 2147483647;",
+    "  pointer-events: none;",
+    `  background-image: ${GRAINY_BACKGROUND_IMAGE};`,
+    "  background-repeat: repeat;",
+    "  background-size: 182px;",
+    `  opacity: ${formatNumber(clamp(opacity, 0, 0.3))};`,
+    "}",
+  ].join("\n");
+}
+
+export function writeGrainyBackgroundUtilityCss(opacity: number) {
+  return [
+    ".grainy-background {",
+    "  isolation: isolate;",
+    "  position: relative;",
+    "}",
+    "",
+    ".grainy-background > * {",
+    "  position: relative;",
+    "  z-index: 1;",
+    "}",
+    "",
+    ".grainy-background::before {",
+    '  content: "";',
+    "  position: absolute;",
+    "  inset: 0;",
+    "  z-index: 0;",
+    "  pointer-events: none;",
+    `  background-image: ${GRAINY_BACKGROUND_IMAGE};`,
+    "  background-repeat: repeat;",
+    "  background-size: 182px;",
+    `  opacity: ${formatNumber(clamp(opacity, 0, 0.3))};`,
+    "}",
+  ].join("\n");
+}
+
 function writeThemeInline(
   selection: ThemeSelection,
   fonts?: ReadonlyArray<FontSourceFont>,
@@ -1234,8 +1285,41 @@ function writeCss(
     "    font-family: var(--font-sans);",
     "    letter-spacing: var(--tracking-normal);",
     "  }",
+    ...(selection.grainyBackgroundEnabled &&
+    selection.grainyBackgroundScope === "app"
+      ? [
+          "",
+          indentCss(
+            writeGrainyBackgroundCss(
+              "body",
+              selection.grainyBackgroundOpacity,
+            ),
+            2,
+          ),
+        ]
+      : []),
     "}",
+    ...(selection.grainyBackgroundEnabled
+      ? [
+          "",
+          "@layer utilities {",
+          indentCss(
+            writeGrainyBackgroundUtilityCss(selection.grainyBackgroundOpacity),
+            2,
+          ),
+          "}",
+        ]
+      : []),
   ].join("\n");
+}
+
+function indentCss(css: string, spaces: number) {
+  const indentation = " ".repeat(spaces);
+
+  return css
+    .split("\n")
+    .map((line) => `${indentation}${line}`)
+    .join("\n");
 }
 
 export function generateTheme(

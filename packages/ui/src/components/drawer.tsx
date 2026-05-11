@@ -4,6 +4,7 @@ import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@workspace/ui/lib/utils"
+import { useThemedPortalContainer } from "@workspace/ui/hooks/use-themed-portal-container"
 
 function Drawer({
   ...props
@@ -18,9 +19,18 @@ function DrawerTrigger({
 }
 
 function DrawerPortal({
+  container,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Portal>) {
-  return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />
+  const portalContainer = useThemedPortalContainer()
+
+  return (
+    <DrawerPrimitive.Portal
+      data-slot="drawer-portal"
+      container={container ?? portalContainer}
+      {...props}
+    />
+  )
 }
 
 function DrawerClose({

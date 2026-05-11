@@ -19,6 +19,8 @@ import {
   formatRem,
   getRadiusValue,
   getShadowTokens,
+  writeGrainyBackgroundCss,
+  writeGrainyBackgroundUtilityCss,
 } from "@/lib/theme-generator/generator";
 
 export function createPreviewStyle(
@@ -82,6 +84,22 @@ export function createPreviewCss(
     "[data-theme-preview] {",
     ...lines,
     "}",
+    ...(selection.grainyBackgroundEnabled &&
+    selection.grainyBackgroundScope === "app"
+      ? [
+          "",
+          writeGrainyBackgroundCss(
+            "[data-theme-preview]",
+            selection.grainyBackgroundOpacity,
+          ),
+        ]
+      : []),
+    ...(selection.grainyBackgroundEnabled
+      ? [
+          "",
+          writeGrainyBackgroundUtilityCss(selection.grainyBackgroundOpacity),
+        ]
+      : []),
     "",
     ...fontUtilityOverrides,
   ].join("\n");

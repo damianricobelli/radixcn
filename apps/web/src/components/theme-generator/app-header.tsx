@@ -13,8 +13,6 @@ import {
   Clipboard,
   Code2,
   GitBranch,
-  Palette,
-  Sparkles,
 } from "lucide-react";
 import { CodeBlock } from "@/components/code-block";
 
@@ -28,7 +26,11 @@ export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
         />
 
         <div className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-card text-primary shadow-xs">
-          <Palette className="size-4" />
+          <img
+            alt=""
+            className="size-6 rounded-sm object-cover"
+            src="/web-app-manifest-192x192.png"
+          />
         </div>
 
         <div className="min-w-0 space-y-0.5">
@@ -36,10 +38,6 @@ export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
             <h1 className="truncate text-sm font-semibold tracking-tight md:text-base">
               Radixcn
             </h1>
-            <span className="hidden items-center gap-1 rounded-md border border-border bg-secondary px-1.5 py-0.5 text-[0.7rem] font-medium text-secondary-foreground sm:inline-flex">
-              <Sparkles className="size-3" />
-              Theme studio
-            </span>
           </div>
           <p className="line-clamp-1 text-xs text-muted-foreground">
             Generate semantic shadcn themes from Radix Color scales.
@@ -99,7 +97,12 @@ function CssDialog({ copied, css, onCopy }: CssDialogProps) {
           </div>
         </DialogHeader>
         <div className="max-h-[calc(100svh-12rem)] overflow-auto bg-muted/40">
-          <CodeBlock code={css} language="css" className="min-w-full" />
+          <CodeBlock
+            code={css}
+            language="css"
+            className="min-w-full"
+            wrapLongLines={false}
+          />
         </div>
       </DialogContent>
     </Dialog>

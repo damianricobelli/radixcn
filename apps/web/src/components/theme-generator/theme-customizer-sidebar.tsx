@@ -20,6 +20,7 @@ import { TokenBridgeSettings } from "@/components/theme-generator/token-bridge-s
 import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field";
 import {
   AdditionalStatesCheckbox,
+  GrainyBackgroundSwitch,
   getRadiusLabel,
   ShadowNumberControl,
   ThemeModeSwitch,
@@ -30,6 +31,7 @@ import {
 } from "@/components/theme-generator/theme-customizer-constants";
 import {
   CustomPaletteHoverCard,
+  GrainyBackgroundHoverCard,
   OptionDropdown,
   PanelSection,
   PanelSectionGroup,
@@ -51,10 +53,16 @@ import {
 import type {
   ColorMode,
   FontSourceFont,
+  GrainyBackgroundScope,
   RadixScaleName,
   ThemeModeTokens,
   ThemeSelection,
 } from "@/lib/theme-generator/types";
+
+const GRAINY_BACKGROUND_SCOPES = [
+  "app",
+  "class",
+] as const satisfies Array<GrainyBackgroundScope>;
 
 export function ThemeCustomizerSidebar({
   copied,
@@ -392,6 +400,43 @@ export function ThemeCustomizerSidebar({
                 </PanelSection>
 
                 <PanelSection
+                  title="Background"
+                  info={<GrainyBackgroundHoverCard />}
+                >
+                  <GrainyBackgroundSwitch
+                    checked={selection.grainyBackgroundEnabled}
+                    onCheckedChange={(enabled) =>
+                      onUpdate({ grainyBackgroundEnabled: enabled })
+                    }
+                  />
+
+                  {selection.grainyBackgroundEnabled ? (
+                    <>
+                      <OptionDropdown
+                        label="Scope"
+                        value={selection.grainyBackgroundScope}
+                        options={GRAINY_BACKGROUND_SCOPES}
+                        getLabel={getGrainyBackgroundScopeLabel}
+                        onChange={(value) =>
+                          onUpdate({ grainyBackgroundScope: value })
+                        }
+                      />
+
+                      <ShadowNumberControl
+                        label="Opacity"
+                        value={selection.grainyBackgroundOpacity}
+                        min={0.02}
+                        max={0.3}
+                        step={0.01}
+                        onChange={(value) =>
+                          onUpdate({ grainyBackgroundOpacity: value })
+                        }
+                      />
+                    </>
+                  ) : null}
+                </PanelSection>
+
+                <PanelSection
                   title="Shadow"
                   grouped={false}
                   action={
@@ -515,3 +560,11 @@ type ThemeCustomizerSidebarProps = {
   onUpdateCustomChartColor: (index: number, color: string) => void;
   onUpdateCustomChartEnabled: (index: number, enabled: boolean) => void;
 };
+
+function getGrainyBackgroundScopeLabel(scope: GrainyBackgroundScope) {
+  if (scope === "app") {
+    return "App";
+  }
+
+  return "Class";
+}

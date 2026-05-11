@@ -165,6 +165,7 @@ export function LandingPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="relative isolate overflow-hidden">
+        <LandingHeader />
         <RetroGrid
           aria-hidden="true"
           angle={12}
@@ -608,6 +609,36 @@ export function LandingPage() {
         </div>
       </motion.section>
     </main>
+  );
+}
+
+function LandingHeader() {
+  return (
+    <header className="absolute inset-x-0 top-0 z-20 px-4 pt-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center rounded-lg border border-border/80 bg-background/82 p-2 shadow-sm backdrop-blur-md supports-backdrop-filter:bg-background/70">
+        <Link
+          aria-label="Radixcn home"
+          className="group inline-flex min-w-0 items-center gap-3 rounded-md px-1 outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          to="/"
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-border bg-card text-primary shadow-xs">
+            <img
+              alt=""
+              className="size-8 rounded-md object-cover"
+              src="/web-app-manifest-192x192.png"
+            />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-base font-semibold tracking-normal text-foreground sm:text-lg">
+              Radixcn
+            </span>
+            <span className="hidden truncate text-xs text-muted-foreground sm:block">
+              Radix colors for shadcn themes
+            </span>
+          </span>
+        </Link>
+      </div>
+    </header>
   );
 }
 

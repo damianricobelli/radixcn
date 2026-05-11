@@ -1,6 +1,7 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 
 import { cn } from "@workspace/ui/lib/utils"
+import { useThemedPortalContainer } from "@workspace/ui/hooks/use-themed-portal-container"
 
 function TooltipProvider({
   delay = 0,
@@ -36,8 +37,10 @@ function TooltipContent({
     TooltipPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
   >) {
+  const portalContainer = useThemedPortalContainer()
+
   return (
-    <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Portal container={portalContainer}>
       <TooltipPrimitive.Positioner
         align={align}
         alignOffset={alignOffset}

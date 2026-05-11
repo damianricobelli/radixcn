@@ -7,6 +7,7 @@ import {
   NumberFieldScrubAreaCursor,
 } from "@workspace/ui/components/number-field";
 import { Slider } from "@workspace/ui/components/slider";
+import { Switch } from "@workspace/ui/components/switch";
 import { Moon, Sun } from "lucide-react";
 import type {
   ColorMode,
@@ -84,6 +85,33 @@ export function AdditionalStatesCheckbox({
 }
 
 type AdditionalStatesCheckboxProps = {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+};
+
+export function GrainyBackgroundSwitch({
+  checked,
+  onCheckedChange,
+}: GrainyBackgroundSwitchProps) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-3 px-2.5 py-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent/55">
+      <span className="min-w-0">
+        <span className="block text-sm font-medium">Grainy background</span>
+        <span className="block text-xs text-sidebar-foreground/65">
+          SVG noise texture overlay.
+        </span>
+      </span>
+      <Switch
+        aria-label="Enable grainy background"
+        checked={checked}
+        size="sm"
+        onCheckedChange={onCheckedChange}
+      />
+    </label>
+  );
+}
+
+type GrainyBackgroundSwitchProps = {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 };
