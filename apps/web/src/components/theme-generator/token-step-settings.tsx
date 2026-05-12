@@ -15,7 +15,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@workspace/ui/components/hover-card";
-import { CircleAlert, RotateCcw, Settings2 } from "lucide-react";
+import { CircleAlert, Info, RotateCcw, Settings2 } from "lucide-react";
 import type { ReactNode } from "react";
 import {
   PanelSection,
@@ -317,7 +317,10 @@ function TokenModeStepPicker({
             <span className="grid size-6 shrink-0 place-items-center rounded-sm bg-sidebar-accent text-[10px] font-semibold text-sidebar-foreground shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]">
               Aa
             </span>
-            <span className="whitespace-nowrap">Contrast</span>
+            <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap">
+              Contrast
+              <ContrastRuleInfo />
+            </span>
             <Badge className="h-4 px-1.5 text-[10px]" variant="outline">
               Recommended
             </Badge>
@@ -372,6 +375,31 @@ type TokenModeStepPickerProps = {
   token: SemanticToken;
   onChange: (step: RadixStep | null) => void;
 };
+
+function ContrastRuleInfo() {
+  return (
+    <HoverCard>
+      <HoverCardTrigger
+        render={
+          <span
+            aria-label="Learn how contrast steps work"
+            className="inline-flex rounded-full text-sidebar-foreground/55 transition-colors hover:text-sidebar-foreground"
+            role="img"
+          />
+        }
+      >
+        <Info aria-hidden="true" className="size-3.5" />
+      </HoverCardTrigger>
+      <HoverCardContent side="right" align="start" className="w-72 space-y-2">
+        <div className="text-sm font-medium">Contrast rule</div>
+        <p className="text-xs leading-5 text-muted-foreground">
+          Contrast chooses a readable foreground color from the active
+          background instead of locking this token to a fixed Radix step.
+        </p>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
 
 function getStepDisplayValue(step: RadixStep | null) {
   return step ? `Step ${step}` : "Contrast";
