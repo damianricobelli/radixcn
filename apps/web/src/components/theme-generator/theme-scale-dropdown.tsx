@@ -5,7 +5,6 @@ import {
   labelize,
 } from "@/components/theme-generator/theme-customizer-utils";
 import { normalizeHexColor } from "@/lib/theme-generator/color";
-import type { CustomPalettePreviewRole } from "@/lib/theme-generator/generator";
 import type { RadixScaleName } from "@/lib/theme-generator/types";
 
 export function ScaleDropdown({
@@ -16,7 +15,6 @@ export function ScaleDropdown({
   customPickerEnabled = customEnabled,
   customValue,
   fallback,
-  palettePreviewRole,
   onChange,
   onCustomChange,
   compact = false,
@@ -44,7 +42,6 @@ export function ScaleDropdown({
           fallback={fallback}
           displayValue={displayValue}
           swatch={swatch}
-          palettePreviewRole={palettePreviewRole}
           onChange={onCustomChange}
         />
       ) : (
@@ -73,7 +70,6 @@ type ScaleDropdownProps = {
   customPickerEnabled?: boolean;
   customValue: string;
   fallback: string;
-  palettePreviewRole?: CustomPalettePreviewRole;
   onChange: (value: RadixScaleName) => void;
   onCustomChange: (value: string) => void;
   compact?: boolean;

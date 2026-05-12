@@ -330,6 +330,7 @@ function createRandomSelection(
     tokenBridgeEnabled: DEFAULT_THEME_SELECTION.tokenBridgeEnabled,
     tokenBridgeMappings: DEFAULT_THEME_SELECTION.tokenBridgeMappings,
     tokenBridgeFontMappings: DEFAULT_THEME_SELECTION.tokenBridgeFontMappings,
+    tokenStepOverrides: DEFAULT_THEME_SELECTION.tokenStepOverrides,
   };
 }
 

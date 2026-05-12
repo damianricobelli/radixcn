@@ -149,6 +149,7 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   tokenBridgeEnabled: false,
   tokenBridgeMappings: {},
   tokenBridgeFontMappings: {},
+  tokenStepOverrides: {},
 };
 
 const BASE_SEMANTIC_TOKENS: Array<SemanticToken> = [
@@ -295,11 +296,14 @@ const TOKEN_REASONS: Record<SemanticToken, string> = {
     "Chromatic primary surfaces use step 9; neutral primary surfaces use step 12 so dark mode inverts to a light solid.",
   "primary-foreground":
     "Neutral primary solids use step 1; chromatic solids follow Radix step 9 foreground guidance.",
-  secondary: "Step 3 matches shadcn's neutral secondary background semantics.",
+  secondary:
+    "Secondary backgrounds use a subtle step in light mode and a stronger step in dark mode.",
   "secondary-foreground": "Secondary surfaces still need high-emphasis text.",
-  muted: "Step 3 intentionally matches secondary, with lower-emphasis text.",
+  muted:
+    "Muted backgrounds stay quiet while dark mode gets enough separation from the canvas.",
   "muted-foreground": "Step 11 is Radix's low-emphasis text color.",
-  accent: "Step 3 follows the selected base or brand interaction scale.",
+  accent:
+    "Accent surfaces follow the selected base or brand interaction scale, with extra dark-mode presence.",
   "accent-foreground": "Accent foreground follows the matching text scale.",
   destructive: "Destructive surfaces use the selected danger scale at step 9.",
   "destructive-foreground":
@@ -366,8 +370,6 @@ type CustomScaleRequestCache = Map<
   `${"light" | "dark"}:${CustomScaleName}`,
   Record<RadixStep, string> | null
 >;
-export type CustomPalettePreviewRole = "gray" | "accent";
-
 const CUSTOM_SCALE_RESULT_CACHE_LIMIT = 240;
 const customScaleResultCache = new Map<string, Record<RadixStep, string>>();
 
@@ -382,6 +384,7 @@ interface LiteralSource {
 }
 
 type TokenSource = Source | LiteralSource;
+type CustomPalettePreviewRole = "gray" | "accent";
 
 function source(scale: ScaleName, step: RadixStep): Source {
   return { scale, step };
@@ -389,6 +392,14 @@ function source(scale: ScaleName, step: RadixStep): Source {
 
 function literal(value: string, description: string): LiteralSource {
   return { value, description };
+}
+
+function getTokenStepOverride(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+) {
+  return selection.tokenStepOverrides[token]?.[mode] ?? null;
 }
 
 function hasCustomColor(value: string) {
@@ -784,25 +795,29 @@ function getSemanticSources(selection: ThemeSelection, mode: "light" | "dark") {
     "popover-foreground": source(getBaseScale(selection), 12),
     primary: getPrimarySolidSource(selection),
     "primary-foreground": getPrimarySolidForegroundSource(selection),
-    secondary: source(getBaseScale(selection), 3),
+    secondary: source(getBaseScale(selection), mode === "dark" ? 6 : 3),
     "secondary-foreground": source(getBaseScale(selection), 12),
-    muted: source(getBaseScale(selection), 3),
+    muted: source(getBaseScale(selection), mode === "dark" ? 4 : 3),
     "muted-foreground": source(getBaseScale(selection), 11),
-    accent: source(accentScale, 3),
+    accent: source(accentScale, mode === "dark" ? 5 : 3),
     "accent-foreground": source(accentScale, 12),
     destructive: source(getDestructiveScale(selection), 9),
+    "destructive-foreground": source(getDestructiveScale(selection), 1),
     "destructive-muted": source(getDestructiveScale(selection), 3),
     "destructive-muted-foreground": source(getDestructiveScale(selection), 11),
     "destructive-border": source(getDestructiveScale(selection), 6),
     success: source(getStateScale(selection, "success"), 9),
+    "success-foreground": source(getStateScale(selection, "success"), 1),
     "success-muted": source(getStateScale(selection, "success"), 3),
     "success-muted-foreground": source(getStateScale(selection, "success"), 11),
     "success-border": source(getStateScale(selection, "success"), 6),
     warning: source(getStateScale(selection, "warning"), 9),
+    "warning-foreground": source(getStateScale(selection, "warning"), 1),
     "warning-muted": source(getStateScale(selection, "warning"), 3),
     "warning-muted-foreground": source(getStateScale(selection, "warning"), 11),
     "warning-border": source(getStateScale(selection, "warning"), 6),
     info: source(getStateScale(selection, "info"), 9),
+    "info-foreground": source(getStateScale(selection, "info"), 1),
     "info-muted": source(getStateScale(selection, "info"), 3),
     "info-muted-foreground": source(getStateScale(selection, "info"), 11),
     "info-border": source(getStateScale(selection, "info"), 6),
@@ -823,6 +838,115 @@ function getSemanticSources(selection: ThemeSelection, mode: "light" | "dark") {
     "sidebar-border": source(getBaseScale(selection), 6),
     "sidebar-ring": source(getPrimaryScale(selection), 8),
   } satisfies Partial<Record<SemanticToken, TokenSource>>;
+}
+
+export function getSemanticTokenDefaultStep(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+) {
+  if (usesSolidForegroundRule(selection, token)) {
+    return null;
+  }
+
+  const sourceValue = getSemanticSources(selection, mode)[token];
+
+  if (!sourceValue || isLiteralSource(sourceValue)) {
+    if ((token === "card" || token === "popover") && mode === "light") {
+      return 1;
+    }
+
+    return null;
+  }
+
+  return sourceValue.step;
+}
+
+export function getSemanticTokenStepPreviewColor(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+  step: RadixStep,
+) {
+  const sourceValue = getSemanticSources(selection, mode)[token];
+
+  if (!sourceValue) {
+    return null;
+  }
+
+  const previewSource = isLiteralSource(sourceValue)
+    ? source(getBaseScale(selection), step)
+    : source(sourceValue.scale, step);
+
+  return readSourceValue(selection, previewSource, mode);
+}
+
+function usesSolidForegroundRule(
+  selection: ThemeSelection,
+  token: SemanticToken,
+) {
+  return (
+    token === "destructive-foreground" ||
+    token === "success-foreground" ||
+    token === "warning-foreground" ||
+    token === "info-foreground" ||
+    ((token === "primary-foreground" ||
+      token === "sidebar-primary-foreground") &&
+      !usesNeutralPrimarySolid(selection))
+  );
+}
+
+function getSolidForegroundScale(
+  selection: ThemeSelection,
+  token: SemanticToken,
+) {
+  if (
+    token === "primary-foreground" ||
+    token === "sidebar-primary-foreground"
+  ) {
+    return usesNeutralPrimarySolid(selection) ? null : getPrimaryScale(selection);
+  }
+
+  if (token === "destructive-foreground") {
+    return getDestructiveScale(selection);
+  }
+
+  if (token === "success-foreground") {
+    return getStateScale(selection, "success");
+  }
+
+  if (token === "warning-foreground") {
+    return getStateScale(selection, "warning");
+  }
+
+  if (token === "info-foreground") {
+    return getStateScale(selection, "info");
+  }
+
+  return null;
+}
+
+function applyTokenStepOverride(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+  sourceValue: TokenSource,
+) {
+  const overrideStep = getTokenStepOverride(selection, token, mode);
+
+  if (!overrideStep) {
+    return sourceValue;
+  }
+
+  if (!isLiteralSource(sourceValue)) {
+    return source(sourceValue.scale, overrideStep);
+  }
+
+  if (token === "card" || token === "popover") {
+    return source(getBaseScale(selection), overrideStep);
+  }
+
+  return source(getBaseScale(selection), overrideStep);
 }
 
 function getSemanticTokens(selection: ThemeSelection): Array<SemanticToken> {
@@ -857,58 +981,21 @@ function buildModeTokens(
   const tokens = {} as ThemeModeTokens;
 
   for (const token of getSemanticTokens(selection)) {
-    if (token === "primary-foreground" && !usesNeutralPrimarySolid(selection)) {
-      tokens[token] = getSolidForegroundToken(
-        selection,
-        getPrimaryScale(selection),
-      );
+    const solidForegroundScale = getSolidForegroundScale(selection, token);
+    const hasStepOverride = getTokenStepOverride(selection, token, mode) !== null;
+
+    if (solidForegroundScale && !hasStepOverride) {
+      tokens[token] = getSolidForegroundToken(selection, solidForegroundScale);
       continue;
     }
 
-    if (token === "destructive-foreground") {
-      tokens[token] = getSolidForegroundToken(
-        selection,
-        getDestructiveScale(selection),
-      );
-      continue;
-    }
+    const tokenSource = applyTokenStepOverride(
+      selection,
+      token,
+      mode,
+      sources[token],
+    );
 
-    if (token === "success-foreground") {
-      tokens[token] = getSolidForegroundToken(
-        selection,
-        getStateScale(selection, "success"),
-      );
-      continue;
-    }
-
-    if (token === "warning-foreground") {
-      tokens[token] = getSolidForegroundToken(
-        selection,
-        getStateScale(selection, "warning"),
-      );
-      continue;
-    }
-
-    if (token === "info-foreground") {
-      tokens[token] = getSolidForegroundToken(
-        selection,
-        getStateScale(selection, "info"),
-      );
-      continue;
-    }
-
-    if (
-      token === "sidebar-primary-foreground" &&
-      !usesNeutralPrimarySolid(selection)
-    ) {
-      tokens[token] = getSolidForegroundToken(
-        selection,
-        getPrimaryScale(selection),
-      );
-      continue;
-    }
-
-    const tokenSource = sources[token];
     tokens[token] = readSourceValue(
       selection,
       tokenSource,
@@ -926,13 +1013,9 @@ function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
 
   return getSemanticTokens(selection).map((token) => {
     if (
-      token === "destructive-foreground" ||
-      token === "success-foreground" ||
-      token === "warning-foreground" ||
-      token === "info-foreground" ||
-      ((token === "primary-foreground" ||
-        token === "sidebar-primary-foreground") &&
-        !usesNeutralPrimarySolid(selection))
+      usesSolidForegroundRule(selection, token) &&
+      !getTokenStepOverride(selection, token, "light") &&
+      !getTokenStepOverride(selection, token, "dark")
     ) {
       return {
         token,
@@ -944,13 +1027,51 @@ function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
 
     const lightSource = lightSources[token];
     const darkSource = darkSources[token];
+    const resolvedLightSource = applyTokenStepOverride(
+      selection,
+      token,
+      "light",
+      lightSource,
+    );
+    const resolvedDarkSource = applyTokenStepOverride(
+      selection,
+      token,
+      "dark",
+      darkSource,
+    );
     return {
       token,
-      lightSource: describeSource(lightSource),
-      darkSource: describeSource(darkSource),
+      lightSource: describeTokenModeSource(
+        selection,
+        token,
+        "light",
+        resolvedLightSource,
+      ),
+      darkSource: describeTokenModeSource(
+        selection,
+        token,
+        "dark",
+        resolvedDarkSource,
+      ),
       reason: TOKEN_REASONS[token],
     };
   });
+}
+
+function describeTokenModeSource(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+  sourceValue: TokenSource,
+) {
+  if (
+    usesSolidForegroundRule(selection, token) &&
+    !getTokenStepOverride(selection, token, mode)
+  ) {
+    return "Radix step 9 solid foreground rule";
+  }
+
+  return describeSource(sourceValue);
 }
 
 export function getRadiusValue(radiusScale: RadiusScale) {

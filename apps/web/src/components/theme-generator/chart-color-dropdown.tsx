@@ -133,7 +133,6 @@ function ChartColorField({
         fallback={fallback}
         displayValue={displayValue}
         swatch={swatch}
-        palettePreviewRole="accent"
         onChange={onCustomChange}
       />
     );

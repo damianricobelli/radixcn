@@ -192,7 +192,10 @@ export interface ThemeSelection {
   tokenBridgeEnabled: boolean;
   tokenBridgeMappings: Partial<Record<SemanticToken, string>>;
   tokenBridgeFontMappings: Partial<Record<TokenBridgeFontToken, string>>;
+  tokenStepOverrides: Partial<Record<SemanticToken, TokenStepOverride>>;
 }
+
+export type TokenStepOverride = Partial<Record<ColorMode, RadixStep>>;
 
 export interface GeneratedTheme {
   selection: ThemeSelection;

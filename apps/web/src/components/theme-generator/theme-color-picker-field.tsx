@@ -9,10 +9,8 @@ import {
   ColorPickerTrigger,
 } from "@workspace/ui/components/color-picker";
 import { useState } from "react";
-import { ColorPickerPalettePreview } from "@/components/theme-generator/color-picker-palette-preview";
 import { normalizeColorPickerValue } from "@/components/theme-generator/color-value-utils";
 import { MenuRow } from "@/components/theme-generator/theme-customizer-section";
-import type { CustomPalettePreviewRole } from "@/lib/theme-generator/generator";
 
 export function CustomColorPickerTriggerRow({
   label,
@@ -20,7 +18,6 @@ export function CustomColorPickerTriggerRow({
   fallback,
   displayValue,
   swatch,
-  palettePreviewRole,
   onChange,
 }: CustomColorPickerTriggerRowProps) {
   const { pickerValue, normalized, setPickerValue } = useColorPickerValue({
@@ -59,10 +56,7 @@ export function CustomColorPickerTriggerRow({
         </ColorPickerTrigger>
         {open ? (
           <ColorPickerContent side="right" align="start">
-            <ThemeColorPickerControls
-              palettePreviewRole={palettePreviewRole}
-              previewColor={pickerValue}
-            />
+            <ThemeColorPickerControls />
           </ColorPickerContent>
         ) : null}
       </ColorPicker>
@@ -76,14 +70,10 @@ type CustomColorPickerTriggerRowProps = {
   fallback: string;
   displayValue: string;
   swatch: string;
-  palettePreviewRole?: CustomPalettePreviewRole;
   onChange: (value: string) => void;
 };
 
-function ThemeColorPickerControls({
-  palettePreviewRole,
-  previewColor,
-}: ThemeColorPickerControlsProps) {
+function ThemeColorPickerControls() {
   return (
     <>
       <ColorPickerArea />
@@ -97,20 +87,9 @@ function ThemeColorPickerControls({
         <ColorPickerFormatSelect />
         <ColorPickerInput withoutAlpha />
       </div>
-      {palettePreviewRole ? (
-        <ColorPickerPalettePreview
-          color={previewColor}
-          role={palettePreviewRole}
-        />
-      ) : null}
     </>
   );
 }
-
-type ThemeColorPickerControlsProps = {
-  palettePreviewRole?: CustomPalettePreviewRole;
-  previewColor: string;
-};
 
 function useColorPickerValue({
   value,

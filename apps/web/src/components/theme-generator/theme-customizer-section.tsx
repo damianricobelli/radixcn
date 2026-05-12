@@ -368,7 +368,7 @@ export function MenuRow({
 }
 
 type MenuRowProps = {
-  label: string;
+  label: ReactNode;
   value: string;
   swatch?: string;
   swatches?: Array<string>;

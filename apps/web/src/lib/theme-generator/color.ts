@@ -57,6 +57,12 @@ export function getSolidForeground(backgroundHex: string) {
   };
 }
 
+export function getSolidForegroundForCssColor(background: string) {
+  const contrastColor = getSolidContrastColor(background);
+
+  return colorToOklch(contrastColor);
+}
+
 export function getWhiteForeground() {
   return colorToOklch(WHITE);
 }
