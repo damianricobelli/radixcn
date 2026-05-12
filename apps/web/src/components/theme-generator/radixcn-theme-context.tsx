@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useDeferredValue,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -42,6 +43,8 @@ const BALANCED_CHART_SCALES: ThemeSelection["chartScales"] = [
   "purple",
   "red",
 ];
+const THEME_STORAGE_KEY = "radixcn.theme-customizer";
+const THEME_STORAGE_VERSION = 1;
 
 interface RadixCnThemeContextValue {
   fonts: ReadonlyArray<FontSourceFont>;
@@ -68,13 +71,18 @@ export function RadixCnThemeProvider({
   children,
   fonts = FALLBACK_FONT_OPTIONS,
 }: RadixCnThemeProviderProps) {
+  const savedThemeState = useMemo(readSavedThemeState, []);
   const [selection, setSelection] = useState<ThemeSelection>(
-    DEFAULT_THEME_SELECTION,
+    savedThemeState.selection,
   );
-  const [mode, setMode] = useState<ColorMode>("light");
+  const [mode, setMode] = useState<ColorMode>(savedThemeState.mode);
   const sansFontOptions = useMemo(() => getSansFontOptions(fonts), [fonts]);
   const monoFontOptions = useMemo(() => getMonoFontOptions(fonts), [fonts]);
   const previewSelection = useDeferredValue(selection);
+
+  useEffect(() => {
+    saveThemeState({ mode, selection });
+  }, [mode, selection]);
 
   const generated = useMemo(
     () => generateTheme(previewSelection, fonts),
@@ -276,6 +284,82 @@ type RadixCnThemeProviderProps = {
   children: ReactNode;
   fonts?: ReadonlyArray<FontSourceFont>;
 };
+
+type SavedThemeState = {
+  mode: ColorMode;
+  selection: ThemeSelection;
+};
+
+type ThemeStoragePayload = Partial<SavedThemeState> & {
+  version?: number;
+};
+
+function readSavedThemeState(): SavedThemeState {
+  if (typeof window === "undefined") {
+    return getDefaultThemeState();
+  }
+
+  try {
+    const rawPayload = window.localStorage.getItem(THEME_STORAGE_KEY);
+
+    if (!rawPayload) {
+      return getDefaultThemeState();
+    }
+
+    const payload = JSON.parse(rawPayload) as ThemeStoragePayload;
+
+    if (payload.version !== THEME_STORAGE_VERSION) {
+      return getDefaultThemeState();
+    }
+
+    return {
+      mode: isColorMode(payload.mode) ? payload.mode : "light",
+      selection: isThemeSelectionPayload(payload.selection)
+        ? {
+            ...DEFAULT_THEME_SELECTION,
+            ...payload.selection,
+          }
+        : DEFAULT_THEME_SELECTION,
+    };
+  } catch {
+    return getDefaultThemeState();
+  }
+}
+
+function saveThemeState(state: SavedThemeState) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      THEME_STORAGE_KEY,
+      JSON.stringify({
+        version: THEME_STORAGE_VERSION,
+        ...state,
+      }),
+    );
+  } catch {
+    // Ignore storage failures so private browsing or quota limits do not break the UI.
+  }
+}
+
+function getDefaultThemeState(): SavedThemeState {
+  return {
+    mode: "light",
+    selection: DEFAULT_THEME_SELECTION,
+  };
+}
+
+function isColorMode(value: unknown): value is ColorMode {
+  return value === "light" || value === "dark";
+}
+
+function isThemeSelectionPayload(
+  value: unknown,
+): value is Partial<ThemeSelection> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
 
 function createRandomSelection(
   currentSelection: ThemeSelection,
