@@ -2,6 +2,6 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
-  core-js-pure: set this to true or false
-  esbuild: set this to true or false
-  msw: set this to true or false
+  core-js-pure: true
+  esbuild: true
+  msw: true
