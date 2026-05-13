@@ -1,22 +1,32 @@
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import {
   Check,
   Clipboard,
   Code2,
+  Copy,
   GitBranch,
+  Loader2,
+  Share2,
 } from "lucide-react";
+import { type FormEvent, useId, useState } from "react";
 import { CodeBlock } from "@/components/code-block";
+import { saveThemePreset } from "@/lib/theme-presets";
+import type { ThemeSelection } from "@/lib/theme-generator/types";
 
-export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
+export function AppHeader({ copied, css, selection, onCopy }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background/92 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-5 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -48,6 +58,8 @@ export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <CssDialog copied={copied} css={css} onCopy={onCopy} />
 
+        <ShareThemeDialog selection={selection} />
+
         <Button variant="outline" onClick={onCopy}>
           {copied ? <Check /> : <Clipboard />}
           {copied ? "Copied" : "Copy CSS"}
@@ -71,8 +83,151 @@ export function AppHeader({ copied, css, onCopy }: AppHeaderProps) {
 type AppHeaderProps = {
   copied: boolean;
   css: string;
+  selection: ThemeSelection;
   onCopy: () => void;
 };
+
+function ShareThemeDialog({ selection }: ShareThemeDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [shareUrl, setShareUrl] = useState("");
+  const [error, setError] = useState("");
+  const [isSharing, setIsSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const inputId = useId();
+  const shareUrlId = useId();
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+
+    if (nextOpen) {
+      setName(selection.name === "Custom" ? "" : selection.name);
+      setShareUrl("");
+      setError("");
+      setCopied(false);
+    }
+  }
+
+  async function shareTheme(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setCopied(false);
+    setIsSharing(true);
+
+    try {
+      const preset = await saveThemePreset({
+        data: {
+          name,
+          selection,
+        },
+      });
+      const nextUrl = new URL(window.location.href);
+
+      nextUrl.searchParams.set("preset", preset.hash);
+      window.history.replaceState(null, "", nextUrl.toString());
+      await navigator.clipboard.writeText(nextUrl.toString());
+      setShareUrl(nextUrl.toString());
+      setCopied(true);
+    } catch (shareError) {
+      setError(getShareErrorMessage(shareError));
+    } finally {
+      setIsSharing(false);
+    }
+  }
+
+  async function copyShareUrl() {
+    if (!shareUrl) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger render={<Button variant="outline" />}>
+        <Share2 />
+        Share
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share theme</DialogTitle>
+          <DialogDescription>
+            Name this theme before saving it as a reusable preset.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form className="space-y-4" onSubmit={shareTheme}>
+          <div className="space-y-2">
+            <Label htmlFor={inputId}>Preset name</Label>
+            <Input
+              autoComplete="off"
+              autoFocus
+              disabled={isSharing}
+              id={inputId}
+              maxLength={48}
+              placeholder="My Radix theme"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </div>
+
+          {shareUrl ? (
+            <div className="space-y-2">
+              <Label htmlFor={shareUrlId}>Share URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  className="font-mono text-xs"
+                  id={shareUrlId}
+                  readOnly
+                  value={shareUrl}
+                />
+                <Button
+                  aria-label="Copy share URL"
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                  onClick={copyShareUrl}
+                >
+                  {copied ? <Check /> : <Copy />}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {error ? (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
+
+          <DialogFooter className="mt-0">
+            <DialogClose render={<Button type="button" variant="outline" />}>
+              Close
+            </DialogClose>
+            <Button disabled={isSharing} type="submit">
+              {isSharing ? <Loader2 className="animate-spin" /> : <Share2 />}
+              {shareUrl ? "Save again" : "Save and copy link"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type ShareThemeDialogProps = {
+  selection: ThemeSelection;
+};
+
+function getShareErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Could not save this preset.";
+}
 
 function CssDialog({ copied, css, onCopy }: CssDialogProps) {
   return (

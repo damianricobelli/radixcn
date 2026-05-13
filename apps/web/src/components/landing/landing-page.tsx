@@ -227,6 +227,7 @@ export function LandingPage() {
             >
               <Link
                 className={cn(buttonVariants({ size: "lg" }), "w-fit")}
+                search={{ preset: undefined }}
                 to="/create"
               >
                 Create theme
@@ -602,7 +603,11 @@ export function LandingPage() {
               bridge it to your system.
             </p>
           </div>
-          <Link className={buttonVariants()} to="/create">
+          <Link
+            className={buttonVariants()}
+            search={{ preset: undefined }}
+            to="/create"
+          >
             Open generator
             <Sparkles aria-hidden="true" />
           </Link>

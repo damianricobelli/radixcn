@@ -19,13 +19,20 @@ import {
   FALLBACK_FONT_OPTIONS,
   getFontFaceCss,
 } from "@/lib/theme-generator/fonts";
-import type { FontSourceFont } from "@/lib/theme-generator/types";
+import type {
+  FontSourceFont,
+  ThemeSelection,
+} from "@/lib/theme-generator/types";
 
 export function ThemeGeneratorApp({
   fonts = FALLBACK_FONT_OPTIONS,
+  initialPreset,
 }: ThemeGeneratorAppProps) {
   return (
-    <RadixCnThemeProvider fonts={fonts}>
+    <RadixCnThemeProvider
+      fonts={fonts}
+      initialSelection={initialPreset?.selection}
+    >
       <ThemeGeneratorShell />
     </RadixCnThemeProvider>
   );
@@ -33,6 +40,9 @@ export function ThemeGeneratorApp({
 
 type ThemeGeneratorAppProps = {
   fonts?: ReadonlyArray<FontSourceFont>;
+  initialPreset?: {
+    selection: ThemeSelection;
+  } | null;
 };
 
 function ThemeGeneratorShell() {
@@ -143,7 +153,12 @@ function ThemeGeneratorShell() {
         />
 
         <SidebarInset className="min-h-0 min-w-0 overflow-hidden bg-background shadow-xl shadow-foreground/10 ring-1 ring-border/60 dark:shadow-black/30">
-          <AppHeader copied={copied} css={generated.css} onCopy={copyCss} />
+          <AppHeader
+            copied={copied}
+            css={generated.css}
+            selection={selection}
+            onCopy={copyCss}
+          />
           <div className="min-h-0 flex-1 overflow-hidden bg-secondary/35 px-3 py-3 md:px-5 md:py-4 dark:bg-background">
             <ComponentShowcase />
           </div>

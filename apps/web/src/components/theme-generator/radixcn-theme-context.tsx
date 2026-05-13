@@ -70,8 +70,12 @@ const RadixCnThemeContext = createContext<RadixCnThemeContextValue | null>(
 export function RadixCnThemeProvider({
   children,
   fonts = FALLBACK_FONT_OPTIONS,
+  initialSelection,
 }: RadixCnThemeProviderProps) {
-  const savedThemeState = useMemo(readSavedThemeState, []);
+  const savedThemeState = useMemo(
+    () => readSavedThemeState(initialSelection),
+    [initialSelection],
+  );
   const [selection, setSelection] = useState<ThemeSelection>(
     savedThemeState.selection,
   );
@@ -83,6 +87,12 @@ export function RadixCnThemeProvider({
   useEffect(() => {
     saveThemeState({ mode, selection });
   }, [mode, selection]);
+
+  useEffect(() => {
+    if (initialSelection) {
+      setSelection({ ...DEFAULT_THEME_SELECTION, ...initialSelection });
+    }
+  }, [initialSelection]);
 
   const generated = useMemo(
     () => generateTheme(previewSelection, fonts),
@@ -283,6 +293,7 @@ function resolveDisabledCustomScales(
 type RadixCnThemeProviderProps = {
   children: ReactNode;
   fonts?: ReadonlyArray<FontSourceFont>;
+  initialSelection?: ThemeSelection;
 };
 
 type SavedThemeState = {
@@ -294,7 +305,17 @@ type ThemeStoragePayload = Partial<SavedThemeState> & {
   version?: number;
 };
 
-function readSavedThemeState(): SavedThemeState {
+function readSavedThemeState(initialSelection?: ThemeSelection): SavedThemeState {
+  if (initialSelection) {
+    return {
+      mode: "light",
+      selection: {
+        ...DEFAULT_THEME_SELECTION,
+        ...initialSelection,
+      },
+    };
+  }
+
   if (typeof window === "undefined") {
     return getDefaultThemeState();
   }
