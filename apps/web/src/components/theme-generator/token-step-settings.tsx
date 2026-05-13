@@ -128,16 +128,6 @@ const BASE_TOKEN_STEP_SECTIONS = [
     ],
   },
   {
-    title: "Status",
-    tokens: [
-      "destructive",
-      "destructive-foreground",
-      "destructive-muted",
-      "destructive-muted-foreground",
-      "destructive-border",
-    ],
-  },
-  {
     title: "Structure",
     tokens: ["border", "input", "ring"],
   },
@@ -160,38 +150,31 @@ const BASE_TOKEN_STEP_SECTIONS = [
   },
 ] as const satisfies ReadonlyArray<TokenStepSection>;
 
-const STATE_TOKEN_STEP_SECTIONS = [
-  {
-    title: "Success",
-    tokens: [
-      "success",
-      "success-foreground",
-      "success-muted",
-      "success-muted-foreground",
-      "success-border",
-    ],
-  },
-  {
-    title: "Warning",
-    tokens: [
-      "warning",
-      "warning-foreground",
-      "warning-muted",
-      "warning-muted-foreground",
-      "warning-border",
-    ],
-  },
-  {
-    title: "Info",
-    tokens: [
-      "info",
-      "info-foreground",
-      "info-muted",
-      "info-muted-foreground",
-      "info-border",
-    ],
-  },
-] as const satisfies ReadonlyArray<TokenStepSection>;
+const DESTRUCTIVE_TOKEN_STEPS = [
+  "destructive",
+  "destructive-foreground",
+  "destructive-muted",
+  "destructive-muted-foreground",
+  "destructive-border",
+] as const satisfies ReadonlyArray<SemanticToken>;
+
+const ADDITIONAL_STATE_TOKEN_STEPS = [
+  "success",
+  "success-foreground",
+  "success-muted",
+  "success-muted-foreground",
+  "success-border",
+  "warning",
+  "warning-foreground",
+  "warning-muted",
+  "warning-muted-foreground",
+  "warning-border",
+  "info",
+  "info-foreground",
+  "info-muted",
+  "info-muted-foreground",
+  "info-border",
+] as const satisfies ReadonlyArray<SemanticToken>;
 
 type TokenStepSection = {
   title: string;
@@ -199,9 +182,18 @@ type TokenStepSection = {
 };
 
 function getTokenStepSections(selection: ThemeSelection) {
+  const stateTokens = selection.additionalStatesEnabled
+    ? [...DESTRUCTIVE_TOKEN_STEPS, ...ADDITIONAL_STATE_TOKEN_STEPS]
+    : DESTRUCTIVE_TOKEN_STEPS;
+  const [coreSection, ...remainingSections] = BASE_TOKEN_STEP_SECTIONS;
+
   return [
-    ...BASE_TOKEN_STEP_SECTIONS,
-    ...(selection.additionalStatesEnabled ? STATE_TOKEN_STEP_SECTIONS : []),
+    coreSection,
+    {
+      title: "States",
+      tokens: stateTokens,
+    },
+    ...remainingSections,
   ];
 }
 

@@ -303,7 +303,7 @@ const TOKEN_REASONS: Record<SemanticToken, string> = {
     "Muted backgrounds stay quiet while dark mode gets enough separation from the canvas.",
   "muted-foreground": "Step 11 is Radix's low-emphasis text color.",
   accent:
-    "Accent surfaces follow the selected base or brand interaction scale, with extra dark-mode presence.",
+    "Accent surfaces follow the selected base or brand interaction scale at step 3.",
   "accent-foreground": "Accent foreground follows the matching text scale.",
   destructive: "Destructive surfaces use the selected danger scale at step 9.",
   "destructive-foreground":
@@ -799,7 +799,7 @@ function getSemanticSources(selection: ThemeSelection, mode: "light" | "dark") {
     "secondary-foreground": source(getBaseScale(selection), 12),
     muted: source(getBaseScale(selection), mode === "dark" ? 4 : 3),
     "muted-foreground": source(getBaseScale(selection), 11),
-    accent: source(accentScale, mode === "dark" ? 5 : 3),
+    accent: source(accentScale, 3),
     "accent-foreground": source(accentScale, 12),
     destructive: source(getDestructiveScale(selection), 9),
     "destructive-foreground": source(getDestructiveScale(selection), 1),
