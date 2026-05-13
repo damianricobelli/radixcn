@@ -19,10 +19,8 @@ import {
   FALLBACK_FONT_OPTIONS,
   getFontFaceCss,
 } from "@/lib/theme-generator/fonts";
-import type {
-  FontSourceFont,
-  ThemeSelection,
-} from "@/lib/theme-generator/types";
+import type { SharedThemePreset } from "@/lib/theme-presets";
+import type { FontSourceFont } from "@/lib/theme-generator/types";
 
 export function ThemeGeneratorApp({
   fonts = FALLBACK_FONT_OPTIONS,
@@ -33,19 +31,17 @@ export function ThemeGeneratorApp({
       fonts={fonts}
       initialSelection={initialPreset?.selection}
     >
-      <ThemeGeneratorShell />
+      <ThemeGeneratorShell initialPreset={initialPreset} />
     </RadixCnThemeProvider>
   );
 }
 
 type ThemeGeneratorAppProps = {
   fonts?: ReadonlyArray<FontSourceFont>;
-  initialPreset?: {
-    selection: ThemeSelection;
-  } | null;
+  initialPreset?: SharedThemePreset | null;
 };
 
-function ThemeGeneratorShell() {
+function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
   const [copied, setCopied] = useState(false);
   const copyResetTimerRef = useRef<number | null>(null);
   const {
@@ -156,6 +152,7 @@ function ThemeGeneratorShell() {
           <AppHeader
             copied={copied}
             css={generated.css}
+            preset={initialPreset}
             selection={selection}
             onCopy={copyCss}
           />
@@ -167,6 +164,10 @@ function ThemeGeneratorShell() {
     </main>
   );
 }
+
+type ThemeGeneratorShellProps = {
+  initialPreset?: SharedThemePreset | null;
+};
 
 const BASE_SPACING_REM = 0.25;
 

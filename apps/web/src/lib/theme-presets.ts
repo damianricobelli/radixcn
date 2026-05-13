@@ -16,11 +16,14 @@ const PRESET_HASH_PATTERN = /^[a-zA-Z0-9_-]{4,32}$/;
 export type SharedThemePreset = {
   hash: string;
   name: string;
+  editable: boolean;
   selection: ThemeSelection;
 };
 
 type SaveThemePresetInput = {
+  hash?: string;
   name: string;
+  editable: boolean;
   selection: ThemeSelection;
 };
 
@@ -30,12 +33,14 @@ export const saveThemePreset = createServerFn({ method: "POST" })
       throw new Error("Invalid preset payload.");
     }
 
+    const hash = normalizeOptionalPresetHash(data.hash);
     const name = normalizeThemeName(data.name);
+    const editable = data.editable === true;
     const selection = normalizeThemeSelection(data.selection, name);
 
-    return { name, selection };
+    return { hash, name, editable, selection };
   })
-  .handler(async ({ data }) => createThemePreset(data));
+  .handler(async ({ data }) => saveThemePresetRecord(data));
 
 export const getThemePreset = createServerFn({ method: "GET" })
   .inputValidator((hash: unknown) => {
@@ -55,6 +60,18 @@ export const getThemePreset = createServerFn({ method: "GET" })
     return findThemePreset(hash);
   });
 
+async function saveThemePresetRecord(input: SaveThemePresetInput) {
+  if (input.hash) {
+    const updatedPreset = await updateThemePreset(input);
+
+    if (updatedPreset) {
+      return updatedPreset;
+    }
+  }
+
+  return createThemePreset(input);
+}
+
 async function createThemePreset(input: SaveThemePresetInput) {
   const db = getDb();
   const now = new Date();
@@ -67,6 +84,7 @@ async function createThemePreset(input: SaveThemePresetInput) {
       await db.insert(themes).values({
         hash,
         name: input.name,
+        editable: input.editable,
         selection,
         createdAt: now,
         updatedAt: now,
@@ -75,6 +93,7 @@ async function createThemePreset(input: SaveThemePresetInput) {
       return {
         hash,
         name: input.name,
+        editable: input.editable,
         selection,
       } satisfies SharedThemePreset;
     } catch (error) {
@@ -85,6 +104,41 @@ async function createThemePreset(input: SaveThemePresetInput) {
   }
 
   throw new Error("Could not create a unique preset hash.");
+}
+
+async function updateThemePreset(input: SaveThemePresetInput) {
+  if (!input.hash) {
+    return null;
+  }
+
+  const existingPreset = await findThemePreset(input.hash);
+
+  if (!existingPreset) {
+    return null;
+  }
+
+  if (!existingPreset.editable) {
+    throw new Error("This preset cannot be updated.");
+  }
+
+  const selection = normalizeThemeSelection(input.selection, input.name);
+
+  await getDb()
+    .update(themes)
+    .set({
+      name: input.name,
+      editable: input.editable,
+      selection,
+      updatedAt: new Date(),
+    })
+    .where(eq(themes.hash, input.hash));
+
+  return {
+    hash: input.hash,
+    name: input.name,
+    editable: input.editable,
+    selection,
+  } satisfies SharedThemePreset;
 }
 
 async function findThemePreset(hash: string) {
@@ -101,6 +155,7 @@ async function findThemePreset(hash: string) {
   return {
     hash: theme.hash,
     name: theme.name,
+    editable: theme.editable,
     selection: normalizeThemeSelection(theme.selection, theme.name),
   } satisfies SharedThemePreset;
 }
@@ -144,6 +199,24 @@ function normalizeThemeName(value: unknown) {
   }
 
   return name;
+}
+
+function normalizeOptionalPresetHash(value: unknown) {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+
+  if (typeof value !== "string") {
+    throw new Error("Invalid preset hash.");
+  }
+
+  const hash = value.trim();
+
+  if (!PRESET_HASH_PATTERN.test(hash)) {
+    throw new Error("Invalid preset hash.");
+  }
+
+  return hash;
 }
 
 function hasDatabaseConfig() {

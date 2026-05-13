@@ -5,6 +5,7 @@ export const themes = sqliteTable("themes", {
   hash: text("hash").primaryKey(),
   name: text("name").notNull(),
   selection: text("selection", { mode: "json" }).$type<ThemeSelection>().notNull(),
+  editable: integer("editable", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),

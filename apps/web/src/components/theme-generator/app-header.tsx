@@ -1,4 +1,17 @@
+import { useNavigate } from "@tanstack/react-router";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@workspace/ui/components/alert-dialog";
 import { Button } from "@workspace/ui/components/button";
+import { Checkbox } from "@workspace/ui/components/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -12,6 +25,7 @@ import {
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
+import { toast } from "@workspace/ui/components/sonner";
 import {
   Check,
   Clipboard,
@@ -20,13 +34,20 @@ import {
   GitBranch,
   Loader2,
   Share2,
+  Upload,
 } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { CodeBlock } from "@/components/code-block";
-import { saveThemePreset } from "@/lib/theme-presets";
 import type { ThemeSelection } from "@/lib/theme-generator/types";
+import { type SharedThemePreset, saveThemePreset } from "@/lib/theme-presets";
 
-export function AppHeader({ copied, css, selection, onCopy }: AppHeaderProps) {
+export function AppHeader({
+  copied,
+  css,
+  preset,
+  selection,
+  onCopy,
+}: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background/92 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-5 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -58,12 +79,11 @@ export function AppHeader({ copied, css, selection, onCopy }: AppHeaderProps) {
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <CssDialog copied={copied} css={css} onCopy={onCopy} />
 
-        <ShareThemeDialog selection={selection} />
+        <ShareThemeDialog preset={preset} selection={selection} />
 
-        <Button variant="outline" onClick={onCopy}>
-          {copied ? <Check /> : <Clipboard />}
-          {copied ? "Copied" : "Copy CSS"}
-        </Button>
+        {preset?.editable ? (
+          <UpdatePresetDialog preset={preset} selection={selection} />
+        ) : null}
 
         <Button
           aria-label="Open GitHub repository"
@@ -83,18 +103,22 @@ export function AppHeader({ copied, css, selection, onCopy }: AppHeaderProps) {
 type AppHeaderProps = {
   copied: boolean;
   css: string;
+  preset?: SharedThemePreset | null;
   selection: ThemeSelection;
   onCopy: () => void;
 };
 
-function ShareThemeDialog({ selection }: ShareThemeDialogProps) {
+function ShareThemeDialog({ preset, selection }: ShareThemeDialogProps) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [editable, setEditable] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [error, setError] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [copied, setCopied] = useState(false);
   const inputId = useId();
+  const editableId = useId();
   const shareUrlId = useId();
 
   function handleOpenChange(nextOpen: boolean) {
@@ -102,6 +126,7 @@ function ShareThemeDialog({ selection }: ShareThemeDialogProps) {
 
     if (nextOpen) {
       setName(selection.name === "Custom" ? "" : selection.name);
+      setEditable(preset?.editable ?? false);
       setShareUrl("");
       setError("");
       setCopied(false);
@@ -118,13 +143,18 @@ function ShareThemeDialog({ selection }: ShareThemeDialogProps) {
       const preset = await saveThemePreset({
         data: {
           name,
+          editable,
           selection,
         },
       });
       const nextUrl = new URL(window.location.href);
 
       nextUrl.searchParams.set("preset", preset.hash);
-      window.history.replaceState(null, "", nextUrl.toString());
+      await navigate({
+        replace: true,
+        search: { preset: preset.hash },
+        to: "/create",
+      });
       await navigator.clipboard.writeText(nextUrl.toString());
       setShareUrl(nextUrl.toString());
       setCopied(true);
@@ -173,6 +203,25 @@ function ShareThemeDialog({ selection }: ShareThemeDialogProps) {
             />
           </div>
 
+          <label
+            className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3"
+            htmlFor={editableId}
+          >
+            <Checkbox
+              checked={editable}
+              className="mt-0.5"
+              disabled={isSharing}
+              id={editableId}
+              onCheckedChange={setEditable}
+            />
+            <span className="grid gap-1 text-sm">
+              <span className="font-medium">Editable</span>
+              <span className="text-muted-foreground">
+                Anyone with this link can update this same preset.
+              </span>
+            </span>
+          </label>
+
           {shareUrl ? (
             <div className="space-y-2">
               <Label htmlFor={shareUrlId}>Share URL</Label>
@@ -218,6 +267,63 @@ function ShareThemeDialog({ selection }: ShareThemeDialogProps) {
 }
 
 type ShareThemeDialogProps = {
+  preset?: SharedThemePreset | null;
+  selection: ThemeSelection;
+};
+
+function UpdatePresetDialog({ preset, selection }: UpdatePresetDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  async function updatePreset() {
+    setIsUpdating(true);
+
+    try {
+      await saveThemePreset({
+        data: {
+          hash: preset.hash,
+          name: preset.name,
+          editable: true,
+          selection,
+        },
+      });
+      toast.success("Preset updated.");
+      setOpen(false);
+    } catch (error) {
+      toast.error(getShareErrorMessage(error));
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger render={<Button variant="outline" />}>
+        <Upload />
+        Update preset
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Update this preset?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will replace the saved theme for everyone using this editable
+            link.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isUpdating}>Cancel</AlertDialogCancel>
+          <AlertDialogAction disabled={isUpdating} onClick={updatePreset}>
+            {isUpdating ? <Loader2 className="animate-spin" /> : <Upload />}
+            Update preset
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+type UpdatePresetDialogProps = {
+  preset: SharedThemePreset;
   selection: ThemeSelection;
 };
 
