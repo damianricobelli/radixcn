@@ -15,8 +15,6 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
 import {
-  Check,
-  Clipboard,
   ExternalLink,
   GitCompareArrows,
   ListOrdered,
@@ -31,6 +29,7 @@ import {
 import type { ReactNode } from "react";
 import { ChartDropdown } from "@/components/theme-generator/chart-color-dropdown";
 import { FontDropdown } from "@/components/theme-generator/font-dropdown";
+import { ThemeCodeDialog } from "@/components/theme-code-dialog";
 import { CustomColorPickerTriggerRow } from "@/components/theme-generator/theme-color-picker-field";
 import {
   ACCENT_STRATEGIES,
@@ -76,12 +75,11 @@ import type {
 } from "@/lib/theme-generator/types";
 
 export function ThemeCustomizerSidebar({
-  copied,
+  css,
   fonts,
   mode,
   tokens,
   selection,
-  onCopy,
   onModeChange,
   onRandomize,
   onReset,
@@ -607,10 +605,7 @@ export function ThemeCustomizerSidebar({
       </Tabs>
 
       <SidebarFooter className="gap-2">
-        <Button onClick={onCopy}>
-          {copied ? <Check /> : <Clipboard />}
-          {copied ? "Copied" : "Copy CSS"}
-        </Button>
+        <ThemeCodeDialog css={css} fullWidth />
         <div className="grid w-full grid-cols-2 gap-2">
           <Button variant="outline" onClick={onRandomize}>
             <Shuffle />
@@ -720,12 +715,11 @@ type SidebarScrollAreaProps = {
 };
 
 type ThemeCustomizerSidebarProps = {
-  copied: boolean;
+  css: string;
   fonts: ReadonlyArray<FontSourceFont>;
   mode: ColorMode;
   tokens: ThemeModeTokens;
   selection: ThemeSelection;
-  onCopy: () => void;
   onModeChange: (mode: ColorMode) => void;
   onRandomize: () => void;
   onReset: () => void;

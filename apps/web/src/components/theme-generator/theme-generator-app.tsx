@@ -3,7 +3,7 @@ import {
   SidebarProvider,
 } from "@workspace/ui/components/sidebar";
 import type { CSSProperties } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { ComponentShowcase } from "@/components/component-showcase";
 import { AppHeader } from "@/components/theme-generator/app-header";
 import {
@@ -42,8 +42,6 @@ type ThemeGeneratorAppProps = {
 };
 
 function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
-  const [copied, setCopied] = useState(false);
-  const copyResetTimerRef = useRef<number | null>(null);
   const {
     activeTokens,
     generated,
@@ -97,19 +95,6 @@ function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
     [previewSelection.spacing],
   );
 
-  async function copyCss() {
-    await navigator.clipboard.writeText(generated.css);
-    if (copyResetTimerRef.current !== null) {
-      window.clearTimeout(copyResetTimerRef.current);
-    }
-
-    setCopied(true);
-    copyResetTimerRef.current = window.setTimeout(() => {
-      setCopied(false);
-      copyResetTimerRef.current = null;
-    }, 1600);
-  }
-
   return (
     <main
       data-theme-preview
@@ -125,12 +110,11 @@ function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
         style={sidebarStyle}
       >
         <ThemeCustomizerSidebar
-          copied={copied}
+          css={generated.css}
           fonts={fonts}
           mode={mode}
           tokens={activeTokens}
           selection={selection}
-          onCopy={copyCss}
           onModeChange={setMode}
           onRandomize={randomize}
           onReset={reset}
