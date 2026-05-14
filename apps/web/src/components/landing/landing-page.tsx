@@ -208,7 +208,6 @@ export function LandingPage() {
                   }}
                 />
               </a>
-              .
             </motion.h1>
             <motion.p
               className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl"
@@ -222,7 +221,7 @@ export function LandingPage() {
               behind them.
             </motion.p>
             <motion.div
-              className="mt-8 flex flex-col gap-3 sm:flex-row"
+              className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
               variants={fadeIn}
             >
               <Link
