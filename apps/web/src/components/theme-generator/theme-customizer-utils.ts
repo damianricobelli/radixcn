@@ -1,18 +1,6 @@
-import type { CSSProperties } from "react";
 import Color from "colorjs.io";
-import {
-  ALL_RADIX_SCALES,
-  getRadixHexScale,
-  getRadixOklchScale,
-} from "@/lib/theme-generator/radix";
+import type { CSSProperties } from "react";
 import { normalizeHexColor } from "@/lib/theme-generator/color";
-import type {
-  ChartStrategy,
-  FontSourceFont,
-  RadixScaleName,
-  ThemeModeTokens,
-  ThemeSelection,
-} from "@/lib/theme-generator/types";
 import { getFontCssValue } from "@/lib/theme-generator/fonts";
 import {
   formatEm,
@@ -20,8 +8,19 @@ import {
   getRadiusValue,
   getShadowTokens,
   writeGrainyBackgroundCss,
-  writeGrainyBackgroundUtilityCss,
 } from "@/lib/theme-generator/generator";
+import {
+  ALL_RADIX_SCALES,
+  getRadixHexScale,
+  getRadixOklchScale,
+} from "@/lib/theme-generator/radix";
+import type {
+  ChartStrategy,
+  FontSourceFont,
+  RadixScaleName,
+  ThemeModeTokens,
+  ThemeSelection,
+} from "@/lib/theme-generator/types";
 
 export function createPreviewStyle(
   tokens: ThemeModeTokens,
@@ -50,6 +49,7 @@ export function createPreviewStyle(
 
   for (const [token, value] of Object.entries(tokens)) {
     style[`--${token}`] = value;
+    style[`--color-${token}`] = `var(--${token})`;
   }
 
   return style;
@@ -84,25 +84,28 @@ export function createPreviewCss(
     "[data-theme-preview] {",
     ...lines,
     "}",
-    ...(selection.grainyBackgroundEnabled &&
-    selection.grainyBackgroundScope === "app"
+    ...(selection.grainyBackgroundEnabled
       ? [
           "",
           writeGrainyBackgroundCss(
             "[data-theme-preview]",
-            selection.grainyBackgroundOpacity,
+            selection.grainyBackgroundLightOpacity,
           ),
-        ]
-      : []),
-    ...(selection.grainyBackgroundEnabled
-      ? [
           "",
-          writeGrainyBackgroundUtilityCss(selection.grainyBackgroundOpacity),
+          `[data-theme-preview].dark::before {`,
+          `  opacity: ${formatPreviewGrainyOpacity(
+            selection.grainyBackgroundDarkOpacity,
+          )};`,
+          "}",
         ]
       : []),
     "",
     ...fontUtilityOverrides,
   ].join("\n");
+}
+
+function formatPreviewGrainyOpacity(opacity: number) {
+  return Number(Math.min(Math.max(opacity, 0), 0.3).toFixed(4)).toString();
 }
 
 export function pick<T>(items: ReadonlyArray<T>) {

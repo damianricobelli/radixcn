@@ -7,6 +7,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
@@ -21,6 +22,13 @@ type StateExample = {
   title: string;
   description: string;
   icon: LucideIcon;
+};
+
+const STATE_ACCENT_CLASS_NAMES: Record<StateExample["token"], string> = {
+  destructive: "bg-destructive",
+  success: "bg-success",
+  warning: "bg-warning",
+  info: "bg-info",
 };
 
 const STATE_EXAMPLES: Array<StateExample> = [
@@ -87,7 +95,7 @@ const BADGE_VARIANTS_CODE = `variant: {
 export function StatesTab() {
   return (
     <div className="h-full overflow-auto rounded-lg border border-border bg-background shadow-xs">
-      <div className="sticky top-0 z-10 border-b bg-background/95 px-3 py-2 backdrop-blur md:px-4">
+      <div className="sticky top-0 z-10 rounded-t-lg border-b bg-background/95 px-3 py-2 backdrop-blur md:px-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-xs font-medium text-muted-foreground">
@@ -101,41 +109,35 @@ export function StatesTab() {
         </div>
       </div>
 
-      <div className="grid gap-4 p-3 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)] md:p-4">
-        <section className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Alerts</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {STATE_EXAMPLES.map(
-                ({ variant, title, description, icon: Icon }) => (
-                  <Alert key={variant} variant={variant}>
-                    <Icon />
-                    <AlertTitle>{title}</AlertTitle>
-                    <AlertDescription>{description}</AlertDescription>
-                  </Alert>
-                ),
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Badges</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
+      <div className="space-y-4 p-3 md:p-4">
+        <section className="rounded-lg border bg-muted/20 p-3">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h4 className="text-sm font-semibold tracking-tight">
+                Preview states
+              </h4>
+              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                Alerts and badges share the same state tokens.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
               {STATE_EXAMPLES.map(({ variant, label, icon: Icon }) => (
                 <Badge key={variant} variant={variant} className="gap-1.5">
                   <Icon className="size-3" />
                   {label}
                 </Badge>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {STATE_EXAMPLES.map((example) => (
+              <StateRecipeCard key={example.variant} {...example} />
+            ))}
+          </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="grid gap-4 xl:grid-cols-2">
           <CodeCard
             title="alert.tsx variants"
             description="Add these keys inside alertVariants."
@@ -154,6 +156,44 @@ export function StatesTab() {
   );
 }
 
+function StateRecipeCard({
+  token,
+  variant,
+  label,
+  title,
+  description,
+  icon: Icon,
+}: StateExample) {
+  return (
+    <Card size="sm" className="gap-3">
+      <CardHeader className="gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span
+              className={[
+                "size-2.5 shrink-0 rounded-full",
+                STATE_ACCENT_CLASS_NAMES[token],
+              ].join(" ")}
+            />
+            <CardTitle className="truncate">{label}</CardTitle>
+          </div>
+          <Badge variant={variant} className="gap-1.5">
+            <Icon className="size-3" />
+            {label}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Alert variant={variant}>
+          <Icon />
+          <AlertTitle>{title}</AlertTitle>
+          <AlertDescription>{description}</AlertDescription>
+        </Alert>
+      </CardContent>
+    </Card>
+  );
+}
+
 type CodeCardProps = {
   title: string;
   description: string;
@@ -163,16 +203,16 @@ type CodeCardProps = {
 
 function CodeCard({ title, description, code, language }: CodeCardProps) {
   return (
-    <Card>
+    <Card size="sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <CodeBlock
           code={code}
           language={language}
-          className="max-h-85 overflow-auto rounded-lg border bg-muted/40"
+          className="rounded-lg border bg-muted/40 [&>div:last-child]:max-h-64 [&>div:last-child]:overflow-auto"
         />
       </CardContent>
     </Card>

@@ -143,16 +143,9 @@ export function GrainyBackgroundHoverCard() {
         <div className="space-y-1">
           <div className="text-sm font-medium">Grainy background</div>
           <p className="text-xs leading-5 text-muted-foreground">
-            App scope adds a fixed noise layer over the full page. Class scope
-            generates a reusable .grainy-background utility for one container.
-          </p>
-        </div>
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-foreground">Class scope</div>
-          <p className="text-xs leading-5 text-muted-foreground">
-            The utility places the grain behind direct children, so opaque child
-            backgrounds, like cards or panels, cover it. Transparent areas still
-            show the texture from the parent.
+            Adds a fixed SVG noise layer over the full app. Tune light and dark
+            opacity independently so the texture stays visible without
+            overpowering either mode.
           </p>
         </div>
       </HoverCardContent>

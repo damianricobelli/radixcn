@@ -19,8 +19,8 @@ import {
   FALLBACK_FONT_OPTIONS,
   getFontFaceCss,
 } from "@/lib/theme-generator/fonts";
-import type { SharedThemePreset } from "@/lib/theme-presets";
 import type { FontSourceFont } from "@/lib/theme-generator/types";
+import type { SharedThemePreset } from "@/lib/theme-presets";
 
 export function ThemeGeneratorApp({
   fonts = FALLBACK_FONT_OPTIONS,
@@ -85,11 +85,6 @@ function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
       previewSelection.sansFont,
     ],
   );
-  const previewGrainyBackgroundClass =
-    previewSelection.grainyBackgroundEnabled &&
-    previewSelection.grainyBackgroundScope === "class"
-      ? "grainy-background"
-      : "";
   const sidebarStyle = useMemo(
     () =>
       ({
@@ -126,10 +121,7 @@ function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
     >
       <style>{`${previewFontFaces}\n${previewCss}`}</style>
       <SidebarProvider
-        className={[
-          "h-svh min-h-0 overflow-hidden bg-background",
-          previewGrainyBackgroundClass,
-        ].join(" ")}
+        className="h-svh min-h-0 overflow-hidden bg-background"
         style={sidebarStyle}
       >
         <ThemeCustomizerSidebar
@@ -150,11 +142,9 @@ function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
 
         <SidebarInset className="min-h-0 min-w-0 overflow-hidden bg-background shadow-xl shadow-foreground/10 ring-1 ring-border/60 dark:shadow-black/30">
           <AppHeader
-            copied={copied}
             css={generated.css}
             preset={initialPreset}
             selection={selection}
-            onCopy={copyCss}
           />
           <div className="min-h-0 flex-1 overflow-hidden bg-secondary/35 px-3 py-3 md:px-5 md:py-4 dark:bg-background">
             <ComponentShowcase />

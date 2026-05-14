@@ -15,8 +15,14 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@workspace/ui/components/hover-card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs";
 import { CircleAlert, Info, RotateCcw, Settings2 } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import {
   PanelSection,
   SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
@@ -39,8 +45,10 @@ import {
 export function TokenStepSettings({
   mode,
   selection,
+  onModeChange,
   onUpdate,
 }: TokenStepSettingsProps) {
+  const [editingMode, setEditingMode] = useState<ColorMode>(mode);
   const overriddenCount = Object.values(selection.tokenStepOverrides).reduce(
     (count, override) =>
       count +
@@ -51,7 +59,7 @@ export function TokenStepSettings({
 
   return (
     <PanelSection
-      title={`Token steps · ${mode}`}
+      title="Token steps"
       info={<TokenStepsInfo />}
       grouped={false}
       action={
@@ -66,42 +74,82 @@ export function TokenStepSettings({
         </Button>
       }
     >
-      <Accordion
-        className="overflow-hidden rounded-lg border border-sidebar-border bg-transparent"
-        defaultValue={["Core"]}
+      <Tabs
+        className="gap-3"
+        value={editingMode}
+        onValueChange={(value) => {
+          const nextMode = value as ColorMode;
+
+          setEditingMode(nextMode);
+          onModeChange(nextMode);
+        }}
       >
-        {getTokenStepSections(selection).map((section) => (
-          <TokenStepAccordionItem
-            key={section.title}
-            title={section.title}
-            value={section.title}
-          >
-            {section.tokens.map((token) => (
-              <TokenModeStepPicker
-                key={token}
-                mode={mode}
-                selection={selection}
-                token={token}
-                onChange={(step) =>
-                  onUpdate({
-                    tokenStepOverrides: updateTokenStepOverride(
-                      selection,
-                      token,
-                      mode,
-                      step,
-                    ),
-                  })
-                }
-              />
-            ))}
-          </TokenStepAccordionItem>
+        <TabsList className="w-full border">
+          <TabsTrigger value="light">Light</TabsTrigger>
+          <TabsTrigger value="dark">Dark</TabsTrigger>
+        </TabsList>
+        {(["light", "dark"] as const).map((tokenMode) => (
+          <TabsContent key={tokenMode} value={tokenMode}>
+            <TokenStepModePanel
+              mode={tokenMode}
+              selection={selection}
+              onUpdate={onUpdate}
+            />
+          </TabsContent>
         ))}
-      </Accordion>
+      </Tabs>
     </PanelSection>
   );
 }
 
 type TokenStepSettingsProps = {
+  mode: ColorMode;
+  selection: ThemeSelection;
+  onModeChange: (mode: ColorMode) => void;
+  onUpdate: (selection: Partial<ThemeSelection>) => void;
+};
+
+function TokenStepModePanel({
+  mode,
+  selection,
+  onUpdate,
+}: TokenStepModePanelProps) {
+  return (
+    <Accordion
+      className="overflow-hidden rounded-lg border border-sidebar-border bg-transparent"
+      defaultValue={["Core"]}
+    >
+      {getTokenStepSections(selection).map((section) => (
+        <TokenStepAccordionItem
+          key={section.title}
+          title={section.title}
+          value={section.title}
+        >
+          {section.tokens.map((token) => (
+            <TokenModeStepPicker
+              key={token}
+              mode={mode}
+              selection={selection}
+              token={token}
+              onChange={(step) =>
+                onUpdate({
+                  tokenStepOverrides: updateTokenStepOverride(
+                    selection,
+                    token,
+                    mode,
+                    step,
+                  ),
+                })
+              }
+            />
+          ))}
+        </TokenStepAccordionItem>
+      ))}
+    </Accordion>
+  );
+}
+
+type TokenStepModePanelProps = {
   mode: ColorMode;
   selection: ThemeSelection;
   onUpdate: (selection: Partial<ThemeSelection>) => void;

@@ -90,7 +90,7 @@ export function RadixCnThemeProvider({
 
   useEffect(() => {
     if (initialSelection) {
-      setSelection({ ...DEFAULT_THEME_SELECTION, ...initialSelection });
+      setSelection(normalizeThemeSelectionPayload(initialSelection));
     }
   }, [initialSelection]);
 
@@ -305,14 +305,13 @@ type ThemeStoragePayload = Partial<SavedThemeState> & {
   version?: number;
 };
 
-function readSavedThemeState(initialSelection?: ThemeSelection): SavedThemeState {
+function readSavedThemeState(
+  initialSelection?: ThemeSelection,
+): SavedThemeState {
   if (initialSelection) {
     return {
       mode: "light",
-      selection: {
-        ...DEFAULT_THEME_SELECTION,
-        ...initialSelection,
-      },
+      selection: normalizeThemeSelectionPayload(initialSelection),
     };
   }
 
@@ -336,10 +335,7 @@ function readSavedThemeState(initialSelection?: ThemeSelection): SavedThemeState
     return {
       mode: isColorMode(payload.mode) ? payload.mode : "light",
       selection: isThemeSelectionPayload(payload.selection)
-        ? {
-            ...DEFAULT_THEME_SELECTION,
-            ...payload.selection,
-          }
+        ? normalizeThemeSelectionPayload(payload.selection)
         : DEFAULT_THEME_SELECTION,
     };
   } catch {
@@ -382,6 +378,36 @@ function isThemeSelectionPayload(
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
+function normalizeThemeSelectionPayload(
+  selection: Partial<ThemeSelection> & {
+    grainyBackgroundOpacity?: number;
+    grainyBackgroundScope?: unknown;
+  },
+) {
+  const {
+    grainyBackgroundOpacity,
+    grainyBackgroundScope: _grainyBackgroundScope,
+    ...nextSelection
+  } = selection;
+  const legacyOpacity =
+    typeof grainyBackgroundOpacity === "number"
+      ? grainyBackgroundOpacity
+      : undefined;
+
+  return {
+    ...DEFAULT_THEME_SELECTION,
+    ...nextSelection,
+    grainyBackgroundLightOpacity:
+      nextSelection.grainyBackgroundLightOpacity ??
+      legacyOpacity ??
+      DEFAULT_THEME_SELECTION.grainyBackgroundLightOpacity,
+    grainyBackgroundDarkOpacity:
+      nextSelection.grainyBackgroundDarkOpacity ??
+      legacyOpacity ??
+      DEFAULT_THEME_SELECTION.grainyBackgroundDarkOpacity,
+  };
+}
+
 function createRandomSelection(
   currentSelection: ThemeSelection,
   sansFontOptions: ReadonlyArray<FontSourceFont>,
@@ -419,8 +445,10 @@ function createRandomSelection(
     shadowOffsetX: DEFAULT_THEME_SELECTION.shadowOffsetX,
     shadowOffsetY: DEFAULT_THEME_SELECTION.shadowOffsetY,
     grainyBackgroundEnabled: DEFAULT_THEME_SELECTION.grainyBackgroundEnabled,
-    grainyBackgroundScope: DEFAULT_THEME_SELECTION.grainyBackgroundScope,
-    grainyBackgroundOpacity: DEFAULT_THEME_SELECTION.grainyBackgroundOpacity,
+    grainyBackgroundLightOpacity:
+      DEFAULT_THEME_SELECTION.grainyBackgroundLightOpacity,
+    grainyBackgroundDarkOpacity:
+      DEFAULT_THEME_SELECTION.grainyBackgroundDarkOpacity,
     trackingNormal: DEFAULT_THEME_SELECTION.trackingNormal,
     spacing: DEFAULT_THEME_SELECTION.spacing,
     headingFont: pick(sansFontOptions).id,
@@ -433,6 +461,7 @@ function createRandomSelection(
     customChartColorEnabled: [false, false, false, false, false],
     customChartColors: ["", "", "", "", ""],
     tokenBridgeEnabled: DEFAULT_THEME_SELECTION.tokenBridgeEnabled,
+    radixColorImportsEnabled: DEFAULT_THEME_SELECTION.radixColorImportsEnabled,
     tokenBridgeMappings: DEFAULT_THEME_SELECTION.tokenBridgeMappings,
     tokenBridgeFontMappings: DEFAULT_THEME_SELECTION.tokenBridgeFontMappings,
     tokenStepOverrides: DEFAULT_THEME_SELECTION.tokenStepOverrides,

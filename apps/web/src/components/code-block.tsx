@@ -1,5 +1,6 @@
 import { Button } from "@workspace/ui/components/button";
 import { Check, Clipboard } from "lucide-react";
+import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import css from "react-syntax-highlighter/dist/esm/languages/prism/css";
@@ -20,6 +21,8 @@ type CodeBlockProps = {
   code: string;
   language: string;
   className?: string;
+  codeViewportClassName?: string;
+  headerAccessory?: ReactNode;
   wrapLongLines?: boolean;
 };
 
@@ -27,6 +30,8 @@ export function CodeBlock({
   code,
   language,
   className,
+  codeViewportClassName,
+  headerAccessory,
   wrapLongLines = true,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
@@ -73,6 +78,7 @@ export function CodeBlock({
           <span className="ml-1 truncate font-mono text-[0.7rem] font-medium text-muted-foreground uppercase">
             {language}
           </span>
+          {headerAccessory}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className="hidden font-mono text-[0.7rem] text-muted-foreground sm:inline">
@@ -94,7 +100,11 @@ export function CodeBlock({
         </div>
       </div>
 
-      <div className="overflow-auto">
+      <div
+        className={["max-w-full overflow-auto", codeViewportClassName]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <SyntaxHighlighter
           language={highlightedLanguage}
           style={syntaxTheme}

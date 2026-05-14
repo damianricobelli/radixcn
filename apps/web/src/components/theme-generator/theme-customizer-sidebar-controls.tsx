@@ -9,10 +9,7 @@ import {
 import { Slider } from "@workspace/ui/components/slider";
 import { Switch } from "@workspace/ui/components/switch";
 import { Moon, Sun } from "lucide-react";
-import type {
-  ColorMode,
-  RadiusScale,
-} from "@/lib/theme-generator/types";
+import type { ColorMode, RadiusScale } from "@/lib/theme-generator/types";
 
 export function ThemeModeSwitch({ mode, onModeChange }: ThemeModeSwitchProps) {
   const isDark = mode === "dark";
@@ -89,6 +86,34 @@ export function AdditionalStatesCheckbox({
 }
 
 type AdditionalStatesCheckboxProps = {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+};
+
+export function RadixColorImportsCheckbox({
+  checked,
+  onCheckedChange,
+}: RadixColorImportsCheckboxProps) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-md px-2.5 py-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent/55">
+      <Checkbox
+        aria-label="Include Radix color scale imports"
+        checked={checked}
+        className="mt-0.5"
+        onCheckedChange={(nextChecked) => onCheckedChange(nextChecked === true)}
+      />
+      <span className="min-w-0">
+        <span className="block text-sm font-medium">Radix scale imports</span>
+        <span className="block text-xs leading-5 text-sidebar-foreground/65">
+          Adds light and dark @radix-ui/colors imports for the Radix palettes
+          used by this theme. Custom palettes are skipped.
+        </span>
+      </span>
+    </label>
+  );
+}
+
+type RadixColorImportsCheckboxProps = {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 };

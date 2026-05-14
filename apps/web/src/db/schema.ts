@@ -3,6 +3,7 @@ import type { ThemeSelection } from "@/lib/theme-generator/types";
 
 export const themes = sqliteTable("themes", {
   hash: text("hash").primaryKey(),
+  slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   selection: text("selection", { mode: "json" }).$type<ThemeSelection>().notNull(),
   editable: integer("editable", { mode: "boolean" }).notNull().default(false),

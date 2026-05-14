@@ -18,8 +18,6 @@ export type RadiusScale =
   | "large"
   | "extra-large";
 
-export type GrainyBackgroundScope = "app" | "class";
-
 export type FontSourceFontName = string;
 
 export type TokenBridgeFontToken = "font-sans" | "font-mono" | "font-heading";
@@ -169,8 +167,8 @@ export interface ThemeSelection {
   shadowOffsetX: number;
   shadowOffsetY: number;
   grainyBackgroundEnabled: boolean;
-  grainyBackgroundScope: GrainyBackgroundScope;
-  grainyBackgroundOpacity: number;
+  grainyBackgroundLightOpacity: number;
+  grainyBackgroundDarkOpacity: number;
   trackingNormal: number;
   spacing: number;
   headingFont: FontSourceFontName;
@@ -190,6 +188,7 @@ export interface ThemeSelection {
   customChartColorEnabled: [boolean, boolean, boolean, boolean, boolean];
   customChartColors: [string, string, string, string, string];
   tokenBridgeEnabled: boolean;
+  radixColorImportsEnabled: boolean;
   tokenBridgeMappings: Partial<Record<SemanticToken, string>>;
   tokenBridgeFontMappings: Partial<Record<TokenBridgeFontToken, string>>;
   tokenStepOverrides: Partial<Record<SemanticToken, TokenStepOverride>>;

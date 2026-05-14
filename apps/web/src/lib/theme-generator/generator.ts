@@ -10,6 +10,7 @@ import {
 import { generateRadixColors } from "./custom-palette-generator";
 import { getFontCssValue, getFontImportCss } from "./fonts";
 import {
+  ALL_RADIX_SCALES,
   BASE_SCALES,
   getRadixHexScale,
   getRadixOklchScale,
@@ -37,6 +38,18 @@ export const RADIUS_OPTIONS = [
   "large",
   "extra-large",
 ] as const satisfies Array<RadiusScale>;
+
+export type RegistryThemeCssVars = {
+  theme: Record<string, string>;
+  light: Record<string, string>;
+  dark: Record<string, string>;
+};
+
+export type RegistryStyleCssValue = string | RegistryStyleCssObject;
+
+export type RegistryStyleCssObject = {
+  [key: string]: RegistryStyleCssValue;
+};
 
 const GRAINY_BACKGROUND_IMAGE =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E\")";
@@ -132,8 +145,8 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   shadowOffsetX: 0,
   shadowOffsetY: 1,
   grainyBackgroundEnabled: false,
-  grainyBackgroundScope: "app",
-  grainyBackgroundOpacity: 0.12,
+  grainyBackgroundLightOpacity: 0.16,
+  grainyBackgroundDarkOpacity: 0.12,
   trackingNormal: 0,
   spacing: 0.25,
   headingFont: "inter",
@@ -147,6 +160,7 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   customChartColorEnabled: [false, false, false, false, false],
   customChartColors: ["", "", "", "", ""],
   tokenBridgeEnabled: false,
+  radixColorImportsEnabled: false,
   tokenBridgeMappings: {},
   tokenBridgeFontMappings: {},
   tokenStepOverrides: {},
@@ -904,7 +918,9 @@ function getSolidForegroundScale(
     token === "primary-foreground" ||
     token === "sidebar-primary-foreground"
   ) {
-    return usesNeutralPrimarySolid(selection) ? null : getPrimaryScale(selection);
+    return usesNeutralPrimarySolid(selection)
+      ? null
+      : getPrimaryScale(selection);
   }
 
   if (token === "destructive-foreground") {
@@ -982,7 +998,8 @@ function buildModeTokens(
 
   for (const token of getSemanticTokens(selection)) {
     const solidForegroundScale = getSolidForegroundScale(selection, token);
-    const hasStepOverride = getTokenStepOverride(selection, token, mode) !== null;
+    const hasStepOverride =
+      getTokenStepOverride(selection, token, mode) !== null;
 
     if (solidForegroundScale && !hasStepOverride) {
       tokens[token] = getSolidForegroundToken(selection, solidForegroundScale);
@@ -1160,33 +1177,7 @@ export function writeGrainyBackgroundCss(selector: string, opacity: number) {
     `  background-image: ${GRAINY_BACKGROUND_IMAGE};`,
     "  background-repeat: repeat;",
     "  background-size: 182px;",
-    `  opacity: ${formatNumber(clamp(opacity, 0, 0.3))};`,
-    "}",
-  ].join("\n");
-}
-
-export function writeGrainyBackgroundUtilityCss(opacity: number) {
-  return [
-    ".grainy-background {",
-    "  isolation: isolate;",
-    "  position: relative;",
-    "}",
-    "",
-    ".grainy-background > * {",
-    "  position: relative;",
-    "  z-index: 1;",
-    "}",
-    "",
-    ".grainy-background::before {",
-    '  content: "";',
-    "  position: absolute;",
-    "  inset: 0;",
-    "  z-index: 0;",
-    "  pointer-events: none;",
-    `  background-image: ${GRAINY_BACKGROUND_IMAGE};`,
-    "  background-repeat: repeat;",
-    "  background-size: 182px;",
-    `  opacity: ${formatNumber(clamp(opacity, 0, 0.3))};`,
+    `  opacity: ${formatGrainyBackgroundOpacity(opacity)};`,
     "}",
   ].join("\n");
 }
@@ -1199,16 +1190,6 @@ function writeThemeInline(
     ? [...STATE_THEME_INLINE_TOKENS, ...BASE_THEME_INLINE_TOKENS]
     : BASE_THEME_INLINE_TOKENS;
   const fontTokens = [
-    [
-      "--default-font-family",
-      getTokenBridgeFontValue(selection, "font-sans") ??
-        getFontCssValue(selection.sansFont, fonts),
-    ],
-    [
-      "--default-mono-font-family",
-      getTokenBridgeFontValue(selection, "font-mono") ??
-        getFontCssValue(selection.monoFont, fonts),
-    ],
     [
       "--font-sans",
       getTokenBridgeFontValue(selection, "font-sans") ??
@@ -1269,6 +1250,112 @@ function writeTokenBlock(
     ...shadowTokens,
     "}",
   ].join("\n");
+}
+
+function getRegistryModeCssVars(
+  tokens: ThemeModeTokens,
+  selection: ThemeSelection,
+) {
+  const cssVars: Record<string, string> = {};
+
+  for (const token of getSemanticTokens(selection)) {
+    const value = getTokenBridgeValue(selection, token) ?? tokens[token];
+
+    if (value) {
+      cssVars[token] = value;
+    }
+  }
+
+  cssVars.radius = getRadiusValue(selection.radiusScale);
+  cssVars["tracking-normal"] = formatEm(selection.trackingNormal);
+  cssVars["letter-spacing"] = formatEm(selection.trackingNormal);
+  cssVars.spacing = formatRem(selection.spacing);
+
+  for (const [token, value] of Object.entries(getShadowTokens(selection))) {
+    cssVars[token.replace(/^--/, "")] = value;
+  }
+
+  cssVars["shadow-offset-x"] = cssVars["shadow-x"];
+  cssVars["shadow-offset-y"] = cssVars["shadow-y"];
+
+  return cssVars;
+}
+
+function getRegistryThemeCssVars(
+  selection: ThemeSelection,
+  fonts?: ReadonlyArray<FontSourceFont>,
+) {
+  const sansFont =
+    getTokenBridgeFontValue(selection, "font-sans") ??
+    getFontCssValue(selection.sansFont, fonts);
+  const monoFont =
+    getTokenBridgeFontValue(selection, "font-mono") ??
+    getFontCssValue(selection.monoFont, fonts);
+  const headingFont =
+    getTokenBridgeFontValue(selection, "font-heading") ??
+    getFontCssValue(selection.headingFont, fonts);
+  const fontTokens = [
+    ["--font-sans", sansFont],
+    ["--font-mono", monoFont],
+    ["--font-heading", headingFont],
+  ] as const;
+  const cssVars: Record<string, string> = {};
+
+  for (const [token, value] of fontTokens) {
+    cssVars[token.replace(/^--/, "")] = value;
+  }
+
+  for (const [token, value] of getRegistryCustomColorThemeTokens(selection)) {
+    cssVars[token.replace(/^--/, "")] = value;
+  }
+
+  cssVars.radius = getRadiusValue(selection.radiusScale);
+  cssVars.spacing = "var(--spacing)";
+  cssVars["tracking-tighter"] = "calc(var(--tracking-normal) - 0.05em)";
+  cssVars["tracking-tight"] = "calc(var(--tracking-normal) - 0.025em)";
+  cssVars["tracking-wide"] = "calc(var(--tracking-normal) + 0.025em)";
+  cssVars["tracking-wider"] = "calc(var(--tracking-normal) + 0.05em)";
+  cssVars["tracking-widest"] = "calc(var(--tracking-normal) + 0.1em)";
+
+  return cssVars;
+}
+
+function getRegistryCustomColorThemeTokens(selection: ThemeSelection) {
+  const tokens: Array<readonly [string, string]> = [];
+
+  if (selection.additionalStatesEnabled) {
+    tokens.push(
+      ["--color-destructive-muted", "var(--destructive-muted)"],
+      [
+        "--color-destructive-muted-foreground",
+        "var(--destructive-muted-foreground)",
+      ],
+      ["--color-destructive-border", "var(--destructive-border)"],
+      ...STATE_THEME_INLINE_TOKENS,
+    );
+  }
+
+  if (selection.tokenBridgeEnabled) {
+    for (const token of BASE_SEMANTIC_TOKENS) {
+      const value = getTokenBridgeValue(selection, token);
+
+      if (value) {
+        tokens.push([`--color-${token}`, value]);
+      }
+    }
+
+    if (selection.additionalStatesEnabled) {
+      for (const token of STATE_TOKENS) {
+        const value = getTokenBridgeValue(selection, token);
+
+        if (value) {
+          tokens.push([`--color-${token}`, value]);
+        }
+      }
+    }
+  }
+
+  return tokens;
 }
 
 function getTokenBridgeValue(selection: ThemeSelection, token: SemanticToken) {
@@ -1379,10 +1466,12 @@ function writeCss(
     [selection.headingFont, selection.sansFont, selection.monoFont],
     fonts,
   );
+  const radixColorImports = getRadixColorImportCss(selection);
 
   return [
     "@import 'tailwindcss';",
     "@import 'tw-animate-css';",
+    ...radixColorImports,
     ...fontImports,
     "",
     "@custom-variant dark (&:is(.dark *));",
@@ -1400,32 +1489,77 @@ function writeCss(
     "",
     "  body {",
     "    @apply bg-background text-foreground;",
-    "    font-family: var(--font-sans);",
     "    letter-spacing: var(--tracking-normal);",
     "  }",
-    ...(selection.grainyBackgroundEnabled &&
-    selection.grainyBackgroundScope === "app"
+    ...(selection.grainyBackgroundEnabled
       ? [
           "",
           indentCss(
-            writeGrainyBackgroundCss("body", selection.grainyBackgroundOpacity),
+            writeGrainyBackgroundCss(
+              "body",
+              selection.grainyBackgroundLightOpacity,
+            ),
+            2,
+          ),
+          "",
+          indentCss(
+            writeGrainyBackgroundOpacityCss(
+              "body.dark::before, .dark body::before",
+              selection.grainyBackgroundDarkOpacity,
+            ),
             2,
           ),
         ]
       : []),
     "}",
-    ...(selection.grainyBackgroundEnabled
-      ? [
-          "",
-          "@layer utilities {",
-          indentCss(
-            writeGrainyBackgroundUtilityCss(selection.grainyBackgroundOpacity),
-            2,
-          ),
-          "}",
-        ]
-      : []),
   ].join("\n");
+}
+
+function getRadixColorImportCss(selection: ThemeSelection) {
+  if (!selection.radixColorImportsEnabled) {
+    return [];
+  }
+
+  return getUsedRadixColorImportScales(selection).flatMap((scale) => [
+    `@import "@radix-ui/colors/${scale}.css";`,
+    `@import "@radix-ui/colors/${scale}-dark.css";`,
+  ]);
+}
+
+export function getUsedRadixColorImportScales(selection: ThemeSelection) {
+  const usedScales = new Set<RadixScaleName>();
+
+  addRadixImportScale(usedScales, getBaseScale(selection));
+  addRadixImportScale(usedScales, getPrimaryScale(selection));
+  addRadixImportScale(usedScales, getDestructiveScale(selection));
+  addRadixImportScale(usedScales, getAccentScale(selection));
+
+  if (!selection.customShadowEnabled) {
+    usedScales.add(selection.shadowScale);
+  }
+
+  if (selection.additionalStatesEnabled) {
+    addRadixImportScale(usedScales, getStateScale(selection, "success"));
+    addRadixImportScale(usedScales, getStateScale(selection, "warning"));
+    addRadixImportScale(usedScales, getStateScale(selection, "info"));
+  }
+
+  if (selection.chartStrategy === "multicolor") {
+    selection.chartScales.forEach((_, index) => {
+      addRadixImportScale(usedScales, getChartScale(selection, index));
+    });
+  }
+
+  return ALL_RADIX_SCALES.filter((scale) => usedScales.has(scale));
+}
+
+function addRadixImportScale(
+  usedScales: Set<RadixScaleName>,
+  scale: ScaleName,
+) {
+  if (!isCustomScale(scale)) {
+    usedScales.add(scale);
+  }
 }
 
 function indentCss(css: string, spaces: number) {
@@ -1451,4 +1585,70 @@ export function generateTheme(
     mappings: buildMappings(selection),
     css: writeCss(selection, light, dark, fonts),
   };
+}
+
+export function createRegistryThemeCssVars(
+  selection: ThemeSelection,
+  fonts?: ReadonlyArray<FontSourceFont>,
+): RegistryThemeCssVars {
+  const light = buildModeTokens(selection, "light");
+  const dark = buildModeTokens(selection, "dark");
+
+  return {
+    theme: getRegistryThemeCssVars(selection, fonts),
+    light: getRegistryModeCssVars(light, selection),
+    dark: getRegistryModeCssVars(dark, selection),
+  };
+}
+
+export function createRegistryStyleCss(
+  selection: ThemeSelection,
+): RegistryStyleCssObject {
+  const baseLayer: RegistryStyleCssObject = {
+    body: {
+      "letter-spacing": "var(--tracking-normal)",
+    },
+  };
+  const css: RegistryStyleCssObject = {
+    "@layer base": baseLayer,
+  };
+
+  if (selection.grainyBackgroundEnabled) {
+    baseLayer["body::before"] = getGrainyBackgroundDeclarations(
+      selection.grainyBackgroundLightOpacity,
+    );
+    baseLayer["body.dark::before, .dark body::before"] = {
+      opacity: formatGrainyBackgroundOpacity(
+        selection.grainyBackgroundDarkOpacity,
+      ),
+    };
+  }
+
+  return css;
+}
+
+function getGrainyBackgroundDeclarations(opacity: number) {
+  return {
+    content: '""',
+    position: "fixed",
+    inset: "0",
+    "z-index": "2147483647",
+    "pointer-events": "none",
+    "background-image": GRAINY_BACKGROUND_IMAGE,
+    "background-repeat": "repeat",
+    "background-size": "182px",
+    opacity: formatGrainyBackgroundOpacity(opacity),
+  } satisfies RegistryStyleCssObject;
+}
+
+function writeGrainyBackgroundOpacityCss(selector: string, opacity: number) {
+  return [
+    `${selector} {`,
+    `  opacity: ${formatGrainyBackgroundOpacity(opacity)};`,
+    "}",
+  ].join("\n");
+}
+
+function formatGrainyBackgroundOpacity(opacity: number) {
+  return formatNumber(clamp(opacity, 0, 0.3));
 }

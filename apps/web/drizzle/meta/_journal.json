@@ -15,6 +15,13 @@
       "when": 1778678848418,
       "tag": "0001_add_theme_editable",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1778683500000,
+      "tag": "0002_add_theme_slug",
+      "breakpoints": true
     }
   ]
 }
