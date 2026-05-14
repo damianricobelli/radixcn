@@ -10,6 +10,7 @@ import {
 } from "@/lib/theme-registry";
 
 const REGISTRY_CONTENT_TYPE = "application/vnd.shadcn.v1+json";
+const REGISTRY_CACHE_CONTROL = "no-store";
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const Route = createFileRoute("/r/themes/$slug")({
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/r/themes/$slug")({
             createThemeRegistryIndex(presets, getRegistryHomepage(request)),
             {
               headers: {
-                "Cache-Control": "public, max-age=60, s-maxage=300",
+                "Cache-Control": REGISTRY_CACHE_CONTROL,
                 "Content-Type": `${REGISTRY_CONTENT_TYPE}; charset=utf-8`,
                 Vary: "Accept, User-Agent",
               },
@@ -60,7 +61,7 @@ export const Route = createFileRoute("/r/themes/$slug")({
 
         return Response.json(createThemeRegistryItem(preset, fonts), {
           headers: {
-            "Cache-Control": "public, max-age=60, s-maxage=300",
+            "Cache-Control": REGISTRY_CACHE_CONTROL,
             "Content-Type": `${REGISTRY_CONTENT_TYPE}; charset=utf-8`,
             Vary: "Accept, User-Agent",
           },
