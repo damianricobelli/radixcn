@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@workspace/ui/components/button";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import {
@@ -37,24 +37,30 @@ export function AppHeader({ css, preset, selection }: AppHeaderProps) {
           className="shrink-0"
         />
 
-        <div className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-card text-primary shadow-xs">
-          <img
-            alt=""
-            className="size-6 rounded-sm object-cover"
-            src="/web-app-manifest-192x192.png"
-          />
-        </div>
-
-        <div className="min-w-0 space-y-0.5">
-          <div className="flex min-w-0 items-center gap-2">
-            <h1 className="truncate text-sm font-semibold tracking-tight md:text-base">
-              Radixcn
-            </h1>
+        <Link
+          aria-label="Radixcn home"
+          className="group flex min-w-0 items-center gap-3 rounded-md outline-none transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          to="/"
+        >
+          <div className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-card text-primary shadow-xs">
+            <img
+              alt=""
+              className="size-6 rounded-sm object-cover"
+              src="/web-app-manifest-192x192.png"
+            />
           </div>
-          <p className="line-clamp-1 text-xs text-muted-foreground">
-            Generate semantic shadcn themes from Radix Color scales.
-          </p>
-        </div>
+
+          <div className="min-w-0 space-y-0.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <h1 className="truncate text-sm font-semibold tracking-tight md:text-base">
+                Radixcn
+              </h1>
+            </div>
+            <p className="line-clamp-1 text-xs text-muted-foreground">
+              Generate semantic shadcn themes from Radix Color scales.
+            </p>
+          </div>
+        </Link>
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-2">
