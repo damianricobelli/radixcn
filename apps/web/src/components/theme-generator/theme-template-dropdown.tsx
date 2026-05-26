@@ -27,6 +27,16 @@ export function ThemeTemplateDropdown() {
   const activeName = selection.name;
   const mainSwatches = getMainSwatches(selection);
   const filteredGroups = filterTemplateGroups(query);
+  const applyContrastCheckedTemplate = async (
+    templateSelection: ThemeSelection,
+  ) => {
+    const { ensureTemplateContrast } =
+      await import(
+        "@/components/theme-generator/contrast-checker/theme-template-contrast"
+      );
+
+    applyTemplate(ensureTemplateContrast(templateSelection));
+  };
 
   return (
     <SidebarDropdown
@@ -54,7 +64,9 @@ export function ThemeTemplateDropdown() {
                 <ThemeTemplateItem
                   key={template.id}
                   template={template}
-                  onApply={() => applyTemplate(template.selection)}
+                  onApply={() =>
+                    void applyContrastCheckedTemplate(template.selection)
+                  }
                 />
               ))}
             </DropdownMenuGroup>

@@ -1,7 +1,6 @@
 import {
   colorToHsl,
   colorToOklch,
-  getDarkForeground,
   getSolidForeground,
   getWhiteForeground,
   isValidCssColor,
@@ -14,7 +13,6 @@ import {
   BASE_SCALES,
   getRadixHexScale,
   getRadixOklchScale,
-  usesDarkTextOnSolid,
 } from "./radix";
 import type {
   FontSourceFont,
@@ -581,8 +579,11 @@ function getCustomScale(
 
   const generated = generateRadixColors({
     appearance: mode,
-    accent: customColor,
-    gray,
+    accent:
+      scaleName === "custom-base"
+        ? getAccentReference(selection, mode)
+        : customColor,
+    gray: scaleName === "custom-base" ? customColor : gray,
     background,
   });
 
@@ -646,8 +647,8 @@ function generateCustomPaletteScale(
 ) {
   const generated = generateRadixColors({
     appearance: mode,
-    accent: color,
-    gray: getBaseReference(selection, mode),
+    accent: role === "gray" ? getAccentReference(selection, mode) : color,
+    gray: role === "gray" ? color : getBaseReference(selection, mode),
     background: getBaseBackground(selection, mode),
   });
   const colorScale =
@@ -681,6 +682,26 @@ function getBaseReference(selection: ThemeSelection, mode: "light" | "dark") {
     : null;
 
   return customBaseColor ?? getRadixHexScale(selection.baseScale)[mode][9];
+}
+
+function getAccentReference(selection: ThemeSelection, mode: "light" | "dark") {
+  const accentScale = getAccentScale(selection);
+
+  if (isCustomScale(accentScale) && accentScale !== "custom-base") {
+    const customAccentColor = normalizeHexColor(
+      getCustomColor(selection, accentScale),
+    );
+
+    if (customAccentColor) {
+      return customAccentColor;
+    }
+  }
+
+  if (!isCustomScale(accentScale)) {
+    return getRadixHexScale(accentScale)[mode][9];
+  }
+
+  return getRadixHexScale(selection.primaryScale)[mode][9];
 }
 
 function getCustomColor(selection: ThemeSelection, scaleName: CustomScaleName) {
@@ -1028,18 +1049,21 @@ function getSemanticTokens(selection: ThemeSelection): Array<SemanticToken> {
 function getSolidForegroundToken(
   selection: ThemeSelection,
   scaleName: ScaleName,
+  mode: "light" | "dark",
 ) {
   if (isCustomScale(scaleName)) {
-    const normalized = normalizeHexColor(getCustomColor(selection, scaleName));
+    const solidBackground =
+      getCustomScale(selection, scaleName, mode)?.[9] ??
+      normalizeHexColor(getCustomColor(selection, scaleName));
 
-    return normalized
-      ? getSolidForeground(normalized).css
+    return solidBackground
+      ? getSolidForeground(solidBackground).css
       : getWhiteForeground();
   }
 
-  return usesDarkTextOnSolid(scaleName)
-    ? getDarkForeground()
-    : getWhiteForeground();
+  const solidBackground = getRadixHexScale(scaleName)[mode][9];
+
+  return getSolidForeground(solidBackground).css;
 }
 
 function buildModeTokens(
@@ -1075,7 +1099,11 @@ function buildModeTokens(
       getTokenStepOverride(selection, token, mode) !== null;
 
     if (solidForegroundScale && !hasStepOverride) {
-      tokens[token] = getSolidForegroundToken(selection, solidForegroundScale);
+      tokens[token] = getSolidForegroundToken(
+        selection,
+        solidForegroundScale,
+        mode,
+      );
       continue;
     }
 
@@ -1102,7 +1130,11 @@ function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
   const darkSources = getSemanticSources(selection, "dark");
 
   return getSemanticTokens(selection).map((token) => {
-    const lightCustomOverride = getTokenCustomOverride(selection, token, "light");
+    const lightCustomOverride = getTokenCustomOverride(
+      selection,
+      token,
+      "light",
+    );
     const darkCustomOverride = getTokenCustomOverride(selection, token, "dark");
 
     if (lightCustomOverride || darkCustomOverride) {
@@ -1127,7 +1159,12 @@ function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
               selection,
               token,
               "dark",
-              applyTokenStepOverride(selection, token, "dark", darkSources[token]),
+              applyTokenStepOverride(
+                selection,
+                token,
+                "dark",
+                darkSources[token],
+              ),
             ),
         reason: TOKEN_REASONS[token],
       };

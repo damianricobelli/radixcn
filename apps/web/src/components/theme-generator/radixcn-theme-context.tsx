@@ -33,6 +33,7 @@ import type {
   ColorMode,
   FontSourceFont,
   RadixScaleName,
+  SemanticToken,
   ThemeSelection,
 } from "@/lib/theme-generator/types";
 
@@ -85,7 +86,13 @@ export function RadixCnThemeProvider({
   const previewSelection = useDeferredValue(selection);
 
   useEffect(() => {
-    saveThemeState({ mode, selection });
+    const timeoutId = window.setTimeout(() => {
+      saveThemeState({ mode, selection });
+    }, 200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [mode, selection]);
 
   useEffect(() => {
@@ -287,7 +294,111 @@ function resolveDisabledCustomScales(
     );
   }
 
-  return resolvedSelection;
+  return clearDerivedSolidForegroundOverrides(
+    currentSelection,
+    resolvedSelection,
+  );
+}
+
+function clearDerivedSolidForegroundOverrides(
+  currentSelection: ThemeSelection,
+  nextSelection: Partial<ThemeSelection>,
+) {
+  const tokensToClear = getChangedSolidForegroundTokens(
+    currentSelection,
+    nextSelection,
+  );
+
+  if (tokensToClear.length === 0) {
+    return nextSelection;
+  }
+
+  return {
+    ...nextSelection,
+    tokenStepOverrides: clearTokenOverrides(
+      nextSelection.tokenStepOverrides ?? currentSelection.tokenStepOverrides,
+      tokensToClear,
+    ),
+    tokenCustomOverrides: clearTokenOverrides(
+      nextSelection.tokenCustomOverrides ??
+        currentSelection.tokenCustomOverrides,
+      tokensToClear,
+    ),
+  };
+}
+
+function getChangedSolidForegroundTokens(
+  currentSelection: ThemeSelection,
+  nextSelection: Partial<ThemeSelection>,
+) {
+  const tokens: Array<SemanticToken> = [];
+
+  if (
+    didChange(nextSelection, currentSelection, "primaryScale") ||
+    didChange(nextSelection, currentSelection, "customPrimaryEnabled") ||
+    didChange(nextSelection, currentSelection, "customPrimaryColor")
+  ) {
+    tokens.push("primary-foreground", "sidebar-primary-foreground");
+  }
+
+  if (
+    didChange(nextSelection, currentSelection, "destructiveScale") ||
+    didChange(nextSelection, currentSelection, "customDestructiveEnabled") ||
+    didChange(nextSelection, currentSelection, "customDestructiveColor")
+  ) {
+    tokens.push("destructive-foreground");
+  }
+
+  if (
+    didChange(nextSelection, currentSelection, "successScale") ||
+    didChange(nextSelection, currentSelection, "customSuccessEnabled") ||
+    didChange(nextSelection, currentSelection, "customSuccessColor")
+  ) {
+    tokens.push("success-foreground");
+  }
+
+  if (
+    didChange(nextSelection, currentSelection, "warningScale") ||
+    didChange(nextSelection, currentSelection, "customWarningEnabled") ||
+    didChange(nextSelection, currentSelection, "customWarningColor")
+  ) {
+    tokens.push("warning-foreground");
+  }
+
+  if (
+    didChange(nextSelection, currentSelection, "infoScale") ||
+    didChange(nextSelection, currentSelection, "customInfoEnabled") ||
+    didChange(nextSelection, currentSelection, "customInfoColor")
+  ) {
+    tokens.push("info-foreground");
+  }
+
+  return tokens;
+}
+
+function didChange<TKey extends keyof ThemeSelection>(
+  nextSelection: Partial<ThemeSelection>,
+  currentSelection: ThemeSelection,
+  key: TKey,
+) {
+  return key in nextSelection && nextSelection[key] !== currentSelection[key];
+}
+
+function clearTokenOverrides<TOverride>(
+  overrides: Partial<Record<SemanticToken, TOverride>>,
+  tokens: Array<SemanticToken>,
+) {
+  let changed = false;
+  const nextOverrides = { ...overrides };
+
+  for (const token of tokens) {
+    if (token in nextOverrides) {
+      delete nextOverrides[token];
+      changed = true;
+    }
+  }
+
+  return changed ? nextOverrides : overrides;
 }
 
 type RadixCnThemeProviderProps = {

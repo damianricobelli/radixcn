@@ -569,14 +569,11 @@ export function getSolidContrastColor(background: Color | string) {
       ? new Color(background).to("oklch")
       : background;
   const white = new Color("oklch", [1, 0, 0]);
+  const black = new Color("oklch", [0, 0, 0]);
+  const whiteContrast = Math.abs(white.contrastAPCA(backgroundColor));
+  const blackContrast = Math.abs(black.contrastAPCA(backgroundColor));
 
-  if (Math.abs(white.contrastAPCA(backgroundColor)) < 40) {
-    const C = backgroundColor.coords[1] ?? 0;
-    const H = backgroundColor.coords[2] ?? 0;
-    return new Color("oklch", [0.25, Math.max(0.08 * C, 0.04), H]);
-  }
-
-  return white;
+  return whiteContrast >= blackContrast ? white : black;
 }
 
 // target = background * (1 - alpha) + foreground * alpha

@@ -3,7 +3,7 @@ import Color from "colorjs.io";
 import { getSolidContrastColor } from "./custom-palette-generator";
 
 const WHITE = "#ffffff";
-const DARK = "#111111";
+const BLACK = "#000000";
 
 function isValidHexColor(value: string) {
   return /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value.trim());
@@ -88,7 +88,7 @@ export function getWhiteForeground() {
 }
 
 export function getDarkForeground() {
-  return colorToOklch(DARK);
+  return colorToOklch(BLACK);
 }
 
 function formatHex(coords: Array<number | null | undefined>) {

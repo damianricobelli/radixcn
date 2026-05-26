@@ -18,14 +18,21 @@ import { toast } from "@workspace/ui/components/sonner";
 import { Check, Copy, GitBranch, Loader2, Share2, Upload } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { ThemeCodeDialog } from "@/components/theme-code-dialog";
+import { ContrastCheckerDialog } from "@/components/theme-generator/contrast-checker/contrast-checker-dialog";
 import { CssTokenImportDialog } from "@/components/theme-generator/css-token-import-settings";
-import type { ThemeSelection } from "@/lib/theme-generator/types";
+import type {
+  ColorMode,
+  ThemeModeTokens,
+  ThemeSelection,
+} from "@/lib/theme-generator/types";
 import { type SharedThemePreset, saveThemePreset } from "@/lib/theme-presets";
 
 export function AppHeader({
   css,
+  mode,
   preset,
   selection,
+  tokens,
   onUpdate,
 }: AppHeaderProps) {
   return (
@@ -65,6 +72,13 @@ export function AppHeader({
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <ThemeCodeDialog css={css} />
 
+        <ContrastCheckerDialog
+          mode={mode}
+          selection={selection}
+          tokens={tokens}
+          onUpdate={onUpdate}
+        />
+
         <CssTokenImportDialog onUpdate={onUpdate} />
 
         <ShareThemeDialog preset={preset} selection={selection} />
@@ -90,8 +104,10 @@ export function AppHeader({
 
 type AppHeaderProps = {
   css: string;
+  mode: ColorMode;
   preset?: SharedThemePreset | null;
   selection: ThemeSelection;
+  tokens: ThemeModeTokens;
   onUpdate: (selection: Partial<ThemeSelection>) => void;
 };
 
