@@ -307,6 +307,9 @@ function normalizeThemeSelection(value: unknown, name: string): ThemeSelection {
         ? selection.grainyBackgroundDarkOpacity
         : (legacyGrainyBackgroundOpacity ??
           DEFAULT_THEME_SELECTION.grainyBackgroundDarkOpacity),
+    tokenCustomOverrides: isRecord(selection.tokenCustomOverrides)
+      ? selection.tokenCustomOverrides
+      : DEFAULT_THEME_SELECTION.tokenCustomOverrides,
   };
 }
 

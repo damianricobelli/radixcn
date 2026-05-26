@@ -129,6 +129,7 @@ function ThemeGeneratorShell({ initialPreset }: ThemeGeneratorShellProps) {
             css={generated.css}
             preset={initialPreset}
             selection={selection}
+            onUpdate={updateSelection}
           />
           <div className="min-h-0 flex-1 overflow-hidden bg-secondary/35 px-3 py-3 md:px-5 md:py-4 dark:bg-background">
             <ComponentShowcase />

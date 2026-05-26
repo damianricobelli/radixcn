@@ -164,6 +164,7 @@ export const DEFAULT_THEME_SELECTION: ThemeSelection = {
   tokenBridgeMappings: {},
   tokenBridgeFontMappings: {},
   tokenStepOverrides: {},
+  tokenCustomOverrides: {},
 };
 
 const BASE_SEMANTIC_TOKENS: Array<SemanticToken> = [
@@ -414,6 +415,14 @@ function getTokenStepOverride(
   mode: "light" | "dark",
 ) {
   return selection.tokenStepOverrides[token]?.[mode] ?? null;
+}
+
+function getTokenCustomOverride(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+) {
+  return selection.tokenCustomOverrides?.[token]?.[mode]?.trim() || null;
 }
 
 function hasCustomColor(value: string) {
@@ -895,6 +904,51 @@ export function getSemanticTokenStepPreviewColor(
   return readSourceValue(selection, previewSource, mode);
 }
 
+export function getSemanticTokenCustomStepPreviewColor(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: "light" | "dark",
+  color: string,
+  step: RadixStep,
+) {
+  const customColor = normalizeHexColor(color);
+
+  if (!customColor) {
+    return null;
+  }
+
+  return generateCustomPaletteScale(
+    selection,
+    customColor,
+    getCustomTokenPaletteRole(token),
+    mode,
+  )[step];
+}
+
+function getCustomTokenPaletteRole(
+  token: SemanticToken,
+): CustomPalettePreviewRole {
+  return isNeutralSemanticToken(token) ? "gray" : "accent";
+}
+
+function isNeutralSemanticToken(token: SemanticToken) {
+  return (
+    token === "background" ||
+    token === "foreground" ||
+    token === "card" ||
+    token === "card-foreground" ||
+    token === "popover" ||
+    token === "popover-foreground" ||
+    token === "secondary" ||
+    token === "secondary-foreground" ||
+    token === "muted" ||
+    token === "muted-foreground" ||
+    token === "border" ||
+    token === "input" ||
+    token.startsWith("sidebar-")
+  );
+}
+
 function usesSolidForegroundRule(
   selection: ThemeSelection,
   token: SemanticToken,
@@ -997,6 +1051,25 @@ function buildModeTokens(
   const tokens = {} as ThemeModeTokens;
 
   for (const token of getSemanticTokens(selection)) {
+    const customOverride = getTokenCustomOverride(selection, token, mode);
+
+    if (customOverride) {
+      const customStep =
+        getTokenStepOverride(selection, token, mode) ??
+        getSemanticTokenDefaultStep(selection, token, mode) ??
+        9;
+      const customColor = getSemanticTokenCustomStepPreviewColor(
+        selection,
+        token,
+        mode,
+        customOverride,
+        customStep,
+      );
+
+      tokens[token] = customColor ?? customOverride;
+      continue;
+    }
+
     const solidForegroundScale = getSolidForegroundScale(selection, token);
     const hasStepOverride =
       getTokenStepOverride(selection, token, mode) !== null;
@@ -1029,6 +1102,37 @@ function buildMappings(selection: ThemeSelection): Array<TokenMapping> {
   const darkSources = getSemanticSources(selection, "dark");
 
   return getSemanticTokens(selection).map((token) => {
+    const lightCustomOverride = getTokenCustomOverride(selection, token, "light");
+    const darkCustomOverride = getTokenCustomOverride(selection, token, "dark");
+
+    if (lightCustomOverride || darkCustomOverride) {
+      return {
+        token,
+        lightSource: lightCustomOverride
+          ? "custom value"
+          : describeTokenModeSource(
+              selection,
+              token,
+              "light",
+              applyTokenStepOverride(
+                selection,
+                token,
+                "light",
+                lightSources[token],
+              ),
+            ),
+        darkSource: darkCustomOverride
+          ? "custom value"
+          : describeTokenModeSource(
+              selection,
+              token,
+              "dark",
+              applyTokenStepOverride(selection, token, "dark", darkSources[token]),
+            ),
+        reason: TOKEN_REASONS[token],
+      };
+    }
+
     if (
       usesSolidForegroundRule(selection, token) &&
       !getTokenStepOverride(selection, token, "light") &&

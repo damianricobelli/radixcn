@@ -465,6 +465,7 @@ function createRandomSelection(
     tokenBridgeMappings: DEFAULT_THEME_SELECTION.tokenBridgeMappings,
     tokenBridgeFontMappings: DEFAULT_THEME_SELECTION.tokenBridgeFontMappings,
     tokenStepOverrides: DEFAULT_THEME_SELECTION.tokenStepOverrides,
+    tokenCustomOverrides: DEFAULT_THEME_SELECTION.tokenCustomOverrides,
   };
 }
 

@@ -15,7 +15,6 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
 import {
-  ExternalLink,
   GitCompareArrows,
   ListOrdered,
   Paintbrush,
@@ -132,13 +131,13 @@ export function ThemeCustomizerSidebar({
           <SidebarGroup className="min-w-0 min-h-0 flex-1 px-3 pt-1 pb-2">
             <TabsContent className="flex min-w-0 min-h-0 flex-1" value="design">
               <Tabs
-                defaultValue="colors"
+                defaultValue="palettes"
                 className="min-w-0 min-h-0 flex-1 gap-0"
               >
                 <TabsList className="w-full shrink-0 border">
-                  <TabsTrigger value="colors">
+                  <TabsTrigger value="palettes">
                     <Palette className="size-4" />
-                    Colors
+                    Palettes
                   </TabsTrigger>
                   <TabsTrigger value="typography">
                     <Type className="size-4" />
@@ -150,11 +149,14 @@ export function ThemeCustomizerSidebar({
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent className="min-w-0 min-h-0 flex-1" value="colors">
+                <TabsContent
+                  className="min-w-0 min-h-0 flex-1"
+                  value="palettes"
+                >
                   <SidebarScrollArea>
                     <FieldGroup className="gap-5">
                       <PanelSection
-                        title="Colors"
+                        title="Palettes"
                         info={<CustomPaletteHoverCard />}
                         action={
                           <SectionCustomSwitch
@@ -583,6 +585,15 @@ export function ThemeCustomizerSidebar({
                           />
                         </PanelSectionGroup>
                       </PanelSection>
+
+                      <PanelSection title="Radix colors">
+                        <RadixColorImportsCheckbox
+                          checked={selection.radixColorImportsEnabled}
+                          onCheckedChange={(enabled) =>
+                            onUpdate({ radixColorImportsEnabled: enabled })
+                          }
+                        />
+                      </PanelSection>
                     </FieldGroup>
                   </SidebarScrollArea>
                 </TabsContent>
@@ -628,31 +639,19 @@ function OverrideSettings({
   onUpdate,
 }: OverrideSettingsProps) {
   return (
-    <Tabs defaultValue="bridge" className="min-w-0 min-h-0 flex-1 gap-0">
+    <Tabs defaultValue="tokens" className="min-w-0 min-h-0 flex-1 gap-0">
       <TabsList className="w-full shrink-0 border">
+        <TabsTrigger value="tokens">
+          <ListOrdered className="size-4" />
+          Tokens
+        </TabsTrigger>
         <TabsTrigger value="bridge">
           <GitCompareArrows className="size-4" />
           Bridge
         </TabsTrigger>
-        <TabsTrigger value="steps">
-          <ListOrdered className="size-4" />
-          Steps
-        </TabsTrigger>
-        <TabsTrigger value="radix">
-          <Palette className="size-4" />
-          Radix
-        </TabsTrigger>
       </TabsList>
 
-      <TabsContent className="min-w-0 min-h-0 flex-1" value="bridge">
-        <SidebarScrollArea>
-          <FieldGroup className="gap-5">
-            <TokenBridgeSettings selection={selection} onUpdate={onUpdate} />
-          </FieldGroup>
-        </SidebarScrollArea>
-      </TabsContent>
-
-      <TabsContent className="min-w-0 min-h-0 flex-1" value="steps">
+      <TabsContent className="min-w-0 min-h-0 flex-1" value="tokens">
         <SidebarScrollArea>
           <FieldGroup className="gap-5">
             <TokenStepSettings
@@ -665,36 +664,10 @@ function OverrideSettings({
         </SidebarScrollArea>
       </TabsContent>
 
-      <TabsContent className="min-w-0 min-h-0 flex-1" value="radix">
+      <TabsContent className="min-w-0 min-h-0 flex-1" value="bridge">
         <SidebarScrollArea>
           <FieldGroup className="gap-5">
-            <PanelSection title="Radix colors">
-              <RadixColorImportsCheckbox
-                checked={selection.radixColorImportsEnabled}
-                onCheckedChange={(enabled) =>
-                  onUpdate({ radixColorImportsEnabled: enabled })
-                }
-              />
-            </PanelSection>
-
-            <PanelSection title="Docs" grouped={false}>
-              <a
-                className="flex items-start justify-between gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent/20 p-3 text-sidebar-foreground transition-colors hover:bg-sidebar-accent/45"
-                href="https://www.radix-ui.com/colors/docs/overview/usage"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium">
-                    Radix Colors usage
-                  </span>
-                  <span className="block text-xs leading-5 text-sidebar-foreground/65">
-                    Read the official CSS import and scale variable docs.
-                  </span>
-                </span>
-                <ExternalLink className="mt-0.5 size-4 shrink-0 text-sidebar-foreground/65" />
-              </a>
-            </PanelSection>
+            <TokenBridgeSettings selection={selection} onUpdate={onUpdate} />
           </FieldGroup>
         </SidebarScrollArea>
       </TabsContent>

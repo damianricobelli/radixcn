@@ -15,20 +15,19 @@ import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import { toast } from "@workspace/ui/components/sonner";
-import {
-  Check,
-  Copy,
-  GitBranch,
-  Loader2,
-  Share2,
-  Upload,
-} from "lucide-react";
+import { Check, Copy, GitBranch, Loader2, Share2, Upload } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { ThemeCodeDialog } from "@/components/theme-code-dialog";
+import { CssTokenImportDialog } from "@/components/theme-generator/css-token-import-settings";
 import type { ThemeSelection } from "@/lib/theme-generator/types";
 import { type SharedThemePreset, saveThemePreset } from "@/lib/theme-presets";
 
-export function AppHeader({ css, preset, selection }: AppHeaderProps) {
+export function AppHeader({
+  css,
+  preset,
+  selection,
+  onUpdate,
+}: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background/92 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-5 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -66,6 +65,8 @@ export function AppHeader({ css, preset, selection }: AppHeaderProps) {
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <ThemeCodeDialog css={css} />
 
+        <CssTokenImportDialog onUpdate={onUpdate} />
+
         <ShareThemeDialog preset={preset} selection={selection} />
 
         {preset?.editable ? (
@@ -91,6 +92,7 @@ type AppHeaderProps = {
   css: string;
   preset?: SharedThemePreset | null;
   selection: ThemeSelection;
+  onUpdate: (selection: Partial<ThemeSelection>) => void;
 };
 
 function ShareThemeDialog({ preset, selection }: ShareThemeDialogProps) {

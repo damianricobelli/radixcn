@@ -8,7 +8,7 @@ import {
 } from "@workspace/ui/components/number-field";
 import { Slider } from "@workspace/ui/components/slider";
 import { Switch } from "@workspace/ui/components/switch";
-import { Moon, Sun } from "lucide-react";
+import { ExternalLink, Moon, Sun } from "lucide-react";
 import type { ColorMode, RadiusScale } from "@/lib/theme-generator/types";
 
 export function ThemeModeSwitch({ mode, onModeChange }: ThemeModeSwitchProps) {
@@ -108,6 +108,16 @@ export function RadixColorImportsCheckbox({
           Adds light and dark @radix-ui/colors imports for the Radix palettes
           used by this theme. Custom palettes are skipped.
         </span>
+        <a
+          className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-sidebar-foreground/75 underline-offset-4 hover:text-sidebar-foreground hover:underline"
+          href="https://www.radix-ui.com/colors/docs/overview/usage"
+          rel="noreferrer"
+          target="_blank"
+          onClick={(event) => event.stopPropagation()}
+        >
+          Radix Colors usage
+          <ExternalLink className="size-3" />
+        </a>
       </span>
     </label>
   );

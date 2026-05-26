@@ -10,15 +10,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@workspace/ui/components/hover-card";
-import { Input } from "@workspace/ui/components/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@workspace/ui/components/input-group";
 import { Switch } from "@workspace/ui/components/switch";
-import { Info, RotateCcw } from "lucide-react";
+import { ArrowRight, Info, RotateCcw } from "lucide-react";
 import type { ReactNode } from "react";
 import { PanelSection } from "@/components/theme-generator/theme-customizer-section";
-import {
-  DEFAULT_TOKEN_BRIDGE_FONT_MAPPINGS,
-  DEFAULT_TOKEN_BRIDGE_MAPPINGS,
-} from "@/lib/theme-generator/generator";
 import type {
   SemanticToken,
   ThemeSelection,
@@ -184,6 +185,15 @@ const STATE_TOKEN_BRIDGE_SECTIONS = [
   },
 ] as const satisfies ReadonlyArray<TokenBridgeSection>;
 
+const TOKEN_BRIDGE_ROW_CLASSNAME =
+  "flex min-h-10 items-center gap-2 px-2.5 py-1.5";
+
+const TOKEN_BRIDGE_SOURCE_CLASSNAME =
+  "inline-flex h-7 min-w-0 max-w-[46%] flex-1 items-center rounded-md border border-sidebar-border bg-sidebar-accent/35 px-2 font-mono text-[11px] font-medium text-sidebar-foreground";
+
+const TOKEN_BRIDGE_INPUT_CLASSNAME =
+  "h-7 min-w-0 flex-[1.1] rounded-md bg-sidebar font-mono text-xs";
+
 type TokenBridgeSection = {
   title: string;
   tokens: ReadonlyArray<SemanticToken>;
@@ -234,7 +244,7 @@ function TokenBridgeMappingsInfo({
           <p className="text-xs leading-5 text-muted-foreground">
             {additionalStatesEnabled
               ? "Additional state mappings include destructive subtle tokens plus success, warning, and info variants."
-              : "Additional state mappings appear when States is enabled in the Colors tab."}
+              : "Additional state mappings appear when States is enabled in the Palettes tab."}
           </p>
         </div>
       </HoverCardContent>
@@ -402,19 +412,23 @@ function TokenBridgeMappingRow({
   onChange,
 }: TokenBridgeMappingRowProps) {
   return (
-    <div className="grid min-h-12 grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)] items-center gap-2 px-2.5 py-2">
+    <div className={TOKEN_BRIDGE_ROW_CLASSNAME}>
       <label
-        className="truncate text-xs font-medium text-sidebar-foreground"
+        className={TOKEN_BRIDGE_SOURCE_CLASSNAME}
         htmlFor={`token-bridge-${token}`}
+        title={token}
       >
-        {token}
+        <span className="truncate">{token}</span>
       </label>
-      <Input
+      <ArrowRight
+        aria-hidden="true"
+        className="size-3.5 shrink-0 text-sidebar-foreground/40"
+      />
+      <BridgeTokenInput
         id={`token-bridge-${token}`}
-        className="h-8 bg-sidebar text-xs"
-        placeholder={getTokenBridgePlaceholder(token)}
+        placeholder={token}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={onChange}
       />
     </div>
   );
@@ -426,13 +440,6 @@ type TokenBridgeMappingRowProps = {
   onChange: (value: string) => void;
 };
 
-function getTokenBridgePlaceholder(token: SemanticToken) {
-  const mappings: Partial<Record<SemanticToken, string>> =
-    DEFAULT_TOKEN_BRIDGE_MAPPINGS;
-
-  return mappings[token] ?? "system.token";
-}
-
 function TokenBridgeFontMappingRow({
   label,
   token,
@@ -440,19 +447,23 @@ function TokenBridgeFontMappingRow({
   onChange,
 }: TokenBridgeFontMappingRowProps) {
   return (
-    <div className="grid min-h-12 grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)] items-center gap-2 px-2.5 py-2">
+    <div className={TOKEN_BRIDGE_ROW_CLASSNAME}>
       <label
-        className="truncate text-xs font-medium text-sidebar-foreground"
+        className={TOKEN_BRIDGE_SOURCE_CLASSNAME}
         htmlFor={`token-bridge-${token}`}
+        title={label}
       >
-        {label}
+        <span className="truncate">{token}</span>
       </label>
-      <Input
+      <ArrowRight
+        aria-hidden="true"
+        className="size-3.5 shrink-0 text-sidebar-foreground/40"
+      />
+      <BridgeTokenInput
         id={`token-bridge-${token}`}
-        className="h-8 bg-sidebar text-xs"
-        placeholder={DEFAULT_TOKEN_BRIDGE_FONT_MAPPINGS[token]}
+        placeholder={token}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={onChange}
       />
     </div>
   );
@@ -464,3 +475,49 @@ type TokenBridgeFontMappingRowProps = {
   value: string;
   onChange: (value: string) => void;
 };
+
+function BridgeTokenInput({
+  id,
+  placeholder,
+  value,
+  onChange,
+}: BridgeTokenInputProps) {
+  return (
+    <InputGroup className={TOKEN_BRIDGE_INPUT_CLASSNAME}>
+      <InputGroupAddon>
+        <InputGroupText className="font-mono text-xs">--</InputGroupText>
+      </InputGroupAddon>
+      <InputGroupInput
+        id={id}
+        className="h-7 px-0 font-mono text-xs"
+        placeholder={placeholder}
+        value={getBridgeInputValue(value)}
+        onChange={(event) => onChange(getBridgeMappingValue(event.target.value))}
+      />
+    </InputGroup>
+  );
+}
+
+type BridgeTokenInputProps = {
+  id: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function getBridgeInputValue(value: string) {
+  const trimmedValue = value.trim();
+  const cssVariableMatch = trimmedValue.match(/^var\(--([^)]+)\)$/);
+
+  if (cssVariableMatch?.[1]) {
+    return cssVariableMatch[1];
+  }
+
+  return trimmedValue.startsWith("--")
+    ? trimmedValue.replace(/^--/, "")
+    : trimmedValue;
+}
+
+function getBridgeMappingValue(value: string) {
+  return value.trim().replace(/^--/, "");
+}

@@ -7,8 +7,24 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerContent,
+  ColorPickerEyeDropper,
+  ColorPickerFormatSelect,
+  ColorPickerHueSlider,
+  ColorPickerInput,
+} from "@workspace/ui/components/color-picker";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
+import {
+  DropdownMenuGroup,
+  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import {
   HoverCard,
@@ -23,14 +39,15 @@ import {
 } from "@workspace/ui/components/tabs";
 import { CircleAlert, Info, RotateCcw, Settings2 } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { normalizeColorPickerValue } from "@/components/theme-generator/color-value-utils";
 import {
   PanelSection,
   SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
-  SIDEBAR_DROPDOWN_SCROLL_CONTENT_CLASSNAME,
   SidebarDropdown,
 } from "@/components/theme-generator/theme-customizer-section";
 import { getSolidForegroundForCssColor } from "@/lib/theme-generator/color";
 import {
+  getSemanticTokenCustomStepPreviewColor,
   getSemanticTokenDefaultStep,
   getSemanticTokenStepPreviewColor,
 } from "@/lib/theme-generator/generator";
@@ -40,6 +57,8 @@ import {
   type RadixStep,
   type SemanticToken,
   type ThemeSelection,
+  type TokenCustomOverride,
+  type TokenStepOverride,
 } from "@/lib/theme-generator/types";
 
 export function TokenStepSettings({
@@ -49,26 +68,23 @@ export function TokenStepSettings({
   onUpdate,
 }: TokenStepSettingsProps) {
   const [editingMode, setEditingMode] = useState<ColorMode>(mode);
-  const overriddenCount = Object.values(selection.tokenStepOverrides).reduce(
-    (count, override) =>
-      count +
-      Number(Boolean(override?.light)) +
-      Number(Boolean(override?.dark)),
-    0,
-  );
+  const overriddenCount = countModeOverrides(selection.tokenStepOverrides);
+  const customCount = countModeOverrides(selection.tokenCustomOverrides);
 
   return (
     <PanelSection
-      title="Token steps"
+      title="Tokens"
       info={<TokenStepsInfo />}
       grouped={false}
       action={
         <Button
-          aria-label="Reset token step overrides"
-          disabled={overriddenCount === 0}
+          aria-label="Reset token overrides"
+          disabled={overriddenCount + customCount === 0}
           size="icon-sm"
           variant="ghost"
-          onClick={() => onUpdate({ tokenStepOverrides: {} })}
+          onClick={() =>
+            onUpdate({ tokenStepOverrides: {}, tokenCustomOverrides: {} })
+          }
         >
           <RotateCcw />
         </Button>
@@ -117,7 +133,7 @@ function TokenStepModePanel({
   return (
     <Accordion
       className="overflow-hidden rounded-lg border border-sidebar-border bg-transparent"
-      defaultValue={["Core"]}
+      defaultValue={["Surface"]}
     >
       {getTokenStepSections(selection).map((section) => (
         <TokenStepAccordionItem
@@ -141,6 +157,26 @@ function TokenStepModePanel({
                   ),
                 })
               }
+              onCustomChange={(value) =>
+                onUpdate({
+                  tokenCustomOverrides: updateTokenCustomOverride(
+                    selection,
+                    token,
+                    mode,
+                    value,
+                  ),
+                })
+              }
+              onCustomReset={() =>
+                onUpdate({
+                  tokenCustomOverrides: updateTokenCustomOverride(
+                    selection,
+                    token,
+                    mode,
+                    null,
+                  ),
+                })
+              }
             />
           ))}
         </TokenStepAccordionItem>
@@ -157,26 +193,41 @@ type TokenStepModePanelProps = {
 
 const BASE_TOKEN_STEP_SECTIONS = [
   {
-    title: "Core",
+    title: "Surface",
+    tokens: ["background", "foreground"],
+  },
+  {
+    title: "Containers",
+    tokens: ["card", "card-foreground", "popover", "popover-foreground"],
+  },
+  {
+    title: "Muted",
+    tokens: ["muted", "muted-foreground"],
+  },
+  {
+    title: "Interactive / Primary",
+    tokens: ["primary", "primary-foreground"],
+  },
+  {
+    title: "Interactive / Secondary",
+    tokens: ["secondary", "secondary-foreground"],
+  },
+  {
+    title: "Interactive / Accent",
+    tokens: ["accent", "accent-foreground"],
+  },
+  {
+    title: "Status / Destructive",
     tokens: [
-      "background",
-      "foreground",
-      "card",
-      "card-foreground",
-      "popover",
-      "popover-foreground",
-      "primary",
-      "primary-foreground",
-      "secondary",
-      "secondary-foreground",
-      "muted",
-      "muted-foreground",
-      "accent",
-      "accent-foreground",
+      "destructive",
+      "destructive-foreground",
+      "destructive-muted",
+      "destructive-muted-foreground",
+      "destructive-border",
     ],
   },
   {
-    title: "Structure",
+    title: "Structure / Focus",
     tokens: ["border", "input", "ring"],
   },
   {
@@ -198,14 +249,6 @@ const BASE_TOKEN_STEP_SECTIONS = [
   },
 ] as const satisfies ReadonlyArray<TokenStepSection>;
 
-const DESTRUCTIVE_TOKEN_STEPS = [
-  "destructive",
-  "destructive-foreground",
-  "destructive-muted",
-  "destructive-muted-foreground",
-  "destructive-border",
-] as const satisfies ReadonlyArray<SemanticToken>;
-
 const ADDITIONAL_STATE_TOKEN_STEPS = [
   "success",
   "success-foreground",
@@ -224,25 +267,27 @@ const ADDITIONAL_STATE_TOKEN_STEPS = [
   "info-border",
 ] as const satisfies ReadonlyArray<SemanticToken>;
 
+const TOKEN_DROPDOWN_CONTENT_CLASSNAME =
+  "w-64 overflow-hidden border border-border p-0 ring-0";
+
+const TOKEN_DROPDOWN_SCROLL_AREA_CLASSNAME =
+  "h-[min(34rem,var(--available-height))] max-h-[min(34rem,var(--available-height))] overflow-hidden [--scroll-fade:40px] **:data-[slot=scroll-area-scrollbar]:hidden **:data-[slot=scroll-area-viewport]:animate-[sidebar-scroll-fade_auto_linear] **:data-[slot=scroll-area-viewport]:[mask:linear-gradient(to_bottom,transparent,black_var(--top-fade)_calc(100%-var(--bottom-fade)),transparent)] **:data-[slot=scroll-area-viewport]:[scroll-timeline:--sidebar-scroll-fade_y] **:data-[slot=scroll-area-viewport]:[animation-timeline:--sidebar-scroll-fade] **:data-[slot=scroll-area-viewport]:overflow-x-hidden";
+
 type TokenStepSection = {
   title: string;
   tokens: ReadonlyArray<SemanticToken>;
 };
 
 function getTokenStepSections(selection: ThemeSelection) {
-  const stateTokens = selection.additionalStatesEnabled
-    ? [...DESTRUCTIVE_TOKEN_STEPS, ...ADDITIONAL_STATE_TOKEN_STEPS]
-    : DESTRUCTIVE_TOKEN_STEPS;
-  const [coreSection, ...remainingSections] = BASE_TOKEN_STEP_SECTIONS;
-
-  return [
-    coreSection,
-    {
-      title: "States",
-      tokens: stateTokens,
-    },
-    ...remainingSections,
-  ];
+  return selection.additionalStatesEnabled
+    ? [
+        ...BASE_TOKEN_STEP_SECTIONS,
+        {
+          title: "States",
+          tokens: ADDITIONAL_STATE_TOKEN_STEPS,
+        },
+      ]
+    : BASE_TOKEN_STEP_SECTIONS;
 }
 
 function TokenStepAccordionItem({
@@ -292,8 +337,9 @@ function TokenStepsInfo() {
           Override carefully
         </div>
         <p className="text-xs leading-5 text-muted-foreground">
-          Default steps are tuned to work across color combinations. Change them
-          only when a specific light or dark theme needs a higher or lower step.
+          Default token steps are tuned to work across color combinations.
+          Change them only when a specific light or dark theme needs a higher
+          or lower step, or enable a custom scale for a token-specific palette.
         </p>
       </HoverCardContent>
     </HoverCard>
@@ -305,24 +351,46 @@ function TokenModeStepPicker({
   selection,
   token,
   onChange,
+  onCustomChange,
+  onCustomReset,
 }: TokenModeStepPickerProps) {
   const defaultStep = getSemanticTokenDefaultStep(selection, token, mode);
   const overrideStep = selection.tokenStepOverrides[token]?.[mode] ?? null;
+  const customOverride =
+    selection.tokenCustomOverrides?.[token]?.[mode]?.trim() || null;
   const activeStep = overrideStep ?? defaultStep;
+  const customActiveStep = overrideStep ?? defaultStep ?? 9;
   const activeColor = activeStep
     ? getSemanticTokenStepPreviewColor(selection, token, mode, activeStep)
     : null;
+  const customActiveColor = customOverride
+    ? getSemanticTokenCustomStepPreviewColor(
+        selection,
+        token,
+        mode,
+        customOverride,
+        customActiveStep,
+      )
+    : null;
+  const displayColor = customActiveColor ?? activeColor;
   const usesContrastRule = defaultStep === null;
   const contrastRuleValue = "contrast-rule";
+  const fallbackCustomColor =
+    activeColor ??
+    getSemanticTokenStepPreviewColor(selection, token, mode, 9) ??
+    "#000000";
+  const displayValue = customOverride
+    ? `Custom ${getStepDisplayValue(customActiveStep)}`
+    : getStepDisplayValue(activeStep);
 
   return (
     <SidebarDropdown
-      ariaLabel={`Open ${token} ${mode} step menu. Current value: ${getStepDisplayValue(activeStep)}.`}
-      contentClassName={SIDEBAR_DROPDOWN_SCROLL_CONTENT_CLASSNAME}
+      ariaLabel={`Open ${token} ${mode} step menu. Current value: ${displayValue}.`}
+      contentClassName={TOKEN_DROPDOWN_CONTENT_CLASSNAME}
       label={
         <span className="flex min-w-0 items-center gap-1.5">
           <span className="truncate">{token}</span>
-          {overrideStep ? (
+          {overrideStep || customOverride ? (
             <Settings2
               aria-label="Overridden from recommended step"
               className="size-3.5 shrink-0 text-destructive"
@@ -330,81 +398,129 @@ function TokenModeStepPicker({
           ) : null}
         </span>
       }
-      swatch={activeColor ?? undefined}
-      value={getStepDisplayValue(activeStep)}
+      swatch={displayColor ?? undefined}
+      value={displayValue}
     >
-      <DropdownMenuRadioGroup
-        value={activeStep ? String(activeStep) : contrastRuleValue}
-        onValueChange={(value) => {
-          if (value === contrastRuleValue) {
-            onChange(null);
-            return;
-          }
+      <ScrollArea className={TOKEN_DROPDOWN_SCROLL_AREA_CLASSNAME}>
+        <div className="p-1">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Steps</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={
+                customOverride
+                  ? String(customActiveStep)
+                  : activeStep
+                    ? String(activeStep)
+                    : contrastRuleValue
+              }
+              onValueChange={(value) => {
+                if (value === contrastRuleValue) {
+                  onChange(null);
+                  return;
+                }
 
-          const nextStep = Number(value) as RadixStep;
+                const nextStep = Number(value) as RadixStep;
 
-          onChange(nextStep === defaultStep ? null : nextStep);
-        }}
-      >
-        {usesContrastRule ? (
-          <DropdownMenuRadioItem
-            className={[
-              SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
-              "grid grid-cols-[1.5rem_minmax(3.25rem,1fr)_auto] gap-2.5 pr-8",
-            ].join(" ")}
-            value={contrastRuleValue}
-          >
-            <span className="grid size-6 shrink-0 place-items-center rounded-sm bg-sidebar-accent text-[10px] font-semibold text-sidebar-foreground shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]">
-              Aa
-            </span>
-            <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap">
-              Contrast
-              <ContrastRuleInfo />
-            </span>
-            <Badge className="h-4 px-1.5 text-[10px]" variant="outline">
-              Recommended
-            </Badge>
-          </DropdownMenuRadioItem>
-        ) : null}
-        {RADIX_STEPS.map((step) => {
-          const color = getSemanticTokenStepPreviewColor(
-            selection,
-            token,
-            mode,
-            step,
-          );
-          const foreground = color
-            ? getSolidForegroundForCssColor(color)
-            : "var(--sidebar-foreground)";
-
-          return (
-            <DropdownMenuRadioItem
-              className={[
-                SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
-                "grid grid-cols-[1.5rem_minmax(3.25rem,1fr)_auto] gap-2.5 pr-8",
-              ].join(" ")}
-              key={step}
-              value={String(step)}
+                onChange(nextStep === defaultStep ? null : nextStep);
+              }}
             >
-              <span
-                className="grid size-6 shrink-0 place-items-center rounded-sm text-[10px] font-semibold shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]"
-                style={{
-                  backgroundColor: color ?? "var(--sidebar-accent)",
-                  color: foreground,
-                }}
-              >
-                {step}
-              </span>
-              <span className="whitespace-nowrap">Step {step}</span>
-              {step === defaultStep ? (
-                <Badge className="h-4 px-1.5 text-[10px]" variant="outline">
-                  Recommended
-                </Badge>
+              {usesContrastRule && !customOverride ? (
+                <DropdownMenuRadioItem
+                  className={[
+                    SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
+                    "grid grid-cols-[1.5rem_minmax(3.25rem,1fr)_auto] gap-2.5 pr-8",
+                  ].join(" ")}
+                  value={contrastRuleValue}
+                >
+                  <span className="grid size-6 shrink-0 place-items-center rounded-sm bg-sidebar-accent text-[10px] font-semibold text-sidebar-foreground shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]">
+                    Aa
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap">
+                    Contrast
+                    <ContrastRuleInfo />
+                  </span>
+                  <Badge className="h-4 px-1.5 text-[10px]" variant="outline">
+                    Recommended
+                  </Badge>
+                </DropdownMenuRadioItem>
               ) : null}
-            </DropdownMenuRadioItem>
-          );
-        })}
-      </DropdownMenuRadioGroup>
+              {RADIX_STEPS.map((step) => {
+                const color = customOverride
+                  ? getSemanticTokenCustomStepPreviewColor(
+                      selection,
+                      token,
+                      mode,
+                      customOverride,
+                      step,
+                    )
+                  : getSemanticTokenStepPreviewColor(
+                      selection,
+                      token,
+                      mode,
+                      step,
+                    );
+                const foreground = color
+                  ? getSolidForegroundForCssColor(color)
+                  : "var(--sidebar-foreground)";
+
+                return (
+                  <DropdownMenuRadioItem
+                    className={[
+                      SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
+                      "grid grid-cols-[1.5rem_minmax(3.25rem,1fr)_auto] gap-2.5 pr-8",
+                    ].join(" ")}
+                    key={step}
+                    value={String(step)}
+                  >
+                    <span
+                      className="grid size-6 shrink-0 place-items-center rounded-sm text-[10px] font-semibold shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]"
+                      style={{
+                        backgroundColor: color ?? "var(--sidebar-accent)",
+                        color: foreground,
+                      }}
+                    >
+                      {step}
+                    </span>
+                    <span className="whitespace-nowrap">Step {step}</span>
+                    {step === defaultStep ? (
+                      <Badge
+                        className="h-4 px-1.5 text-[10px]"
+                        variant="outline"
+                      >
+                        Recommended
+                      </Badge>
+                    ) : null}
+                  </DropdownMenuRadioItem>
+                );
+              })}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5">
+                Custom
+                <CustomScaleInfo />
+              </span>
+              <Button
+                aria-label="Reset custom color"
+                className="size-6"
+                disabled={!customOverride}
+                size="icon-sm"
+                variant="ghost"
+                onClick={onCustomReset}
+              >
+                <RotateCcw />
+              </Button>
+            </DropdownMenuLabel>
+            <CustomTokenColorPicker
+              fallback={fallbackCustomColor}
+              value={customOverride ?? ""}
+              onChange={onCustomChange}
+            />
+          </DropdownMenuGroup>
+        </div>
+      </ScrollArea>
     </SidebarDropdown>
   );
 }
@@ -414,7 +530,93 @@ type TokenModeStepPickerProps = {
   selection: ThemeSelection;
   token: SemanticToken;
   onChange: (step: RadixStep | null) => void;
+  onCustomChange: (value: string) => void;
+  onCustomReset: () => void;
 };
+
+function CustomTokenColorPicker({
+  fallback,
+  value,
+  onChange,
+}: CustomTokenColorPickerProps) {
+  const pickerValue =
+    normalizeColorPickerValue(value) ??
+    normalizeColorPickerValue(fallback) ??
+    "#000000";
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger
+        className={[
+          SIDEBAR_DROPDOWN_ITEM_CLASSNAME,
+          "grid grid-cols-[1.5rem_minmax(3.25rem,1fr)_auto_auto] gap-2.5",
+        ].join(" ")}
+      >
+        <span
+          className="size-5 shrink-0 rounded-sm shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]"
+          style={{ backgroundColor: pickerValue }}
+        />
+        <span className="min-w-0 flex-1">Base color</span>
+        <span className="max-w-24 truncate text-xs text-muted-foreground">
+          {pickerValue}
+        </span>
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent className="w-72">
+        <ColorPicker
+          inline
+          value={pickerValue}
+          defaultFormat="hex"
+          onValueChange={onChange}
+        >
+          <ColorPickerContent className="w-full">
+            <ColorPickerArea />
+            <div className="flex items-center gap-2">
+              <ColorPickerEyeDropper />
+              <div className="flex flex-1 flex-col gap-2">
+                <ColorPickerHueSlider />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <ColorPickerFormatSelect />
+              <ColorPickerInput withoutAlpha />
+            </div>
+          </ColorPickerContent>
+        </ColorPicker>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  );
+}
+
+type CustomTokenColorPickerProps = {
+  fallback: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function CustomScaleInfo() {
+  return (
+    <HoverCard>
+      <HoverCardTrigger
+        render={
+          <span
+            aria-label="Learn how custom token scales work"
+            className="inline-flex rounded-full text-sidebar-foreground/55 transition-colors hover:text-sidebar-foreground"
+            role="img"
+          />
+        }
+      >
+        <Info aria-hidden="true" className="size-3.5" />
+      </HoverCardTrigger>
+      <HoverCardContent side="right" align="start" className="w-72 space-y-2">
+        <div className="text-sm font-medium">Custom scale</div>
+        <p className="text-xs leading-5 text-muted-foreground">
+          Pick a base color to generate this token's 12-step scale. The step
+          list above updates from that custom color.
+        </p>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
 
 function ContrastRuleInfo() {
   return (
@@ -451,11 +653,46 @@ function updateTokenStepOverride(
   mode: ColorMode,
   step: RadixStep | null,
 ) {
-  const nextOverrides = { ...selection.tokenStepOverrides };
+  return updateModeOverride(selection.tokenStepOverrides, token, mode, step);
+}
+
+function updateTokenCustomOverride(
+  selection: ThemeSelection,
+  token: SemanticToken,
+  mode: ColorMode,
+  value: string | null,
+) {
+  return updateModeOverride(
+    selection.tokenCustomOverrides,
+    token,
+    mode,
+    value?.trim() || null,
+  );
+}
+
+function countModeOverrides(
+  overrides?: Partial<Record<SemanticToken, TokenModeOverride>>,
+) {
+  return Object.values(overrides ?? {}).reduce(
+    (count, override) =>
+      count +
+      Number(Boolean(override?.light)) +
+      Number(Boolean(override?.dark)),
+    0,
+  );
+}
+
+function updateModeOverride<TValue extends string | number>(
+  overrides: Partial<Record<SemanticToken, Partial<Record<ColorMode, TValue>>>>,
+  token: SemanticToken,
+  mode: ColorMode,
+  value: TValue | null,
+) {
+  const nextOverrides = { ...overrides };
   const tokenOverride = { ...(nextOverrides[token] ?? {}) };
 
-  if (step) {
-    tokenOverride[mode] = step;
+  if (value) {
+    tokenOverride[mode] = value;
   } else {
     delete tokenOverride[mode];
   }
@@ -468,3 +705,5 @@ function updateTokenStepOverride(
 
   return nextOverrides;
 }
+
+type TokenModeOverride = TokenStepOverride | TokenCustomOverride;
