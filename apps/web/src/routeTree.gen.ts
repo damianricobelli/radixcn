@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ThemesRouteImport } from './routes/themes'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RThemesSlugRouteImport } from './routes/r/themes/$slug'
 
+const ThemesRoute = ThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreateRoute = CreateRouteImport.update({
   id: '/create',
   path: '/create',
@@ -32,35 +38,46 @@ const RThemesSlugRoute = RThemesSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/themes': typeof ThemesRoute
   '/r/themes/$slug': typeof RThemesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/themes': typeof ThemesRoute
   '/r/themes/$slug': typeof RThemesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
+  '/themes': typeof ThemesRoute
   '/r/themes/$slug': typeof RThemesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/r/themes/$slug'
+  fullPaths: '/' | '/create' | '/themes' | '/r/themes/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/r/themes/$slug'
-  id: '__root__' | '/' | '/create' | '/r/themes/$slug'
+  to: '/' | '/create' | '/themes' | '/r/themes/$slug'
+  id: '__root__' | '/' | '/create' | '/themes' | '/r/themes/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
+  ThemesRoute: typeof ThemesRoute
   RThemesSlugRoute: typeof RThemesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/themes': {
+      id: '/themes'
+      path: '/themes'
+      fullPath: '/themes'
+      preLoaderRoute: typeof ThemesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/create': {
       id: '/create'
       path: '/create'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
+  ThemesRoute: ThemesRoute,
   RThemesSlugRoute: RThemesSlugRoute,
 }
 export const routeTree = rootRouteImport

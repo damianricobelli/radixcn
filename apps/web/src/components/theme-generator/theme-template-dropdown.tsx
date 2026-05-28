@@ -27,17 +27,6 @@ export function ThemeTemplateDropdown() {
   const activeName = selection.name;
   const mainSwatches = getMainSwatches(selection);
   const filteredGroups = filterTemplateGroups(query);
-  const applyContrastCheckedTemplate = async (
-    templateSelection: ThemeSelection,
-  ) => {
-    const { ensureTemplateContrast } =
-      await import(
-        "@/components/theme-generator/contrast-checker/theme-template-contrast"
-      );
-
-    applyTemplate(ensureTemplateContrast(templateSelection));
-  };
-
   return (
     <SidebarDropdown
       ariaLabel={`Open preset menu. Current preset: ${activeName}.`}
@@ -64,9 +53,7 @@ export function ThemeTemplateDropdown() {
                 <ThemeTemplateItem
                   key={template.id}
                   template={template}
-                  onApply={() =>
-                    void applyContrastCheckedTemplate(template.selection)
-                  }
+                  onApply={() => applyTemplate(template.selection)}
                 />
               ))}
             </DropdownMenuGroup>

@@ -232,6 +232,16 @@ export function LandingPage() {
                 Create theme
                 <ArrowRight aria-hidden="true" />
               </Link>
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "w-fit bg-background/80 backdrop-blur",
+                )}
+                to="/themes"
+              >
+                Browse themes
+                <Layers3 aria-hidden="true" />
+              </Link>
               <a
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
@@ -641,6 +651,21 @@ function LandingHeader() {
             </span>
           </span>
         </Link>
+        <nav className="ml-auto hidden items-center gap-1 sm:flex">
+          <Link
+            className={buttonVariants({ variant: "ghost" })}
+            to="/themes"
+          >
+            Themes
+          </Link>
+          <Link
+            className={buttonVariants({ variant: "default" })}
+            search={{ preset: undefined }}
+            to="/create"
+          >
+            Create
+          </Link>
+        </nav>
       </div>
     </header>
   );

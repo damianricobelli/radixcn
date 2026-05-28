@@ -1,3 +1,4 @@
+import { ensureTemplateContrast } from "@/components/theme-generator/contrast-checker/theme-template-contrast";
 import { DEFAULT_THEME_SELECTION } from "@/lib/theme-generator/generator";
 import type { ThemeSelection } from "@/lib/theme-generator/types";
 
@@ -287,7 +288,7 @@ function template({
   };
 }
 
-export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
+const RAW_THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
   {
     name: "Defaults",
     templates: [
@@ -1228,3 +1229,12 @@ export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> = [
     ],
   },
 ];
+
+export const THEME_TEMPLATE_GROUPS: Array<ThemeTemplateGroup> =
+  RAW_THEME_TEMPLATE_GROUPS.map((group) => ({
+    ...group,
+    templates: group.templates.map((themeTemplate) => ({
+      ...themeTemplate,
+      selection: ensureTemplateContrast(themeTemplate.selection),
+    })),
+  }));

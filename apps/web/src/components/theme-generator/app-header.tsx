@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Button } from "@workspace/ui/components/button";
+import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import {
   Dialog,
@@ -15,7 +15,15 @@ import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import { toast } from "@workspace/ui/components/sonner";
-import { Check, Copy, GitBranch, Loader2, Share2, Upload } from "lucide-react";
+import {
+  Check,
+  Copy,
+  GalleryVerticalEnd,
+  GitBranch,
+  Loader2,
+  Share2,
+  Upload,
+} from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { ThemeCodeDialog } from "@/components/theme-code-dialog";
 import { ContrastCheckerDialog } from "@/components/theme-generator/contrast-checker/contrast-checker-dialog";
@@ -70,6 +78,11 @@ export function AppHeader({
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <Link className={buttonVariants({ variant: "outline" })} to="/themes">
+          <GalleryVerticalEnd />
+          Themes
+        </Link>
+
         <ThemeCodeDialog css={css} />
 
         <ContrastCheckerDialog

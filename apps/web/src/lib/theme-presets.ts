@@ -31,6 +31,10 @@ export type ThemePresetSummary = {
   updatedAt: Date;
 };
 
+export type ThemeGalleryItem = ThemePresetSummary & {
+  selection: ThemeSelection;
+};
+
 type SaveThemePresetInput = {
   hash?: string;
   name: string;
@@ -72,6 +76,16 @@ export const getThemePreset = createServerFn({ method: "GET" })
 
     return getThemePresetByIdentifier(identifier);
   });
+
+export const getThemeGalleryItems = createServerFn({ method: "GET" }).handler(
+  async () => {
+    if (!hasDatabaseConfig()) {
+      return [];
+    }
+
+    return getThemeGalleryItemsFromDatabase();
+  },
+);
 
 export async function getThemePresetByIdentifier(identifier: string) {
   const slugPreset = await getThemePresetBySlug(identifier.toLowerCase());
@@ -119,6 +133,27 @@ export async function getThemePresetSummaries() {
     .orderBy(desc(themes.updatedAt));
 
   return rows satisfies Array<ThemePresetSummary>;
+}
+
+async function getThemeGalleryItemsFromDatabase() {
+  const rows = await getDb()
+    .select({
+      slug: themes.slug,
+      name: themes.name,
+      editable: themes.editable,
+      updatedAt: themes.updatedAt,
+      selection: themes.selection,
+    })
+    .from(themes)
+    .orderBy(desc(themes.updatedAt));
+
+  return rows.map((theme) => ({
+    slug: theme.slug,
+    name: theme.name,
+    editable: theme.editable,
+    updatedAt: theme.updatedAt,
+    selection: normalizeThemeSelection(theme.selection, theme.name),
+  })) satisfies Array<ThemeGalleryItem>;
 }
 
 async function saveThemePresetRecord(input: SaveThemePresetInput) {
