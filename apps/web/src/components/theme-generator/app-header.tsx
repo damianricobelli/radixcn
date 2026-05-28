@@ -28,6 +28,10 @@ import { type FormEvent, useId, useState } from "react";
 import { ThemeCodeDialog } from "@/components/theme-code-dialog";
 import { ContrastCheckerDialog } from "@/components/theme-generator/contrast-checker/contrast-checker-dialog";
 import { CssTokenImportDialog } from "@/components/theme-generator/css-token-import-settings";
+import {
+  ThemeHistoryDialog,
+  type ThemeHistorySnapshot,
+} from "@/components/theme-generator/theme-history-dialog";
 import type {
   ColorMode,
   ThemeModeTokens,
@@ -41,8 +45,14 @@ export function AppHeader({
   preset,
   selection,
   tokens,
+  onModeChange,
   onUpdate,
 }: AppHeaderProps) {
+  function restoreSnapshot(snapshot: ThemeHistorySnapshot) {
+    onModeChange(snapshot.mode);
+    onUpdate(snapshot.selection);
+  }
+
   return (
     <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background/92 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-5 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -94,6 +104,12 @@ export function AppHeader({
 
         <CssTokenImportDialog onUpdate={onUpdate} />
 
+        <ThemeHistoryDialog
+          mode={mode}
+          selection={selection}
+          onRestore={restoreSnapshot}
+        />
+
         <ShareThemeDialog preset={preset} selection={selection} />
 
         {preset?.editable ? (
@@ -121,6 +137,7 @@ type AppHeaderProps = {
   preset?: SharedThemePreset | null;
   selection: ThemeSelection;
   tokens: ThemeModeTokens;
+  onModeChange: (mode: ColorMode) => void;
   onUpdate: (selection: Partial<ThemeSelection>) => void;
 };
 

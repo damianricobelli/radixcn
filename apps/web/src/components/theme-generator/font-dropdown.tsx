@@ -91,7 +91,7 @@ type FontPickerDropdownProps = {
   onChange: (value: FontSourceFontName) => void;
 };
 
-function FontPickerDropdown({
+export function FontPickerDropdown({
   label,
   placeholder,
   value,

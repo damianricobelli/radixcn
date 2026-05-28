@@ -17,5 +17,8 @@ function getThemedPortalContainer() {
     return null
   }
 
-  return document.querySelector<HTMLElement>("[data-theme-preview]")
+  return (
+    document.querySelector<HTMLElement>("[data-theme-preview]") ??
+    document.body
+  )
 }
