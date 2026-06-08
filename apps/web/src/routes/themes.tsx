@@ -10,6 +10,23 @@ const THEMES_DESCRIPTION =
 const themeSearchSchema = z.object({
   q: z.string().optional(),
   filter: z.enum(["all", "editable", "locked"]).optional(),
+  color: z
+    .enum([
+      "all",
+      "red",
+      "orange",
+      "yellow",
+      "green",
+      "blue",
+      "purple",
+      "pink",
+      "neutral",
+    ])
+    .optional(),
+  sort: z.enum(["latest", "oldest", "name"]).optional(),
+  radius: z
+    .enum(["all", "none", "small", "medium", "large", "extra-large", "default"])
+    .optional(),
 });
 
 export const Route = createFileRoute("/themes")({
@@ -36,8 +53,11 @@ function ThemesRoute() {
 
   return (
     <ThemeGallery
+      color={search.color ?? "all"}
       filter={search.filter ?? "all"}
       query={search.q ?? ""}
+      radius={search.radius ?? "all"}
+      sort={search.sort ?? "latest"}
       themes={themes}
     />
   );
