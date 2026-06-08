@@ -169,7 +169,7 @@ function FontRadioGroup({
         )
       : categoryMatches;
 
-    return matches.slice(0, 48);
+    return matches;
   }, [activeCategory, options, query]);
   const previewCss = useMemo(
     () => getFontPreviewCss(filteredOptions),
